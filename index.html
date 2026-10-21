@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -146,8 +146,8 @@ fill:"Enter the issue title",fillN:"Enter the name"}};
 const U=[{u:"owner",p:"owner123",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",p:"karim123",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",p:"tamer123",r:"sup",n:{ar:"تامر",en:"Tamer"}},
 {u:"abdullah",p:"abdullah123",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",p:"amr123",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",p:"ahmed123",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
 const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u),day=864e5,hr=36e5,now=Date.now();
-let lang="ar",me=null,view="home",q="",fs="",fa="",fc="";
-try{lang=localStorage.getItem("g-lang")||"ar"}catch(e){}
+let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
+try{lang=localStorage.getItem("g-lang")||"en"}catch(e){}
 const L=k=>D[lang][k],nm=u=>(U.find(x=>x.u==u)||{n:{ar:"—",en:"—"}}).n[lang];
 const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّلة","استفسار عن الضمان","منتج وصل تالف","استرجاع مبلغ","تعديل عنوان الشحن","مشكلة في الدفع","طلب كتالوج الأسعار","شكوى من معاملة","تفعيل الحساب"];
  const t=[],S=["new","prog","done","done","done"],P=["hi","mid","lo","mid"];
@@ -171,7 +171,7 @@ function render(){
  document.body.style.background=document.documentElement.style.background=me?"#fff":"var(--bg)";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language">⚙️</button>`;
  if(!me){
-  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:90px;display:block;margin:0 auto 8px"><h1>${L("app")}</h1><p style="margin:0 0 12px;color:var(--mut)">${L("sub")}</p><div class="f">
+  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:150px;display:block;margin:0 auto 6px"><p style="margin:0 0 12px;color:var(--mut)">${L("sub")}</p><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div><div class="hint">${L("demo")}</div></div>`;
   $("lb").onclick=langMenu;
