@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Géant – Customer Service Department</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--red:#d7202c;--red2:#b5121e;--bg:#cf1f2a;--card:#fff;--ink:#241417;--mut:#6f5d60;--line:#ecdcde;--grn:#2f8a22;--wht:#fff;--amb:#d97400}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 Cairo,Tahoma,sans-serif;min-height:100vh}
+header{background:var(--red2);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;border-bottom:4px solid var(--grn)}
+.top{max-width:1020px;margin:auto;padding:8px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--wht)}
+.logo{font-weight:800;font-size:22px}
+nav{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+nav button{border:0;background:none;color:#ffd9dc;font:600 15px Cairo,Tahoma,sans-serif;padding:6px 14px;border-radius:8px;cursor:pointer}
+nav button.on{background:var(--wht);color:var(--red)}
+.me{font-size:13px}
+main{max-width:1020px;margin:auto;padding:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--grn);outline-offset:2px}
+.btn{background:var(--red);color:var(--wht);border:0;padding:7px 16px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn.w{background:var(--wht);color:var(--red)}.btn.g{background:none;color:var(--ink);border:1px solid var(--line)}.btn.gr{background:var(--grn)}
+.btn.s{padding:3px 12px;font-size:13px}
+input,select,textarea{background:var(--wht);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:100%}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.st{background:var(--card);border-radius:10px;padding:12px 14px;border-inline-start:6px solid var(--c,var(--red))}
+.st b{display:block;font-size:30px;line-height:1.2}.st span{color:var(--mut);font-size:13px}
+.box{background:var(--card);border-radius:10px;padding:14px;margin-bottom:14px}
+.box h3{margin:0 0 10px;font-size:16px;color:var(--red)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line)}
+.bar i{display:block;background:var(--c,var(--red))}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.row>*{flex:1;min-width:130px}.row .btn{flex:0 0 auto}
+.tk{display:flex;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);cursor:pointer;flex-wrap:wrap}
+.tk:last-child{border:0}.tk:hover{background:#fbf3f3}
+.tk .t{flex:1;min-width:180px;font-weight:600}.tk small{color:var(--mut);display:block;font-weight:400}
+.tag{font-size:12px;font-weight:600;padding:1px 10px;border-radius:99px;border:1px solid var(--c);color:var(--c);white-space:nowrap}
+.new{--c:var(--red)}.prog{--c:var(--amb)}.done{--c:var(--grn)}.hi{--c:var(--red)}.mid{--c:var(--amb)}.lo{--c:var(--mut)}
+.trend{display:flex;align-items:flex-end;gap:8px;height:110px}
+.trend div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;font-size:11px;color:var(--mut)}
+.trend p{margin:0;display:flex;gap:2px;align-items:flex-end;flex:1;width:100%}
+.trend i{flex:1;border-radius:3px 3px 0 0;background:var(--red);min-height:2px}.trend i.g{background:var(--grn)}
+.ins{margin:0;padding-inline-start:18px}.ins li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:7px 6px;text-align:start;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:600}
+.scroll{overflow-x:auto}
+.ov{position:fixed;inset:0;background:#000a;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:20}
+.ov.on{display:flex}
+.md{background:var(--card);border-radius:12px;max-width:560px;width:100%;padding:18px}
+.md h2{margin:0 0 4px;font-size:18px;color:var(--red)}
+.f{display:grid;gap:10px}.f label{font-size:13px;color:var(--mut);display:grid;gap:3px}
+.tl{border-inline-start:3px solid var(--grn);padding-inline-start:12px;margin:8px 0}
+.tl p{margin:0 0 8px}.tl small{color:var(--mut);display:block}
+.empty{color:var(--mut);padding:16px;text-align:center}
+.lg{max-width:380px;margin:8vh auto 0}
+.lg h1{margin:0 0 4px;color:var(--red);font-size:26px}
+.err{color:var(--red);font-weight:600;min-height:24px}
+.hint{font-size:12px;color:var(--mut);border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+.lt{text-align:end;padding:12px 16px;max-width:1020px;margin:auto}
+header{position:relative;min-height:70px}
+.hl{position:absolute;right:10px;top:4px;height:62px;width:62px;border-radius:10px;background:#fff;padding:3px;object-fit:contain;z-index:2}
+.top{padding-right:84px}
+.top{padding:4px 12px;gap:6px}.logo{font-size:17px}
+nav{flex:1 1 100%;order:5;display:grid;grid-template-columns:repeat(6,max-content);gap:2px 6px;overflow-x:auto;scrollbar-width:none}
+nav button,nav a{font:600 13px Cairo,Tahoma,sans-serif;padding:3px 10px;white-space:nowrap;color:#ffd9dc;text-decoration:none;border-radius:8px}
+nav button.on{color:var(--red)}nav a:hover{background:#fff3}
+.btn.s{padding:2px 9px;font-size:12px}.me{font-size:12px}
+main{padding:10px 16px}.row{margin-bottom:8px;gap:6px}.row>*{min-width:110px}
+input,select,textarea{padding:4px 8px;font-size:14px}
+.box,.st{border:1px solid var(--line);box-shadow:0 1px 3px #0001}.st{border-inline-start:6px solid var(--c,var(--red))}
+main .btn.w{background:var(--red);color:#fff}
+.hw{max-width:1020px;margin:auto;display:flex;align-items:center;gap:4px;padding:0 10px 0 0}
+.top{flex:1;min-width:0;max-width:none;margin:0;padding:4px 12px}
+.hl{position:static;flex:none;height:60px;width:60px;border-radius:8px;background:#fff;padding:2px;object-fit:contain}
+header{min-height:0}
+.nv{display:flex;flex-wrap:wrap;gap:6px;max-width:1020px;margin:0 auto;padding:10px 16px 2px;overflow:visible;flex:none;order:0}
+.nv button,.nv a{font:600 13px Cairo,Tahoma,sans-serif;padding:5px 14px;border-radius:99px;border:1px solid var(--red);background:#fff;color:var(--red);cursor:pointer;text-decoration:none;white-space:nowrap}
+.nv button.on{background:var(--red);color:#fff}
+.nv a{border-color:var(--grn);color:var(--grn)}
+.nv button:hover,.nv a:hover{background:#fdecee}.nv button.on:hover{background:var(--red)}
+.me{font-size:13px;font-weight:600;padding:0 8px}
+/* Géant brand language: white base, bold red wordmark, green swoosh, orange spark, round friendly shapes */
+:root{color-scheme:light;--bg:#faf6f3;--amb:#f08a1c;--line:#f0e4e0}
+html,body{background:var(--bg)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:#fff;z-index:10}
+header{background:#fff;border-bottom:5px solid var(--grn);border-radius:0 0 50% 50%/0 0 26px 26px;box-shadow:0 8px 20px #d7202c18;padding-bottom:6px}
+header .top{color:var(--ink)}
+.logo{color:var(--red);font-weight:800;font-size:24px;letter-spacing:.2px}
+.me{color:var(--ink)}
+header .btn.w{background:#fff;color:var(--red);border:1.5px solid var(--red)}
+header .btn.w:hover{background:var(--red);color:#fff}
+.hl{height:68px;width:68px;background:none;padding:0;border-radius:0}
+.nv{padding-top:14px}
+.nv button,.nv a{font-size:14px;padding:6px 18px;border-width:1.5px;transition:background .15s,color .15s}
+.nv button.on{box-shadow:0 3px 10px #d7202c40}
+.nv a:hover{background:#eaf5e7}
+.btn{border-radius:99px;padding:7px 22px;box-shadow:0 2px 6px #0000001a}
+.btn.g{box-shadow:none}
+input,select,textarea{border-radius:12px;border:1.5px solid var(--line)}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--grn);box-shadow:0 0 0 3px #2f8a2226}
+.box,.st{border:0;border-radius:18px;box-shadow:0 2px 12px #5a2a2414}
+.st{border-inline-start:0;border-top:5px solid var(--c,var(--red))}
+.st b{color:var(--c,var(--red));font-weight:800;font-size:32px}
+.box h3{color:var(--red);font-weight:800;font-size:17px;display:flex;align-items:center;gap:8px}
+.box h3::before{content:"";width:11px;height:11px;border-radius:50%;background:var(--amb);flex:none}
+.tk:hover{background:#fff4f2;border-radius:12px}
+.tag{background:color-mix(in srgb,var(--c) 10%,#fff);border-width:1.5px}
+.bar{height:12px;border-radius:99px}
+.bar i{background:linear-gradient(90deg,var(--red),var(--amb))}
+.trend i{border-radius:6px 6px 0 0}
+.md{border-radius:22px;border-top:6px solid var(--grn);box-shadow:0 12px 40px #0004}
+.md h2{font-weight:800}
+.lg{border-radius:26px;border-top:6px solid var(--grn);text-align:center;padding:22px 20px}
+.lg .f,.lg p{text-align:start}
+.lg h1{font-size:36px;font-weight:800}
+.tno{display:inline-block;background:var(--red);color:#fff;font:800 12px/1.4 Cairo,Tahoma,sans-serif;padding:1px 10px;border-radius:99px;margin-inline-end:8px;letter-spacing:.5px;direction:ltr;unicode-bidi:isolate;vertical-align:middle}
+.md h2 .tno{font-size:14px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="ov" id="ov"><div class="md" id="md"></div></div>
+<script>
+const D={
+ar:{app:"Géant",sub:"إدارة خدمة العملاء",user:"اسم المستخدم",pass:"كلمة المرور",login:"دخول",logout:"خروج",bad:"اسم المستخدم أو كلمة المرور غير صحيحة",demo:"حسابات تجريبية: owner / karim / tamer / abdullah / amr / ahmed — كلمة المرور: الاسم + 123 (مثال: karim123)",
+dash:"التحليلات",tk:"التذاكر",cu:"العملاء",perf:"أداء الفريق",newTk:"شكوى جديدة",newCu:"إضافة عميل",new:"جديدة",prog:"قيد التنفيذ",done:"تم الحل",hi:"عالية",mid:"متوسطة",lo:"منخفضة",
+late:"متأخرة (+2 يوم)",total:"إجمالي التذاكر",rate:"معدل الحل",ins:"ملخص تحليلي",trend:"آخر 7 أيام (أحمر: وارد، أخضر: تم حله)",dist:"توزيع الحالات",work:"حمل العمل على الفريق (المفتوحة)",prio:"التذاكر المفتوحة حسب الأولوية",recent:"آخر التذاكر",
+status:"الحالة",assignee:"المسؤول",priority:"الأولوية",notes:"الملاحظات",noNote:"لا توجد ملاحظات بعد",addNote:"ملاحظة جديدة",save:"حفظ التغييرات",close:"إغلاق",cancel:"إلغاء",create:"إضافة الشكوى",saveCu:"حفظ العميل",
+search:"ابحث بعنوان التذكرة أو اسم العميل",allS:"كل الحالات",allA:"كل الموظفين",noTk:"لا توجد تذاكر مطابقة. جرّب تغيير البحث أو أضف تذكرة جديدة.",noCu:"لا يوجد عملاء. أضف أول عميل.",
+cust:"اسم العميل",title:"عنوان المشكلة",det:"التفاصيل",name:"الاسم",phone:"رقم الموبايل",email:"البريد الإلكتروني",co:"الشركة",ind:"فرد",hist:"سجل التذاكر",ticketsN:n=>n+" تذكرة",
+opened:"فُتحت",resolved:"تم حلها",open:"مفتوحة",avg:"متوسط وقت الحل (ساعة)",mine:"أنت ترى تذاكرك فقط",role:{owner:"المدير",sup:"مشرف",agent:"موظف"},
+i_rate:(r,t)=>`تم حل ${r}% من التذاكر (${t} تذكرة).`,i_late:n=>n?`يوجد ${n} تذكرة متأخرة وتحتاج تدخّل.`:"لا توجد تذاكر متأخرة.",i_hi:n=>n?`${n} تذكرة عالية الأولوية ما زالت مفتوحة.`:"لا توجد تذاكر عالية الأولوية مفتوحة.",i_top:(a,n)=>`أعلى حمل حالياً على ${a} (${n} تذكرة مفتوحة).`,i_best:(a,n)=>`الأكثر حلاً: ${a} (${n} تذكرة).`,
+fill:"اكتب عنوان المشكلة",fillN:"اكتب الاسم"},
+en:{app:"Géant",sub:"Customer Service Department",user:"Username",pass:"Password",login:"Sign in",logout:"Sign out",bad:"Wrong username or password",demo:"Demo accounts: owner / karim / tamer / abdullah / amr / ahmed — password: name + 123 (e.g. karim123)",
+dash:"Analytics",tk:"Tickets",cu:"Customers",perf:"Team performance",newTk:"New complaint",newCu:"Add customer",new:"New",prog:"In progress",done:"Resolved",hi:"High",mid:"Medium",lo:"Low",
+late:"Overdue (2+ days)",total:"Total tickets",rate:"Resolution rate",ins:"Insights",trend:"Last 7 days (red: received, green: resolved)",dist:"Status split",work:"Team workload (open)",prio:"Open tickets by priority",recent:"Latest tickets",
+status:"Status",assignee:"Assigned to",priority:"Priority",notes:"Notes",noNote:"No notes yet",addNote:"New note",save:"Save changes",close:"Close",cancel:"Cancel",create:"Add complaint",saveCu:"Save customer",
+search:"Search by ticket title or customer name",allS:"All statuses",allA:"All agents",noTk:"No matching tickets. Change the search or add a new ticket.",noCu:"No customers yet. Add the first one.",
+cust:"Customer name",title:"Issue title",det:"Details",name:"Name",phone:"Mobile number",email:"Email",co:"Company",ind:"Individual",hist:"Ticket history",ticketsN:n=>n+(n==1?" ticket":" tickets"),
+opened:"Opened",resolved:"Resolved",open:"Open",avg:"Avg. resolution (hrs)",mine:"You only see your own tickets",role:{owner:"Owner",sup:"Supervisor",agent:"Agent"},
+i_rate:(r,t)=>`${r}% of tickets are resolved (${t} total).`,i_late:n=>n?`${n} ticket(s) are overdue and need attention.`:"No overdue tickets.",i_hi:n=>n?`${n} high-priority ticket(s) still open.`:"No open high-priority tickets.",i_top:(a,n)=>`Heaviest workload: ${a} (${n} open).`,i_best:(a,n)=>`Most resolved: ${a} (${n} tickets).`,
+fill:"Enter the issue title",fillN:"Enter the name"}};
+const U=[{u:"owner",p:"owner123",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",p:"karim123",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",p:"tamer123",r:"sup",n:{ar:"تامر",en:"Tamer"}},
+{u:"abdullah",p:"abdullah123",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",p:"amr123",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",p:"ahmed123",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
+const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u),day=864e5,hr=36e5,now=Date.now();
+let lang="ar",me=null,view="home",q="",fs="",fa="",fc="";
+try{lang=localStorage.getItem("g-lang")||"ar"}catch(e){}
+const L=k=>D[lang][k],nm=u=>(U.find(x=>x.u==u)||{n:{ar:"—",en:"—"}}).n[lang];
+const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّلة","استفسار عن الضمان","منتج وصل تالف","استرجاع مبلغ","تعديل عنوان الشحن","مشكلة في الدفع","طلب كتالوج الأسعار","شكوى من معاملة","تفعيل الحساب"];
+ const t=[],S=["new","prog","done","done","done"],P=["hi","mid","lo","mid"];
+ for(let i=0;i<20;i++){const s=S[i%5],d=now-(i%9)*day-i*hr*2;t.push({id:i+1,cid:i%6+1,title:T[i%10],pr:P[i%4],s,ag:AG[i%5],d,r:s=="done"?d+(5+(i*7)%40)*hr:null,notes:i%3?[]:[{t:"تم التواصل مع العميل",d:d+hr}]})}
+ return{n:30,c:[{id:1,name:"هدى علي",phone:"01012345678",email:"huda@example.com",co:"مكتبة النور"},{id:2,name:"كريم السيد",phone:"01123456789",email:"k@example.com",co:"شركة الدلتا"},{id:3,name:"نادية فؤاد",phone:"01234567890",email:"",co:""},{id:4,name:"مصطفى حسن",phone:"01098765432",email:"m@example.com",co:"مطعم الشرق"},{id:5,name:"سلمى رضا",phone:"01155554444",email:"",co:""},{id:6,name:"يوسف عادل",phone:"01277778888",email:"y@example.com",co:"مخازن الأمل"}],t}};
+const seedM=()=>({req:[{id:20,ag:"amr",d:now-day,s:"new",f:{cust:1,subject:"طلب توصيل لمنزل",det:""},notes:[]}],short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أرز مصري 5 كجم",branch:"فرع المعادي",qty:"40",det:""},notes:[]}],resv:[{id:22,ag:"abdullah",d:now-day,s:"res",f:{cust:2,product:"ثلاجة 400 لتر",qty:"1",branch:"فرع القاهرة الجديدة",due:""},notes:[]}],fu:[{id:23,ag:"karim",d:now,s:"pend",f:{cust:3,subject:"متابعة شكوى الضمان",due:""},notes:[]}],ho:[{id:24,ag:"karim",d:now,s:"pend",f:{to:"tamer",subject:"تسليم وردية الصباح",det:"3 شكاوى مفتوحة تحتاج متابعة"},notes:[]}]});
+let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{req:[],short:[],resv:[],fu:[],ho:[]}};if(!S.m)S.m={req:[],short:[],resv:[],fu:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});
+const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
+try{const s=sessionStorage.getItem("g-me");if(s)me=U.find(x=>x.u==s)||null}catch(e){}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
+const cu=id=>S.c.find(x=>x.id==id)||{name:"—"};
+const isA=()=>me.r=="agent",sup=()=>me.r!="agent";
+const mine=()=>isA()?S.t.filter(t=>t.ag==me.u):S.t;
+const $=id=>document.getElementById(id);
+function setLang(){lang=lang=="ar"?"en":"ar";try{localStorage.setItem("g-lang",lang)}catch(e){}render()}
+const langBtn=`<button class="btn w s" id="lb">${lang=="ar"?"English":"عربي"}</button>`;
+const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
+const tkRow=t=>`<div class="tk" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span></div>`;
+function render(){
+ document.body.style.background=document.documentElement.style.background=me?"#fff":"var(--bg)";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
+ const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language">⚙️</button>`;
+ if(!me){
+  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:90px;display:block;margin:0 auto 8px"><h1>${L("app")}</h1><p style="margin:0 0 12px;color:var(--mut)">${L("sub")}</p><div class="f">
+  <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
+  <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div><div class="hint">${L("demo")}</div></div>`;
+  $("lb").onclick=langMenu;
+  const go=()=>{const x=U.find(a=>a.u==$("u").value.trim().toLowerCase()&&a.p==$("p").value);if(!x){$("er").textContent=L("bad");return}
+   me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render()};
+  $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
+ }
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";
+ const tabs=["home","dash","tk","req","short","svy","resv","fu","ho","sch","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"]);
+ r.innerHTML=`<header><div class="hw"><div class="top" style="direction:ltr"><span class="logo">${L("app")}</span><span style="flex:1"></span>${lb}<button class="btn w s" id="lo">${L("logout")}</button><span class="me">${nm(me.u)} (${L("role")[me.r]})</span></div><img class="hl" src="${LOGO}" alt="Géant"></div></header><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}</button>`).join("")}</nav>
+<main id="app"></main>`;
+ $("lb").onclick=langMenu;$("lo").onclick=()=>{me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
+ r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
+ const a=$("app");
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else perf(a);
+ a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
+}
+const late=t=>t.s!="done"&&now-t.d>2*day,opn=l=>l.filter(t=>t.s!="done");
+function dash(a){
+ const l=mine(),n=k=>l.filter(t=>t.s==k).length,tot=l.length,dn=n("done"),rate=tot?Math.round(dn/tot*100):0,lt=l.filter(late).length;
+ const days=[...Array(7)].map((_,i)=>{const s=new Date(now-(6-i)*day).setHours(0,0,0,0);return{s,c:l.filter(t=>t.d>=s&&t.d<s+day).length,r:l.filter(t=>t.r&&t.r>=s&&t.r<s+day).length}}),mx=Math.max(1,...days.map(d=>Math.max(d.c,d.r)));
+ const load=AG.map(g=>[g,opn(S.t.filter(t=>t.ag==g)).length]).sort((x,y)=>y[1]-x[1]);
+ const best=AG.map(g=>[g,S.t.filter(t=>t.ag==g&&t.s=="done").length]).sort((x,y)=>y[1]-x[1])[0];
+ const ins=[L("i_rate")(rate,tot),L("i_late")(lt),L("i_hi")(opn(l).filter(t=>t.pr=="hi").length)];
+ if(sup()){ins.push(L("i_top")(nm(load[0][0]),load[0][1]));if(me.r=="owner")ins.push(L("i_best")(nm(best[0]),best[1]))}
+ a.innerHTML=`${isA()?`<p style="color:var(--mut);margin:0 0 10px">${L("mine")}</p>`:""}
+ <div class="stats"><div class="st"><b>${tot}</b><span>${L("total")}</span></div><div class="st"><b>${n("new")}</b><span>${L("new")}</span></div><div class="st" style="--c:var(--amb)"><b>${n("prog")}</b><span>${L("prog")}</span></div>
+ <div class="st" style="--c:var(--grn)"><b>${dn}</b><span>${L("done")}</span></div><div class="st" style="--c:var(--grn)"><b>${rate}%</b><span>${L("rate")}</span></div><div class="st"><b>${lt}</b><span>${L("late")}</span></div></div>
+ <div class="box"><h3>${L("ins")}</h3><ul class="ins">${ins.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+ <div class="cols"><div class="box"><h3>${L("trend")}</h3><div class="trend">${days.map(d=>`<div><p><i style="height:${d.c/mx*100}%"></i><i class="g" style="height:${d.r/mx*100}%"></i></p>${new Date(d.s).getDate()}</div>`).join("")}</div></div>
+ <div class="box"><h3>${L("dist")}</h3><div class="bar" style="margin-bottom:12px">${["new","prog","done"].map(k=>`<i style="width:${tot?n(k)/tot*100:0}%;--c:var(--${k=="new"?"red":k=="prog"?"amb":"grn"})"></i>`).join("")}</div>
+ <h3>${L("prio")}</h3>${["hi","mid","lo"].map(p=>{const c=opn(l).filter(t=>t.pr==p).length;return`<div class="row" style="margin:3px 0"><span style="flex:0 0 70px">${L(p)}</span><div class="bar" style="flex:1"><i style="width:${tot?c/tot*100:0}%;--c:var(--${p=="hi"?"red":p=="mid"?"amb":"mut"})"></i></div><span style="flex:0 0 24px">${c}</span></div>`}).join("")}</div></div>
+ ${extra(l)}${sup()?`<div class="box"><h3>${L("work")}</h3>${load.map(([g,c])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 80px">${nm(g)}</span><div class="bar" style="flex:1"><i style="width:${c/Math.max(1,load[0][1])*100}%"></i></div><span style="flex:0 0 24px">${c}</span></div>`).join("")}</div>`:""}
+ <div class="box"><h3>${L("recent")}</h3>${[...l].sort((x,y)=>y.d-x.d).slice(0,5).map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}</div>`;
+}
+function tks(a){
+ a.innerHTML=`<div class="row" id="chips">${["",...CH].map(c=>`<button class="btn s" data-ch="${c}" style="${fc==c?"background:var(--red);color:#fff":"background:#fff;color:var(--red);border:1px solid var(--red)"}">${c?CHL(c):TL("all")} (${mine().filter(t=>!c||t.ch==c).length})</button>`).join("")}</div><div class="row"><button class="btn" id="nw">+ ${L("newTk")}</button><input id="q" placeholder="${L("search")}" value="${esc(q)}"><select id="fs"><option value="">${L("allS")}</option>${["new","prog","done"].map(k=>`<option value="${k}" ${fs==k?"selected":""}>${L(k)}</option>`).join("")}</select>
+ ${sup()?`<select id="fa"><option value="">${L("allA")}</option>${AG.map(g=>`<option value="${g}" ${fa==g?"selected":""}>${nm(g)}</option>`).join("")}</select>`:""}</div><div class="box" id="lst"></div>`;
+ const f=()=>{const l=mine().filter(t=>(!fc||t.ch==fc)&&(!fs||t.s==fs)&&(!fa||t.ag==fa)&&(tkn(t)+" "+t.title+cu(t.cid).name+cu(t.cid).phone).toLowerCase().includes(q.toLowerCase())).sort((x,y)=>y.d-x.d);
+  $("lst").innerHTML=l.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`;$("lst").querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t))};
+ $("q").oninput=e=>{q=e.target.value;f()};$("fs").onchange=e=>{fs=e.target.value;f()};if($("fa"))$("fa").onchange=e=>{fa=e.target.value;f()};f();$("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{fc=b.dataset.ch;render()});$("nw").onclick=tkForm;
+}
+function cus(a){
+ a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button></div><div class="box">${S.c.map(c=>{const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small></div><span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}).join("")||`<div class="empty">${L("noCu")}</div>`}</div>`;
+ $("nc").onclick=cuForm;
+}
+function perf(a){
+ const rows=AG.map(g=>{const l=S.t.filter(t=>t.ag==g),d=l.filter(t=>t.s=="done"),av=d.length?Math.round(d.reduce((s,t)=>s+(t.r-t.d),0)/d.length/hr):0;
+  return{g,tot:l.length,d:d.length,o:opn(l).length,lt:l.filter(late).length,rt:l.length?Math.round(d.length/l.length*100):0,av}}).sort((x,y)=>y.d-x.d);
+ a.innerHTML=`<div class="box"><h3>${L("perf")}</h3><div class="scroll"><table><tr><th></th><th>${L("total")}</th><th>${L("resolved")}</th><th>${L("open")}</th><th>${L("late")}</th><th>${L("rate")}</th><th>${L("avg")}</th></tr>
+ ${rows.map(x=>`<tr><td><b>${nm(x.g)}</b> <small style="color:var(--mut)">${L("role")[U.find(u=>u.u==x.g).r]}</small></td><td>${x.tot}</td><td style="color:var(--grn);font-weight:600">${x.d}</td><td>${x.o}</td><td style="color:${x.lt?"var(--red)":"inherit"}">${x.lt}</td>
+ <td><div class="bar" style="width:80px;display:inline-flex"><i style="width:${x.rt}%;--c:var(--grn)"></i></div> ${x.rt}%</td><td>${x.av}</td></tr>`).join("")}</table></div></div>`;
+}
+const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>ov.classList.remove("on");
+ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{if(e.key=="Escape")close()});
+const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
+function tkView(id){
+ const t=S.t.find(x=>x.id==id),c=cu(t.cid);
+ open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small><div class="f" style="margin-top:12px"><div class="row" style="margin:0">
+ <label>${L("status")}${sel("s",["new","prog","done"].map(k=>[k,L(k)]),t.s)}</label>
+ ${sup()?`<label>${L("assignee")}${sel("ag",AG.map(g=>[g,nm(g)]),t.ag)}</label><label>${L("priority")}${sel("pr",["hi","mid","lo"].map(k=>[k,L(k)]),t.pr)}</label>`:""}</div>
+ <div class="tl">${t.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done")t.r=null;t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value}
+  const v=$("nt2").value.trim();if(v)t.notes.push({t:v,d:Date.now()});save();close();render()};
+}
+function tkForm(){
+ open(`<h2>${L("newTk")}</h2><div class="f" style="margin-top:10px"><label>${L("cust")}<input id="c" placeholder="${L("name")}"></label><label>${L("phone")}<input id="cp" inputmode="tel"></label><label>${TL("channel")}${sel("ch",[["",TL("pick")],...CH.map(c=>[c,CHL(c)])],fc)}</label><label>${TL("branch")}${sel("br",[["",TL("pickB")],...BR.map(b=>[b,b])],"")}</label><label>${L("title")}<input id="ti"></label>
+ <div class="row" style="margin:0"><label>${L("priority")}${sel("pr",["mid","hi","lo"].map(k=>[k,L(k)]),"mid")}</label>
+ <label>${L("assignee")}${sup()?sel("ag",AG.map(g=>[g,nm(g)]),AG[0]):`<select id="ag" disabled><option value="${me.u}">${nm(me.u)}</option></select>`}</label></div>
+ <label>${L("det")}<textarea id="nt2" rows="3"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("create")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{if(!$("br").value){$("br").focus();$("br").style.borderColor="var(--red)";return}if(!$("ch").value){$("ch").focus();$("ch").style.borderColor="var(--red)";return}if(!$("c").value.trim()){$("c").focus();$("c").placeholder=L("fillN");$("c").style.borderColor="var(--red)";return}if(!$("ti").value.trim()){$("ti").focus();$("ti").placeholder=L("fill");$("ti").style.borderColor="var(--red)";return}
+  const v=$("nt2").value.trim();S.t.push({id:S.n++,no:++S.tn,br:$("br").value,ch:$("ch").value,cid:getCust($("c").value,$("cp").value),title:$("ti").value.trim(),pr:$("pr").value,s:"new",ag:$("ag").value,d:Date.now(),r:null,notes:v?[{t:v,d:Date.now()}]:[]});save();close();view="tk";render();tkView(S.t[S.t.length-1].id)};
+}
+function cuForm(){
+ open(`<h2>${L("newCu")}</h2><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n"></label><label>${L("phone")}<input id="p" inputmode="tel"></label><label>${L("email")}<input id="e"></label><label>${L("co")}<input id="co"></label>
+ <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("saveCu")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{if(!$("n").value.trim()){$("n").focus();$("n").placeholder=L("fillN");$("n").style.borderColor="var(--red)";return}
+  S.c.push({id:S.n++,name:$("n").value.trim(),phone:$("p").value.trim(),email:$("e").value.trim(),co:$("co").value.trim()});save();close();view="cu";render()};
+}
+function cuView(id){
+ const c=cu(id),k=mine().filter(t=>t.cid==id);
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small><h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ $("x").onclick=close;md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+}
+</script><script>
+const BR=["REH","TRI"];
+const CH=["branch","call","social"],LK={svy:"https://geant-egypt.github.io/geant-survey/",sch:"https://geant-egypt.github.io/CS-schedule/"};
+const X={ar:{by:"الموظف",pick:"اختر القناة",pickB:"اختر الفرع",home:"الرئيسية",myOpen:"شكاواك المفتوحة",myFu:"Follow up مطلوب منك",myHo:"Hand Over موجّه لك",rep:"التقارير",date:"التاريخ",fromD:"من تاريخ",toD:"إلى تاريخ",exp:"تصدير CSV (Excel)",resAt:"تاريخ الحل",cnt:"إجمالي السجلات",rtype:"نوع التقرير",byEmp:"حسب الموظف",byPr:"حسب الأولوية",noDl:"التحميل غير متاح هنا",section:"القسم",resp:"المسؤول عن القسم",tk:"شكاوى",req:"طلبات العملاء",short:"نواقص المنتجات",svy:"السيرفي",resv:"حجوزات المنتجات",fu:"Follow up",ho:"Hand Over",sch:"الجدول",ch_branch:"فرع",ch_call:"كول سنتر",ch_social:"سوشيال ميديا",all:"الكل",channel:"القناة",subject:"الموضوع",product:"المنتج",branch:"الفرع",qty:"الكمية",due:"الموعد",to:"تسليم إلى",add:"إضافة",empty:"لا توجد سجلات. أضف أول سجل.",byCh:"الشكاوى حسب المصدر",pending:"المفتوح في باقي الأقسام",openL:"فتح الصفحة في نافذة جديدة",svyd:"استبيان رضا العملاء الخاص بجيان.",schd:"جدول مناوبات خدمة العملاء.",s_rep:"تم الإبلاغ",s_ord:"تم الطلب",s_av:"متوفر",s_res:"محجوز",s_rdy:"جاهز للاستلام",s_del:"تم التسليم",s_pend:"قيد الانتظار",s_dn:"تمت",s_rcv:"تم الاستلام"},
+en:{by:"Employee",pick:"Select channel",pickB:"Select branch",home:"Home",myOpen:"Your open complaints",myFu:"Your pending follow-ups",myHo:"Hand overs for you",rep:"Reports",date:"Date",fromD:"From date",toD:"To date",exp:"Export CSV (Excel)",resAt:"Resolved on",cnt:"Total records",rtype:"Report type",byEmp:"By employee",byPr:"By priority",noDl:"Download is not available here",section:"Section",resp:"Section supervisor",tk:"Complaints",req:"Customer requests",short:"Product shortages",svy:"Survey",resv:"Reservations",fu:"Follow up",ho:"Hand Over",sch:"Schedule",ch_branch:"Branch",ch_call:"Call center",ch_social:"Social media",all:"All",channel:"Channel",subject:"Subject",product:"Product",branch:"Branch",qty:"Quantity",due:"Due date",to:"Hand over to",add:"Add",empty:"No records yet. Add the first one.",byCh:"Complaints by source",pending:"Open in other sections",openL:"Open page in a new tab",svyd:"Géant customer satisfaction survey.",schd:"Customer service shift schedule.",s_rep:"Reported",s_ord:"Ordered",s_av:"Available",s_res:"Reserved",s_rdy:"Ready for pickup",s_del:"Delivered",s_pend:"Pending",s_dn:"Done",s_rcv:"Received"}};
+function getCust(n,p){n=n.trim();p=(p||"").trim();let c=S.c.find(x=>p?x.phone==p:x.name==n);if(!c){c={id:S.n++,name:n,phone:p,email:"",co:""};S.c.push(c)}return c.id}
+function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render()}
+function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
+function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح الخير":"مساء الخير"):(h<12?"Good morning":h<18?"Good afternoon":"Good evening");
+ const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.fu.filter(r=>r.ag==me.u&&r.s=="pend").length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
+ a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:86px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p></div>
+ <div class="stats"><div class="st"><b>${my}</b><span>${TL("myOpen")}</span></div><div class="st" style="--c:var(--grn)"><b>${fu}</b><span>${TL("myFu")}</span></div><div class="st"><b>${ho}</b><span>${TL("myHo")}</span></div></div>
+ <div class="row"><button class="btn" id="gt">${TL("tk")}</button><button class="btn gr" id="gn">+ ${L("newTk")}</button></div>`;
+ $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm}
+let rt="tk",rf="",rto="";
+const dt=d=>new Date(d).toLocaleDateString("en-GB");
+function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,ok=r=>r.d>=fr&&r.d<=to;
+ if(rt=="tk")return{H:[lang=="ar"?"رقم التكت":"Ticket #",TL("date"),L("cust"),L("phone"),TL("channel"),TL("branch"),L("title"),L("priority"),L("status"),TL("by"),TL("resAt")],R:S.t.filter(ok).map(t=>{const c=cu(t.cid);return{o:t,c:[tkn(t),dt(t.d),c.name,c.phone||"",CHL(t.ch),t.br||"",t.title,L(t.pr),L(t.s),nm(t.ag),t.r?dt(t.r):""]}})};
+ const M=MOD[rt];return{H:[TL("date"),TL("by"),L("status"),...M.f.map(x=>TL(x[0]))],R:S.m[rt].filter(ok).map(r=>({o:r,c:[dt(r.d),nm(r.ag),SL(r.s),...M.f.map(x=>String(fv(r,x)??""))]}))}}
+function rep(a){const{H,R}=repRows(),fin=rt=="tk"?"done":MOD[rt].st.slice(-1)[0],sts=rt=="tk"?["new","prog","done"]:MOD[rt].st,n=R.length,d=R.filter(x=>x.o.s==fin).length;
+ const rs=rt=="tk"?R.filter(x=>x.o.r):[],av=rs.length?Math.round(rs.reduce((s,x)=>s+(x.o.r-x.o.d),0)/rs.length/hr):0;
+ const grp=f=>{const m={};R.forEach(x=>{const k=f(x.o);m[k]=(m[k]||0)+1});return Object.entries(m).sort((p,q)=>q[1]-p[1])};
+ const bars=(arr,lab)=>{const mx=Math.max(1,...arr.map(x=>x[1]));return arr.map(([k,c])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 100px">${lab(k)}</span><div class="bar" style="flex:1"><i style="width:${c/mx*100}%"></i></div><span style="flex:0 0 28px">${c}</span></div>`).join("")||`<div class="empty">${TL("empty")}</div>`};
+ const lb2=t=>`<label style="font-size:12px;color:var(--mut)">${t}`;
+ a.innerHTML=`<div class="row">${lb2(TL("rtype"))}<select id="rt">${["tk","req","short","resv","fu","ho"].map(k=>`<option value="${k}" ${rt==k?"selected":""}>${TL(k)}</option>`).join("")}</select></label>${lb2(TL("fromD"))}<input type="date" id="rf" value="${rf}"></label>${lb2(TL("toD"))}<input type="date" id="rto" value="${rto}"></label><button class="btn gr" id="ex">${TL("exp")}</button></div>
+ <div class="stats"><div class="st"><b>${n}</b><span>${TL("cnt")}</span></div><div class="st" style="--c:var(--grn)"><b>${d}</b><span>${SL(fin)}</span></div><div class="st" style="--c:var(--grn)"><b>${n?Math.round(d/n*100):0}%</b><span>${L("rate")}</span></div>${rt=="tk"?`<div class="st"><b>${av}</b><span>${L("avg")}</span></div>`:""}</div>
+ <div class="cols"><div class="box"><h3>${L("dist")}</h3>${bars(sts.map(k=>[k,R.filter(x=>x.o.s==k).length]),SL)}</div><div class="box"><h3>${TL("byEmp")}</h3>${bars(grp(o=>o.ag),nm)}</div>
+ <div class="box"><h3>${TL("branch")}</h3>${bars(grp(o=>(o.f?o.f.branch:o.br)||"—"),x=>x)}</div>${rt=="tk"?`<div class="box"><h3>${TL("byCh")}</h3>${bars(grp(o=>o.ch),CHL)}</div><div class="box"><h3>${TL("byPr")}</h3>${bars(grp(o=>o.pr),L)}</div>`:""}</div>
+ <div class="box"><div class="scroll"><table><tr>${H.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${R.slice(0,300).map(x=>`<tr>${x.c.map(v=>`<td>${esc(v)}</td>`).join("")}</tr>`).join("")||`<tr><td>${TL("empty")}</td></tr>`}</table></div></div>`;
+ $("rt").onchange=e=>{rt=e.target.value;render()};$("rf").onchange=e=>{rf=e.target.value;render()};$("rto").onchange=e=>{rto=e.target.value;render()};$("ex").onclick=exportCsv}
+async function exportCsv(){const{H,R}=repRows(),q2=v=>`"${String(v).replace(/"/g,'""')}"`,dl=window.claude?await window.claude.use("downloads"):null;
+ if(!dl){const csv="\ufeff"+[H,...R.map(x=>x.c)].map(r=>r.map(q2).join(",")).join("\r\n"),u=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),l=document.createElement("a");l.href=u;l.download=`geant-${rt}-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);return}
+ try{await dl.save({filename:`geant-${rt}-${new Date().toISOString().slice(0,10)}.csv`,data:"\ufeff"+[H,...R.map(x=>x.c)].map(r=>r.map(q2).join(",")).join("\r\n")})}catch(e){}}
+const LOGO="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADIAMgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACsXxn4l0zwpoU2sarKUhjwqqoy8jnoijuT/8AXraryj9pe/0KDwbHYanDJPfXMhbT1RtuyRRgyE/3QGwR3zj3GVep7Om5djsy/DrE4mFJptN623t1O78JeK9D8T2Ed3pOoW8+9QzRBx5kZxyrL1BFbmRnGa+IvDNu7axbmNtjlgN4baw+hHNfUvhCTVLK702xbUn1CC4gd5EmbdJAFAw4fqVJwuDnrx0NcmDx3t9GrHtZ5w//AGa04zunfR7/ANfcdxRRRXoHzIUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAUJtX0+HVotLkuolu5Y/MSInBK5x/n6VeyK+a/E2pz6h8R9cnlkP7q7aCPn7qR/KAPyJ/GtiPUtTniEUup3jx4xtM7Y/nXytfiaOHqzpyhez0s/wAz6anw5KpShUU7XWt1+R7NqfiPR9Ok8u6volkHVFy7D8BmrOl6tY6mhaznWTbyVIKsPwPNeMWQjV14Ge/vXofh4RrZ6ddIAkwuPJyP4kbOR/I/hWeWcRVcbinTcUo2v5/18jDH5RTwtJNSbf4f18zsqKB0qO4nht4XmnkSONAWd2YAKB1JJ6CvrjwCQkDqa8Q/ao1jS10Wz8PHTbm81u4cTWTxQsfIUNhmyBzuHy7R16noKyvi98bbiTfongPzGeQ+U2pLGSWYnG2Be5PTd+Q71237P3gnV/Cnhu4ufEV7cXGqanKtxLDLMZPs/GAuST85ydx9cDnFYTtWTgjLLM5pxxqdOLmoatp2V+mvU8i+G3wo8ZatcQXl5aHR7UEN5t2MOR/sx9fzxX0p4Y0Cz0CxFvbtJNKwHmzynLyEevoPQDgVr4FFRh8JToax3PbzPOsTmTXtXZLZIKKKK6jyQooooAKKKKACiiigAooooAKKKKACiiigAoryf4oeK/FfhTxpaTWt1bNo89sPLtZoRskcE7/3g+YNypHbHatLQvi34fu1VNUiudMl6EsvmxZ9mXn8wK5/rVJTcG7Ndzi+v0VUdObs13OF+Lfhe70Xxdca1BEzadqL+aXUcRTH7yt6ZxkfU1jWEk+FyjflXvUXiTwrq1s0a6xpVzFIuGjedMEehVjWJd6T4KjiJj1myso/QXcZUfTcTivk83yCeIqurh5LXoz7fLuKaVLDqjWV7dfI4DSoxJKqSzRW+f4pW2r+den+FdLfyra6ku7ea2jy0AhJZWPTcWPXv0rgtX134WaG5kutak1mZTkW9v8AvAT6HaAv5muV8R/GLxBrafYfDdouhWR+UTcPOV9v4U/AE+9PKcrhl7dXEtX8m3/wDxM84pwk7QpSu+yt/X32PafG3jnQvCkWy9uDNeuuYrKDDTP+HRR7tgV4R8QPF+teKYZJNWmFlpanKWELHafTeern9PQVm6PpuZHuJjJJNK26WWRizufUk8mvQPhP4O/t7VV8R6nHu0yzk/0GJhxcSqeZSO6qRx6nnoOfSWNq46r7KlpHqfG1amIxz9mtE+n+Zb+Bvw0Fg0Xi3xBaBdQdc2Fq4/49EI++R/z0I/75HHUmvZgMACgDFFe9TpqnFRie3hcLTw1NU6a0CiiirOgKKKKACiiigAooooAKKKKACiiigAooooAKKKKAOW+J/hG38Z+FLjSXcQXI/eWlxjmGYfdb6diO4Jr4y1DU9f8AD+r3WjaxbtDe2khjmjY/dI9PUEYIPcEV97V5H+0L8K4/Gumf2xo8SJ4gtI8J2F1GMny2Pr/dP4dDxz16Eaiu1qeLnGXyrw9pS+Jfij5lPiWWUcxg/WmHUZphwqrn0FYEYaOUxuCrKcMD2Na+nRtK21VJ9+1eZUpwpq6R8NzNuzNOxgMsimQlvSuw0KxyV+XArL0XTz8pbJrvPDtiJJo41XkkCvn8biL+6j2sBh3Jo2fD/h6XVbm10qPdH9qJaaRescC43n6nIUe5r3awtbeysobS1hWGCFBHHGo4VQMACuY+HmnJEL29KjJkFtGcfwR9fzYt+Qrrq+oynCqhh03u9WfYYaiqaugooor0zpCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooACcCvmH9oz4wyXtzc+DvCl2VtVJi1C9hbmU9GiQj+EdGI69BxnPZ/tOfElvDWjL4Z0a4KaxqURMsiH5raA8Fh6M3IHoMn0r5XsLcM2SOBXPWq8qsj5jPM0dP9xSevV/oTaVYGRgXHy+lddpVqiBQEGKybR4oQOgrVsdQiDgE968DFznU2PmqMFe7Ot0uMAjoK7nwTEp1OEtjAYVwmk3MTqMEDiut8OXwt7qJywGDzXzde6nqfT5c4xkj3Dwcu3w/bc5LF3b6l2JrYrnfBV4klvLaZHyOZY/eNyT+jbh+XrXRV+iYacalGMo7WPo47BRRRW5QUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFZninW7Lw74fv8AW9RfZa2UDTSHuQBwB7k4A9zWnXzv+2R4paDT9L8JW0u03LfbLwA/8s1OI1P1bJ/4CKmUuVXOXG4lYahKo+n5nz94o1y98UeJb7XtTfdc3kpdhnhF6Kg9lGAPpUmhWOqa1qUek6Bp1xqV+/3YYFyQP7xPRR7nAroPhF8Mte+Id9vtd1hosT7bjUXTIyOqRA/ff9B39K+wvAfgrw94K0gaboNgkCHBmlb5pZ2/vO/Vj+g7AVyqi6jvLY+SwGUVcZJ1arsn97PDfCH7OGo3cCXHjDxAbVmAP2TTlDFfYyMMZ+i/jXWz/s4eCDblbfUNfhmxxL9rV8H1wUwa9oordUYJWsfTwyrCQjyqCPlXxX8JPHPgzdeaRJ/wkumJyREmy5RfePnd/wABJ+lYeheJbe5baJdkqHDxvwyn0Ir7FIHpXB/EX4UeFvGha6ubc2Gq4+TULTCS57bx0kH+9z6EVwYvKqNdXSszir5S6fv4Z28nt95w3gXxNIJ4oI5gtyhzBvbCuT1jb2b17EA9q9n0LVLbV9PS7tiw5KyRuMPE4+8jDsQf8ehr5d8R/DT4meFLktZWza/Zqcx3FiMyD03Rn5gfpke9ew/A/wD4Sue41DUPEGjXGlRzW8CFbhdjzTLuDSbeo+XaCT149Kxy2jXwsvYyV4/kaYDFVnP2VWDT/D7z1CiiivaPZCiiigAooooAKKKKACiiigAooooAKKKKADNFB6V458cPi3J4Su10HQUim1bAknkmQlIEPIGP4mP5AVnVqxpR5pbHdl2XYjMsQsPh43k/6uz2JvunFfO3if4Uar45+L2teJ/GbnS/C9o6pCvnKJLmGNRjBB/dofmJJ554HevSfg38RP8AhPNIneXT5LS9tCq3GFJhYnujf+ynkVk/tQXV5bfC+T7JM8SzXcUNxtON8bbsrn0JAz61nOtH2TqLVbhLIZ4jMaeX4n3XzJP+uu+h6B4POjN4b08+H4oYtKNuptFhTagjxxgdhWvXB/AKc3Pwl0ByxJSAxH/gLsP6V3la05c8FLuZYzDrDYipQX2ZNfc7BRRRVnMFFFGaACigEHpRQAUUUUAFFFISB3oAWigGigAooooAKKKKACiiigAoopGOBmgBHYLwa5Xxx4E8M+NbWMazZeZIn+quYW2SoPQMOx9DkVk+M9V/tvx3p3gG2uGiie3a+1Yo21jApwsII5G8kZx/CMd676NFjhWNFVFUAKAMAD0FZ+7UvF6o7bVsE6daEnGTV1bRpdHfz/L1Ob06Twp4MGkeFrVrbTvtjMllbg8ysBliT3J9T1PFc7+0jbfaPhHqjAZ8mSCUfhIo/rXjv7S1nrej/EmDXJLqR4Z4kk05xx5BjIyg+jfN77q9s+Jsh1n4G6pdFPmuNJW5I99qvXJ7X2qqUmrWPo45d9Tq4DMPac/tZJt9mpK/52fmjM/ZenE3wptkzzBdzxn/AL63f+zV6nXxx8Ofirr/AIG0abSdMs9PubeScz5uFfcrEAHG0jjgV03/AA0T4v8A+gPov/fEn/xVZUMfRhTjGT1SPTzngvM8Rj61ajBcspNrVdXc+oaK+Xv+GifF/wD0B9F/74k/+Ko/4aJ8X/8AQH0X/viT/wCKrX+0qHd/ceZ/qJnP8i/8CR9Q1ynxT8WxeDPCNzrTwfaJQyxQRE4DyN90E+nUn2FeE/8ADRPi/wD6A+if98S//FVg+O/iZ4o+IPh6bTLrSbNLazZbyaS1R8oq/KC2ScLlxUVMxpOLUN+mh1YLgbHxxEHi4pU7rm95bXPpX4TalqGsfD3R9V1WQSXt3AZZWC7QSWbGAOgxjFdVXyT4U+Nvivw7oNpo0FlpVzDaRiKJ5o3DbB0B2sAcetav/DRHi/8A6A+if98S/wDxVOGY0VFJt/cLGcDZrLETlShHlbdtVtfQ+oaK+Xv+GifF/wD0B9F/74k/+Ko/4aJ8X/8AQH0X/viT/wCKqv7Sod39xzf6iZz/ACL/AMCR9H+JtYs9C0S51W/cpb26FmwMsx7KB3JOAB6mvlPxn8VPiHc6210LvUNAtyT9ntEjMYC9slly5x1PStt/2hPFMhUTaFoUiqwYApJwR0I+brVXxL8c9W1zS30++8LaBPFINu24R5Rk+gJHNc+IxdOqvdm4n0GQ8NY7LqvNXwkat+rktF5J3VzQ8FftAa1Yslv4oso9Tt84NxbgRzr9V+636GvdPBvj3wt4rhU6Pq0EsxHzW8h2TKfdDz+WRXyhpPw28da1bi+sPDN0IH+ZC+2IEf7IcgkVag+FPxES/gi/4Ru7gZ5FVZty7Y8n7xZW4A6msqGLxUfii2vQ7M44d4fxLbpV40prdKSa/wDAb/lY+zFbd2p1YngnRG8PeG7LSWvbi+e3TD3FxIXeRupOT2z0HYVt17a2Pyaooxm1F3Xfv5hRRRTICiiigApH+7S0EZGKAPkXxT4x1fwx8e9a1+KMSTQXb27QyEhZIcBQvtwAQa9Mt/2ivDTW4M2h6vHNjlF8thn/AHtw/lXZfEH4VeFvGVz9uv4p7W/27ftVs4V2A6bgQQ2PcZribf8AZy0EXIabxDqskWfuLHGpP44P8q8v2OLpSfs2rPU/RFmXDeYYel9dhKNSEVHS+tl5fqcl428ZSfGbUdJ8JaN4eltsXQla6lkDtHHgq5IAwFweeeoFfR7aVZS6D/Y08CzWRt/szRN0aPbtwfwrJ8E+CPDfg6ya20OxWEuB5sztvllx/eY/yGB7V0oIx1rroUZRvKo7yZ8xm+Z0K/JRwUXClC9k3d3drvy2Vjhf+FR/Drv4Ssfzf/4qj/hUfw6/6FKx/N//AIqu7orX2NP+VHF/a2P/AOf8/wDwJ/5nCf8ACo/hz/0KVj+b/wDxVH/Co/hz/wBClY/m/wD8VXd0Uexp/wAqD+1sf/z/AJ/+BP8AzPJvHXg34S+D/D82sap4WsRGnyxxqX3zOeiL83U/p1rm9N+IPwi8O+Ep7zQdEjFxqG2G70tE/esOchy2RsAJ56GvZ/FHh3SPE2ltputWMV3bMc7XHKn1UjlT7iuVHwf8D/8ACL/2AdL3RB2kW5Lf6QHP8XmYz0wMdMDpXPUo1FK9JJK3bqexg81wlSgoZhOrJ8yvaWnL6N73/wCAzH8EeEPhB4y0b+1tF8NWUkW/ZIjo6PE+MlSN3B57cVu/8Kj+HX/QpWP5v/8AFV0vhTw/pnhnRLfR9JgENrAuFGcsx7sx7knkmtatoUY8q5oq/oebic3xPtZewrVFC+l5O9ul9ThP+FR/Dn/oUrH83/8AiqP+FR/Dn/oUrH83/wDiq7uiq9jT/lRj/a+P/wCf8/8AwJ/5nCf8Kj+HP/QpWP5v/wDFVieL9N+GXww04eIB4b09L0ErZxKu6SWTHRdxO33bsK9WrF8WeF9E8U6cbDW7CK7hPK7hhkPqrDlT9KmdJcvuJXNsPmtaVWKxdWcqd/eSk9V21Z5n8LfjfZeJNTg0bW9ONhqNxJst3gBkikJ6L/eU49ePcV7Iu1hXnnw2+E+g+CtWu9Stpp725lJWCS4A3W8Z6quOpPdupHFeiKMUsOqqh+9d2PO55dPFN5dFqnbr38uqXzFAooorc8gKKKKACiiigAoopGOBQBV1fUbPStPnv7+5itraBC8sshwqqOpNfOvj34/6ncXclt4Pto7S2B2i7uI98r+6oeFH1yfpU/7WPimeTULHwnbyFbdI1u7oA/fYkhFPsACfqR6VzH7O3gO18XeILnUNWhEul6btzEek0rcqp/2QASfXgV5WJxFSpV9hS08z9GyPIsDhMsebZiuZbqPTsvVt7dEtTOsfE3xf18G407UvE94h/jtUYJ+G0Bast40+MPhjE2oXeuwxg/8AMQtS6H2JZf619bwW0UEKQwxpHEgwqKoCqPQDoKdJFG8ZjcKysMFSMgj6Vf1Cdv4jucUuMcPJ8rwNPk7WV/vt+h5j8BviBrnjmxvm1XTbWJbNkQXUDELKzZO3ac4IAByDjmvUSdo5qhoui6VosMsOlWFtZRzSmZ0gjCKXOMtgd+BWP8SdX8N6T4ZuJPFVwY7CQeWYkdleY/3F2kMT9D9eK7YXp0/fd7dT5fFOljMa/qtPljJq0Vq/+Ccz8SvjH4b8K+ZZ2ki6tqicfZ4H/dxn/po/QfQZNYvwF+JfiPxnr2pWer2lubaOISxTW8RVIjux5ZOTnIOR34NeZzfEL4eafd/8ST4Waa0Q4WS+l3M34EN/M16j8MvjJ4W1i7h0WXS08PXMrBYEG3yJH7KGAG0+mR+NcNPEqdVXqL0/4J9hjMieDy2ahgpOTWs5NXj6Ri3Zf0z2OioLm4S3tZbiU4SJC7EDOABk14f4g/aN0uCZo9D0Oe9QHie5lEKt9FwTj64ruq1qdJXm7Hx+XZRjMyk44Wm5W32SXzeh7vRXzxpv7SL/AGgDUvC6+QerW13lh+DKAfzr2rwZ4r0fxboqarotx50LEq6su142HVWXsamliaVV2g9TbMshzDLYqWJptJ9dGvwubtFeTfEz4yxeCfFLaFJoEl8RAk3mrchB82eMFT6VkX/7Q2kxeHre7ttHll1SfcWszONkIDEAu+O+MgAUpYujGTi5ao2o8NZpXpwq06LcZ7O6/wA9Pme4Uh6V8+aJ+0cWvkTWvDixWrNhpbW4LMg9drAZ/OvSPHvxFtPD3gW08W6dbx6vaXU0aRbJdgZXBO7OD6dKVPF0qkXKL2JxXDmZYWtCjVpWc3Zaqzfa97GL48+N/hbw49xZ2Pm6xfwlkaKAbY0cdQznjg+ma9M0m5N5pttdlNhnhSTbnONyg4/WvgzWbr+0dUvb7y/L+1TyTbM5272JxnvjNe7+GP2gHL6Xo/8Awi4G5obXzPtnqVTdjb+OK46GYqU2qjsuh9XnXBE8PhqTwUHKWrm212Xou+x9DUUDpRXqn5yFFFFABRRRQAUj/dNLRQB8jftNQyR/Fi7kdcJLaW7px1AUj+YNel/sjXNs3hDVrVGXz49QDyDvtaNdp/Qj8Ku/tJeAbjxLo8Gt6RAZtT05WDRL96aE8kAd2U8gd8kV4F8NfGepeBfEY1K0jM0Tjy7u1ZtolTPTPZgeRXiTf1bF889n+p+t4an/AG/wysLh3+8hZW847fetvM+yvFVxcW3hvVLi1ZluIrOZ4mUZIcISMD1zivkaX4m/E+3iR7jxBqsIIABkgVQTj1Kc19BaJ8avh/qNostxrH9nSkfNDdxMrKfqAQfqDXmH7Rnj7wv4q0jTtM0G/e9lt7szSSLEyxhdhXgtjJye1b42cZw54VLW7Pc8XhTCV8NinhcVguZSespR+GyfdNfiaf7OnjfxX4j8cXVlrmt3N9bJp7yrHIFADB0APAHYn864v9pPXbnVfiVdWDu32bS1W3hTPAYqGdvqSfyArT/ZP/5KLfcZ/wCJXJ+H7xKyP2jtDudK+J99eSI32bUwtzDJjg/KFcfUEfqK5Zzm8En56n0mEw+Ew/FU4Rio2p+6kra6Xt52udR8LvFXwk8O+E7e21e1N1qsq7r2WXTDLlj/AAgkH5QMDivNfiVN4WuPFk114OEsemTIriNojH5UnO4KDyBwCPTNeufA1vhhrnhe207WtJ0NNctQY5TdxqGnGSVcMevBwe4IrtvEGl/BrQLQ3Oq6d4YgUDhRGju3sFGSTW7oyq0YrmSR50c2oZXmtV+yrSqNtNNpp66WVvu8jW+Dety+J/hjpd7fMZLgwtb3DHq7IShJ+oAP41nTeGvhT4CsRLqNnotqCOHvgJZX+m7JP4CoD4p0jSfgne+KfB+lLY2iRyNaQGIIA5k2byoPr81fOHhOKPxh8Q7CHxRq84S+uNtzdSy/MRgnbuPAyRgdhmtK1dQUI2UpNLXoePleR1MbUxWI55UaMZO8V8Wl3a3knb9Dc+NWu+BNc1K1l8Haa1rJHuW6kW2EMcw/hIXrnOecDg13H7H88v27xHbbz5XlwPt7bsuM/lWN+0Npvg3Q9O0TR/C8WnxTxSyPcrAweQqVAUyNyTk56mn/ALK+t6XpXiPVLW/vYrea/SCG1RzzLJvPyr78iuWm+XGLma+W2x9NjOTEcKz9hGVunNrKymtf18kZn7UP/JVpf+vCD/2auw/Z4+Gvh/VfDA8Ta5aQ6lLcySJBDMMxxKh2kkd2J9egxXH/ALUH/JVpf+vCD/2avaP2aP8Akkmm/wDXa4/9GmtKEIzxk+ZbXOLOMVWw3C2G9jJxvyp200s3+h4f+0T4X0nwv44gi0a2W1tbuzWcwr91G3Mp2+gOBxXqX7Oun2HiT4SjTdcsoNQtLbUpfKinTcq9COD6bj+dcV+1v/yPOlf9gwf+jXrv/wBlH/km8/8A2E5f/QUooxSxso20M82r1KnCuHrTk3JNa313ktz5l8QxpBrWpRQoqJHczKiqMBQHYAfkK+wfDfw+8Gf2Xpt4PC+kicQwy+Z9nG7ftB3Z9c818i+Mbea28VazbSqVkS+nVgfXzGr6s8N/FPwPF4Nsry58Q2cBitUWWB2PnIyqAV2DknI7Cpy5xU5qf4nVxtHF1MLhZYbmad78t+qVtj0gcCiq+n3cV9ZQXkBLQzxrIhIxlWAI4+hqxXtp3PyRqzswooooAKKKKACiim7+eOaAFZQwwa888e/CHwl4rne9lt5bDUH5a5syFLn1ZSNrfXr713d5f2Vmm+7u4LdR3lkVB+prmtU+JfgPTci78WaQpHVUuBIfyXNTOnGorSVzXD5lUwFT2tGryS7p2PIrv9m+6Eh+x+K4zH286zO4fk1aGjfs5WEcqvrHiS6uFB+aO2gEQP8AwJixrptS+P8A8NrPITVLq7PbyLRyD+LYrCuP2jNGlJXRvCmv6ie2FRQfy3GudZfRTvynqVfETH8vI8V9yjf8EepeDvCPh7wnZG00PTYrUN/rJB80kh9WY8mjxn4T0TxfpJ07W7QTRbtyOrbXib+8rdQf5968kb4x/EbUedE+FF+QehmWZv8A2RRUbeKv2iNRJ+yeDLKwB/vxKD/4/J/Sun2UVHltofOPPpe29vFzlO9+ZJ3v6srap+zgDMx07xSBETkLd2m4j8VIB/Krvh/9nTTIZ1k1vX7i8QHJitYRED9WJJ/LFV3039pTUCfN1XT7BT0CyQL/AOgoxqJvhr8cr4YvviIsKnqEvZv5IgrlWAw978p7s/EDPZ0+ROfraKf37ntMXhXQ4fCTeFotPjTSWhaE24zja3J565zzn1rxPU/2eLdL5mtvGEVvZEkhbm3BkUemdwB+vFMf4B+Nb051L4iySZ683En83FSRfszeYubzxrM5PXbYZz/305raphqVRLmWx52X8U53gHN4WLXNvdxd331vr5kmufBrwLDoUNrZ+M7Oz1KN90t1dXMZWUYxtKBhtHcY59c1F4F8C/DvwvrdrrOsfEnSLy6s5RLFFFdRxRhx0J+Yk/TirMX7MGhr/rfFGoN/uWsS/wA81cj/AGZ/C4UB/EGst9BEv/stR9Tw6ako7HRU4w4mqUZUW/dd73avrur2vbyMv4qaX8OfGPit9dk+KekWJaCOLyU2Sj5c853e9db8N/F/w38F+ErbQR4+0u+EDyMJuVLb2LdBnpmstP2afB6nnWtdP0eIf+yU5v2avB+Pl1rXQf8ArpF/8RWkaFOM3Nbs8+vnmfYjCxwlRRdOOy00t+PUxfizJ8NPHuu2mpv8TdPsPs9r9n8sQGTd8xbOeMda6L4UeI/ht4G8OSaMnxC0u/D3Lz+Y37sjcFGMc+lUZf2aPC5/1fiDWlPuIj/7LVKf9mPST/qPFuoJ/v2sbfyIojQpxn7RLViq57n9TCRwc1F047LT89+vcT4kaF8KfGuptrFh8QNH0vUZMecxuEaOYgYBZSRhsdwefSsHRfg74Wupc3fxO0aeE8FbR4wxH1Zzj8qs6h+zJfICbHxfbOewnsWX9VY1qfDb9neLTdY/tDxjd2WpxQMGgtIFby5D6ybgCQP7o4Pf0rOeDoSlzOOp3YHjPibDU44aDtHbo7L11Z7xo9vFZaba2duxeGCFI42JzlVUAHPfgVcpsaLGgRFCqBgADAFOroMW23dhRRRQI8zf4v2N1x4e8JeLNcOcB4NMaOM/8CfH8qrzeLvi3qR/4k3wzt9PjPSTVdSTP1KIc0UUzxsLWq4pe9Nr0t/kyu2lfHbVATceJvDWiK3VbS2MrL+LKf51DJ8JPFepkHX/AIseIbkH70dqvkKfybH6UUUXOuWBpv4236tj4P2fPA5cSanc65qknc3N7wf++QP51vab8GvhrY48vwpZykd52eU/+PMRRRSLjgcNHaC+46XT/B/hTTwBY+G9It8dDHZxg/niteK3hhXbDGka+iKFH6UUUHTGEY/CrEm0UbR6CiigoXFGBRRQAYooooAKKKKACiiigAooooACAetIFAoooAWiiigAooooA//Z";
+function TL(k){return X[lang][k]||L(k)}function SL(k){return X[lang]["s_"+k]||L(k)}function CHL(c){return X[lang]["ch_"+c]||""}
+const SC={rep:"new",ord:"prog",av:"done",res:"new",rdy:"prog",del:"done",pend:"new",dn:"done",rcv:"done",new:"new",prog:"prog",done:"done"};
+const MOD={req:{f:[["cust","cust"],["branch","br"],["subject","text"],["det","area"]],st:["new","prog","done"],main:"subject"},
+short:{f:[["product","text"],["section","text"],["resp","text"],["branch","br"],["qty","num"],["det","area"]],need:["product","section","resp"],st:["rep","ord","av"],main:"product",shared:1},
+resv:{f:[["cust","cust"],["product","text"],["qty","num"],["branch","br"],["due","date"]],st:["res","rdy","del"],main:"product"},
+fu:{f:[["cust","cust"],["branch","br"],["subject","text"],["due","date"]],st:["pend","dn"],main:"subject"},
+ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"]],st:["pend","rcv"],main:"subject",shared:1}};
+const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):v};
+const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div><span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
+function mod(a){const M=MOD[view];let fq="",fst="";
+ a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button></div><div class="box" id="lst"></div>`;
+ const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&JSON.stringify(r.f).includes(fq)).sort((x,y)=>y.d-x.d);
+  $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m))};
+ $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;f()}
+function mForm(){const M=MOD[view];
+ const inp=([i,t])=>`<label>${TL(i)}${t=="cust"?`<input id="f_${i}" placeholder="${L("name")}"></label><label>${L("phone")}<input id="f_${i}_p" inputmode="tel">`:t=="br"?sel("f_"+i,[["",TL("pickB")],...BR.map(b=>[b,b])],""):t=="agent"?sel("f_"+i,AG.map(g=>[g,nm(g)]),""):t=="area"?`<textarea id="f_${i}" rows="3"></textarea>`:`<input id="f_${i}" type="${t=="num"?"number":t=="date"?"date":"text"}">`}</label>`;
+ open(`<h2>${TL(view)}</h2><div class="f" style="margin-top:10px">${M.f.map(inp).join("")}<div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("save")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{const f={};M.f.forEach(([i])=>f[i]=$("f_"+i).value.trim());
+  const nd=[...(M.need||[M.main])];if(M.f.some(x=>x[0]=="cust"))nd.push("cust");if(M.f.some(x=>x[0]=="branch"))nd.push("branch");const bd=nd.find(i=>!f[i]);if(bd){$("f_"+bd).focus();$("f_"+bd).style.borderColor="var(--red)";return}if("cust" in f)f.cust=getCust(f.cust,$("f_cust_p").value);
+  S.m[view].push({id:S.n++,ag:me.u,d:Date.now(),s:M.st[0],f,notes:[]});save();close();render()}}
+function mView(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
+ open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
+ <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
+function ext(a){a.innerHTML=`<div class="box"><h3>${TL(view)}</h3><p>${TL(view+"d")}</p><a class="btn gr" style="display:inline-block;text-decoration:none" href="${LK[view]}" target="_blank" rel="noopener">${TL("openL")}</a><p style="color:var(--mut);font-size:13px;direction:ltr;text-align:start">${LK[view]}</p></div>`}
+function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.max(1,...ch.map(x=>x[1]));
+ const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&s.includes(r.s)).length;
+ return `<div class="cols"><div class="box"><h3>${TL("byCh")}</h3>${ch.map(([c,n])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 90px">${CHL(c)}</span><div class="bar" style="flex:1"><i style="width:${n/mx*100}%"></i></div><span style="flex:0 0 24px">${n}</span></div>`).join("")}</div>
+ <div class="box"><h3>${TL("pending")}</h3><div class="stats" style="grid-template-columns:repeat(2,1fr);margin:0">${[["req",["new","prog"]],["short",["rep","ord"]],["resv",["res","rdy"]],["fu",["pend"]],["ho",["pend"]]].map(([k,s])=>`<div class="st" style="--c:var(--grn)"><b>${cnt(k,s)}</b><span>${TL(k)}</span></div>`).join("")}</div></div></div>`}
+render();
+</script>
+</body>
+</html>
