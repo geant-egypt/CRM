@@ -495,17 +495,17 @@ function pnForm(k){
  const isN=k=="note",d0=lcl(Math.ceil((Date.now()+36e5)/36e5)*36e5),T={note:TL("pnAddN"),alarm:TL("pnAddA"),rem:TL("pnAddR")}[k];
  open(`<h2>${T}</h2><div class="f" style="margin-top:10px">
   ${k=="alarm"?`<label>${TL("pnLbl")}<input id="pn_t" placeholder="${TL("pnAlarm")}"></label>`:`<label>${isN?TL("pnNote"):TL("pnWhat")}<textarea id="pn_t" rows="${isN?4:2}"></textarea></label>`}
-  ${isN?"":`<label>${TL("pnWhen")}<input id="pn_a" type="datetime-local" value="${d0}"></label>`}
-  ${k=="alarm"?`<label style="display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input id="pn_r" type="checkbox" style="width:auto"> ${TL("pnDaily")}</label>`:""}
+  ${isN?"":`<label>${TL("pnWhen")}<input id="pnf_a" type="datetime-local" value="${d0}"></label>`}
+  ${k=="alarm"?`<label style="display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input id="pnf_r" type="checkbox" style="width:auto"> ${TL("pnDaily")}</label>`:""}
   <div class="err" id="pn_e"></div>
   <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
  $("x").onclick=close;
  $("sv").onclick=()=>{let t=$("pn_t").value.trim(),at=null,rp=false;const er=$("pn_e");
   if(!t&&k=="alarm")t=TL("pnAlarm");
   if(!t){er.textContent=TL("pnNeedT");$("pn_t").focus();return}
-  if(!isN){at=new Date($("pn_a").value).getTime();if(!$("pn_a").value||isNaN(at)){er.textContent=TL("pnNeedW");return}
+  if(!isN){at=new Date($("pnf_a").value).getTime();if(!$("pnf_a").value||isNaN(at)){er.textContent=TL("pnNeedW");return}
    if(at<=Date.now()){er.textContent=TL("pnPast");return}
-   if(k=="alarm")rp=$("pn_r").checked;
+   if(k=="alarm")rp=$("pnf_r").checked;
    pnAudio();try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}}
   S.pn.push({id:S.n++,u:me.u,k,t,at,f:false,rp,d:Date.now()});save();close();render()}}
 function pnHome(a){
