@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#7a0a11">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -190,6 +190,36 @@ header .top.hb{justify-content:flex-end}
  .pnb .btn{flex:1 1 calc(50% - 8px)}
  #pnbox{left:6px;right:6px}
 }
+/* ===== Survey colour language: dark base, deep-red header, green line, dark cards ===== */
+:root{color-scheme:dark;--bg:#1a1012;--card:#241418;--ink:#f6e9e9;--mut:#bfa7aa;--line:#4d2b31;--hdr1:#7a0a11;--hdr2:#a30e18}
+html,body{background:var(--bg)}
+body::before{background:var(--hdr1)}
+header{background:linear-gradient(180deg,var(--hdr1),var(--hdr2));border-bottom:5px solid var(--grn);box-shadow:0 8px 24px #0006}
+header .top,header .me{color:#fff}
+header .btn.w{background:#fff;color:var(--red);border:1.5px solid #fff}
+header .btn.w:hover{background:var(--grn);border-color:var(--grn);color:#fff}
+.hl{background:#fff;border-radius:18px;box-shadow:0 8px 22px #0005}
+.box>img,.lg img{border-radius:18px}
+.box,.st{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--red);box-shadow:0 6px 20px #0005}
+.st{border-top:5px solid var(--c,var(--red))}
+.md,.lg{background:var(--card);color:var(--ink)}
+input,select,textarea{background:#1a1012;color:var(--ink);border:1.5px solid var(--line)}
+input::placeholder,textarea::placeholder{color:#8f7a7d}
+input[type=datetime-local],input[type=date],input[type=time]{color-scheme:dark}
+.nv button,.nv a,.mg button,.mg a{background:var(--card);color:#f6dcdc}
+.nv button.on,.mg button.on{background:var(--red);color:#fff}
+.nv a,.mg a{color:#7ed36f}
+.nv button:hover{background:#3a1a20}.nv a:hover{background:#18301a}
+.nv button.on:hover{background:var(--red)}
+.tk:hover{background:#2f1b21}
+.tag{background:color-mix(in srgb,var(--c) 18%,var(--card))}
+.chg{background:#2f1b21}
+.box h3,.md h2,.lg h1{color:#ff5a64}
+.pnc{background:var(--card);color:var(--ink)}
+.bn{background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 20px #0006}
+.bn button.on{color:#ff5a64}.bn button.on .bi{background:#3a1a20}
+.btn.g{color:var(--ink);border-color:var(--line)}
+@media(max-width:640px){header{border-radius:0}}
 </style>
 </head>
 <body>
