@@ -119,6 +119,21 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--grn);box-sh
 .tno{display:inline-block;background:var(--red);color:#fff;font:800 12px/1.4 Cairo,Tahoma,sans-serif;padding:1px 10px;border-radius:99px;margin-inline-end:8px;letter-spacing:.5px;direction:ltr;unicode-bidi:isolate;vertical-align:middle}
 .md h2 .tno{font-size:14px}
 .gsep{height:5px;width:100%;background:var(--grn);margin-top:12px;box-shadow:0 -6px 16px #2f8a2218}
+/* header + tabs always on the left */
+header .hw{direction:ltr;padding:0 10px}
+header .top{justify-content:flex-start;padding-right:12px}
+.nv{direction:ltr;justify-content:flex-start}
+.lt{text-align:left}
+/* side menu: left, under the logo, vertical */
+.shell{display:flex;direction:ltr;align-items:flex-start;gap:14px;max-width:1020px;margin:0 auto;padding:0 10px}
+.shell .nv{flex-direction:column;flex-wrap:nowrap;flex:none;width:176px;max-width:none;margin:0;padding:14px 0 10px;gap:6px;position:sticky;top:10px}
+.shell .nv button,.shell .nv a{display:block;width:100%;text-align:left;border-radius:14px}
+.shell main{flex:1;min-width:0;max-width:none;margin:0;padding:10px 0}
+@media(max-width:640px){.shell{flex-direction:column;gap:0}.shell .nv{flex-direction:row;flex-wrap:wrap;width:100%;position:static}.shell .nv button,.shell .nv a{width:auto}.shell main{width:100%}}
+.gl{display:inline-flex;align-items:center;justify-content:center}
+.pend-note{color:var(--amb);font-weight:600;margin:6px 0 0}
+.chg{display:grid;gap:2px;margin:8px 0;padding:8px 10px;background:#fbf3f3;border-radius:12px;font-size:14px}
+.chg s{color:var(--mut);margin-inline-end:8px}.chg b{color:var(--grn)}
 </style>
 </head>
 <body>
@@ -155,7 +170,7 @@ const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّ
  for(let i=0;i<20;i++){const s=S[i%5],d=now-(i%9)*day-i*hr*2;t.push({id:i+1,cid:i%6+1,title:T[i%10],pr:P[i%4],s,ag:AG[i%5],d,r:s=="done"?d+(5+(i*7)%40)*hr:null,notes:i%3?[]:[{t:"تم التواصل مع العميل",d:d+hr}]})}
  return{n:30,c:[{id:1,name:"هدى علي",phone:"01012345678",email:"huda@example.com",co:"مكتبة النور"},{id:2,name:"كريم السيد",phone:"01123456789",email:"k@example.com",co:"شركة الدلتا"},{id:3,name:"نادية فؤاد",phone:"01234567890",email:"",co:""},{id:4,name:"مصطفى حسن",phone:"01098765432",email:"m@example.com",co:"مطعم الشرق"},{id:5,name:"سلمى رضا",phone:"01155554444",email:"",co:""},{id:6,name:"يوسف عادل",phone:"01277778888",email:"y@example.com",co:"مخازن الأمل"}],t}};
 const seedM=()=>({req:[{id:20,ag:"amr",d:now-day,s:"new",f:{cust:1,subject:"طلب توصيل لمنزل",det:""},notes:[]}],short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أرز مصري 5 كجم",branch:"فرع المعادي",qty:"40",det:""},notes:[]}],resv:[{id:22,ag:"abdullah",d:now-day,s:"res",f:{cust:2,product:"ثلاجة 400 لتر",qty:"1",branch:"فرع القاهرة الجديدة",due:""},notes:[]}],fu:[{id:23,ag:"karim",d:now,s:"pend",f:{cust:3,subject:"متابعة شكوى الضمان",due:""},notes:[]}],ho:[{id:24,ag:"karim",d:now,s:"pend",f:{to:"tamer",subject:"تسليم وردية الصباح",det:"3 شكاوى مفتوحة تحتاج متابعة"},notes:[]}]});
-let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{req:[],short:[],resv:[],fu:[],ho:[]}};if(!S.m)S.m={req:[],short:[],resv:[],fu:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});
+let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{req:[],short:[],resv:[],fu:[],ho:[]}};if(!S.m)S.m={req:[],short:[],resv:[],fu:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
 try{const s=sessionStorage.getItem("g-me");if(s)me=U.find(x=>x.u==s)||null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -170,7 +185,7 @@ const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const tkRow=t=>`<div class="tk" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span></div>`;
 function render(){
  document.body.style.background=document.documentElement.style.background=me?"#fff":"var(--bg)";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
- const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language">⚙️</button>`;
+ const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
   r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:150px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
@@ -180,16 +195,16 @@ function render(){
    me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render()};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";
- const tabs=["home","dash","tk","req","short","svy","resv","fu","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"]);
- r.innerHTML=`<header><div class="hw"><div class="top" style="direction:ltr"><span class="logo">${L("app")}</span><span style="flex:1"></span>${lb}<button class="btn w s" id="lo">${L("logout")}</button><span class="me">${nm(me.u)} (${L("role")[me.r]})</span></div><img class="hl" src="${LOGO}" alt="Géant"></div></header><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}</button>`).join("")}</nav><div class="gsep"></div>
-<main id="app"></main>`;
- $("lb").onclick=langMenu;$("lo").onclick=()=>{me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
+ const tabs=["home","dash","tk","req","short","svy","resv","fu","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
+ r.innerHTML=`<header><div class="hw"><img class="hl" src="${LOGO}" alt="Géant"><div class="top" style="direction:ltr"><span class="logo">${L("app")}</span>${lb}<button class="btn w s" id="lo">${L("logout")}</button><button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)} (${L("role")[me.r]}) ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button></div></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length?" ("+S.ue.length+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>`;
+ $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
  const a=$("app");
- if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else perf(a);
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
+ if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
 }
 const late=t=>t.s!="done"&&now-t.d>2*day,opn=l=>l.filter(t=>t.s!="done");
 function dash(a){
@@ -268,8 +283,8 @@ const TPLS=[{"k": "dep", "f": "Deposit.docx", "en": "Deposit", "ar": "نموذج
 <script>
 const BR=["REH","TRI"];
 const CH=["branch","call","social"],LK={svy:"https://geant-egypt.github.io/geant-survey/",sch:"https://geant-egypt.github.io/CS-schedule/"};
-const X={ar:{by:"الموظف",pick:"اختر القناة",pickB:"اختر الفرع",home:"الرئيسية",myOpen:"شكاواك المفتوحة",myFu:"Follow up مطلوب منك",myHo:"Hand Over موجّه لك",rep:"التقارير",date:"التاريخ",fromD:"من تاريخ",toD:"إلى تاريخ",exp:"تصدير CSV (Excel)",resAt:"تاريخ الحل",cnt:"إجمالي السجلات",rtype:"نوع التقرير",byEmp:"حسب الموظف",byPr:"حسب الأولوية",noDl:"التحميل غير متاح هنا",section:"القسم",resp:"المسؤول عن القسم",tk:"شكاوى",req:"طلبات العملاء",short:"نواقص المنتجات",svy:"السيرفي",resv:"حجوزات المنتجات",fu:"Follow up",ho:"Hand Over",sch:"الجدول",tpl:"Templates",tplD:"نماذج جاهزة للتحميل والطباعة",dl:"تحميل",tsr:"ابحث عن نموذج",ch_branch:"فرع",ch_call:"كول سنتر",ch_social:"سوشيال ميديا",all:"الكل",channel:"القناة",subject:"الموضوع",product:"المنتج",branch:"الفرع",qty:"الكمية",due:"الموعد",to:"تسليم إلى",add:"إضافة",empty:"لا توجد سجلات. أضف أول سجل.",byCh:"الشكاوى حسب المصدر",pending:"المفتوح في باقي الأقسام",openL:"فتح الصفحة في نافذة جديدة",svyd:"استبيان رضا العملاء الخاص بجيان.",schd:"جدول مناوبات خدمة العملاء.",s_rep:"تم الإبلاغ",s_ord:"تم الطلب",s_av:"متوفر",s_res:"محجوز",s_rdy:"جاهز للاستلام",s_del:"تم التسليم",s_pend:"قيد الانتظار",s_dn:"تمت",s_rcv:"تم الاستلام"},
-en:{by:"Employee",pick:"Select channel",pickB:"Select branch",home:"Home",myOpen:"Your open complaints",myFu:"Your pending follow-ups",myHo:"Hand overs for you",rep:"Reports",date:"Date",fromD:"From date",toD:"To date",exp:"Export CSV (Excel)",resAt:"Resolved on",cnt:"Total records",rtype:"Report type",byEmp:"By employee",byPr:"By priority",noDl:"Download is not available here",section:"Section",resp:"Section supervisor",tk:"Complaints",req:"Customer requests",short:"Product shortages",svy:"Survey",resv:"Reservations",fu:"Follow up",ho:"Hand Over",sch:"Schedule",tpl:"Templates",tplD:"Ready-made forms to download and print",dl:"Download",tsr:"Search templates",ch_branch:"Branch",ch_call:"Call center",ch_social:"Social media",all:"All",channel:"Channel",subject:"Subject",product:"Product",branch:"Branch",qty:"Quantity",due:"Due date",to:"Hand over to",add:"Add",empty:"No records yet. Add the first one.",byCh:"Complaints by source",pending:"Open in other sections",openL:"Open page in a new tab",svyd:"Géant customer satisfaction survey.",schd:"Customer service shift schedule.",s_rep:"Reported",s_ord:"Ordered",s_av:"Available",s_res:"Reserved",s_rdy:"Ready for pickup",s_del:"Delivered",s_pend:"Pending",s_dn:"Done",s_rcv:"Received"}};
+const X={ar:{prof:"تعديل بياناتي",pNameAr:"الاسم بالعربي",pNameEn:"الاسم بالإنجليزي",pPhone:"رقم التليفون",pPass:"كلمة مرور جديدة",pPassH:"سيبها فاضية لو مش هتغيرها",pRole:"الصلاحية",pConfirm:"تأكيد",pNeed:"اكتب الاسم بالعربي والإنجليزي",pShort:"كلمة المرور لازم تكون 4 حروف على الأقل",pNone:"لم تغيّر أي شيء",pOwn:"لازم يفضل مدير واحد على الأقل",pPend:"عندك طلب تعديل في انتظار موافقة المدير",pSent:"تم إرسال طلب التعديل للمدير، وهيتطبق بعد الموافقة.",pPassCh:"تم تغيير كلمة المرور",apr:"الموافقات",aprE:"لا توجد طلبات معلّقة",approve:"موافقة",reject:"رفض",nOk:"تمت الموافقة على تعديل بياناتك.",nRej:"تم رفض طلب تعديل بياناتك.",by:"الموظف",pick:"اختر القناة",pickB:"اختر الفرع",home:"الرئيسية",myOpen:"شكاواك المفتوحة",myFu:"Follow up مطلوب منك",myHo:"Hand Over موجّه لك",rep:"التقارير",date:"التاريخ",fromD:"من تاريخ",toD:"إلى تاريخ",exp:"تصدير CSV (Excel)",resAt:"تاريخ الحل",cnt:"إجمالي السجلات",rtype:"نوع التقرير",byEmp:"حسب الموظف",byPr:"حسب الأولوية",noDl:"التحميل غير متاح هنا",section:"القسم",resp:"المسؤول عن القسم",tk:"شكاوى",req:"طلبات العملاء",short:"نواقص المنتجات",svy:"السيرفي",resv:"حجوزات المنتجات",fu:"Follow up",ho:"Hand Over",sch:"الجدول",tpl:"Templates",tplD:"نماذج جاهزة للتحميل والطباعة",dl:"تحميل",tsr:"ابحث عن نموذج",ch_branch:"فرع",ch_call:"كول سنتر",ch_social:"سوشيال ميديا",all:"الكل",channel:"القناة",subject:"الموضوع",product:"المنتج",branch:"الفرع",qty:"الكمية",due:"الموعد",to:"تسليم إلى",add:"إضافة",empty:"لا توجد سجلات. أضف أول سجل.",byCh:"الشكاوى حسب المصدر",pending:"المفتوح في باقي الأقسام",openL:"فتح الصفحة في نافذة جديدة",svyd:"استبيان رضا العملاء الخاص بجيان.",schd:"جدول مناوبات خدمة العملاء.",s_rep:"تم الإبلاغ",s_ord:"تم الطلب",s_av:"متوفر",s_res:"محجوز",s_rdy:"جاهز للاستلام",s_del:"تم التسليم",s_pend:"قيد الانتظار",s_dn:"تمت",s_rcv:"تم الاستلام"},
+en:{prof:"Edit my profile",pNameAr:"Name (Arabic)",pNameEn:"Name (English)",pPhone:"Phone number",pPass:"New password",pPassH:"Leave empty to keep current",pRole:"Role",pConfirm:"Confirm",pNeed:"Enter the name in Arabic and English",pShort:"Password must be at least 4 characters",pNone:"Nothing was changed",pOwn:"At least one owner must remain",pPend:"You have a change request waiting for the owner's approval",pSent:"Your request was sent to the owner and will apply once approved.",pPassCh:"Password changed",apr:"Approvals",aprE:"No pending requests",approve:"Approve",reject:"Reject",nOk:"Your profile changes were approved.",nRej:"Your profile change request was rejected.",by:"Employee",pick:"Select channel",pickB:"Select branch",home:"Home",myOpen:"Your open complaints",myFu:"Your pending follow-ups",myHo:"Hand overs for you",rep:"Reports",date:"Date",fromD:"From date",toD:"To date",exp:"Export CSV (Excel)",resAt:"Resolved on",cnt:"Total records",rtype:"Report type",byEmp:"By employee",byPr:"By priority",noDl:"Download is not available here",section:"Section",resp:"Section supervisor",tk:"Complaints",req:"Customer requests",short:"Product shortages",svy:"Survey",resv:"Reservations",fu:"Follow up",ho:"Hand Over",sch:"Schedule",tpl:"Templates",tplD:"Ready-made forms to download and print",dl:"Download",tsr:"Search templates",ch_branch:"Branch",ch_call:"Call center",ch_social:"Social media",all:"All",channel:"Channel",subject:"Subject",product:"Product",branch:"Branch",qty:"Quantity",due:"Due date",to:"Hand over to",add:"Add",empty:"No records yet. Add the first one.",byCh:"Complaints by source",pending:"Open in other sections",openL:"Open page in a new tab",svyd:"Géant customer satisfaction survey.",schd:"Customer service shift schedule.",s_rep:"Reported",s_ord:"Ordered",s_av:"Available",s_res:"Reserved",s_rdy:"Ready for pickup",s_del:"Delivered",s_pend:"Pending",s_dn:"Done",s_rcv:"Received"}};
 function getCust(n,p){n=n.trim();p=(p||"").trim();let c=S.c.find(x=>p?x.phone==p:x.name==n);if(!c){c={id:S.n++,name:n,phone:p,email:"",co:""};S.c.push(c)}return c.id}
 function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render()}
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
@@ -339,6 +354,44 @@ function tplV(a){a.innerHTML=`<div class="box"><h3>${TL("tpl")}</h3><p style="ma
   $("tg").innerHTML=l.map(t=>`<div class="box" style="display:flex;flex-direction:column;gap:10px;margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="tag done" style="flex:none">DOCX</span><b style="flex:1">${esc(lang=="ar"?t.ar:t.en)}</b></div><small style="color:var(--mut);direction:ltr;text-align:start">${esc(t.f)}</small><button class="btn gr" data-k="${t.k}" style="align-self:flex-start">⬇ ${TL("dl")}</button></div>`).join("")||`<div class="empty">${TL("empty")}</div>`;
   $("tg").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>dlT(b.dataset.k))};
  $("tq").oninput=e=>{tq=e.target.value;f()};f()}
+const ownersAfter=(u,r)=>U.filter(x=>(x.u==u?r:x.r)=="owner").length;
+function applyU(u,ch){const x=U.find(a=>a.u==u);S.uo[u]=Object.assign(S.uo[u]||{},ch);Object.assign(x,ch)}
+function msg(t,h){open(`<h2>${h||""}</h2><p>${t}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button></div>`);$("x").onclick=close}
+function profForm(){
+ const u=me,pd=S.ue.find(q=>q.u==u.u),v=Object.assign({n:u.n,ph:u.ph||"",r:u.r},pd?pd.ch:{});
+ open(`<h2>${TL("prof")}</h2>${pd?`<p class="pend-note">⏳ ${TL("pPend")}</p>`:""}<div class="f" style="margin-top:10px">
+ <label>${TL("pNameAr")}<input id="pa" value="${esc(v.n.ar)}"></label>
+ <label>${TL("pNameEn")}<input id="pn" dir="ltr" value="${esc(v.n.en)}"></label>
+ <label>${TL("pPhone")}<input id="pp" inputmode="tel" value="${esc(v.ph)}"></label>
+ <label>${TL("pPass")}<input id="pw" type="password" autocomplete="new-password" placeholder="${TL("pPassH")}"></label>
+ <label>${TL("pRole")}${sel("pr",["owner","sup","agent"].map(k=>[k,L("role")[k]]),v.r)}</label>
+ <div class="err" id="perr"></div>
+ <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("pConfirm")}</button></div></div>`);
+ $("x").onclick=close;
+ $("sv").onclick=()=>{const na=$("pa").value.trim(),ne=$("pn").value.trim(),ph=$("pp").value.trim(),np=$("pw").value,rl=$("pr").value,er=$("perr");
+  if(!na||!ne){er.textContent=TL("pNeed");return}
+  if(np&&np.length<4){er.textContent=TL("pShort");return}
+  const ch={};
+  if(na!=u.n.ar||ne!=u.n.en)ch.n={ar:na,en:ne};
+  if(ph!=(u.ph||""))ch.ph=ph;
+  if(np)ch.p=np;else if(pd&&pd.ch.p)ch.p=pd.ch.p;
+  if(ch.p==u.p)delete ch.p;
+  if(rl!=u.r)ch.r=rl;
+  if(!Object.keys(ch).length){er.textContent=TL("pNone");return}
+  if(ch.r&&ownersAfter(u.u,ch.r)==0){er.textContent=TL("pOwn");return}
+  if(u.r=="owner"){applyU(u.u,ch);save();close();render();return}
+  S.ue=S.ue.filter(q=>q.u!=u.u);S.ue.push({id:S.n++,u:u.u,ch,d:Date.now()});delete S.un[u.u];save();close();render();
+  msg(TL("pSent"),TL("prof"))}}
+function aprV(a){
+ const chg=(l,o,n)=>`<div><span style="color:var(--mut)">${l}:</span> <s>${esc(o||"—")}</s><b>${esc(n||"—")}</b></div>`;
+ a.innerHTML=`<div class="box"><h3>${TL("apr")}</h3>${S.ue.map(q=>{const x=U.find(y=>y.u==q.u),c=q.ch,R=L("role");
+  return`<div style="border-bottom:1px solid var(--line);padding:8px 0"><b>${esc(nm(q.u))}</b> <small style="color:var(--mut)">@${esc(q.u)} • ${fd(q.d)}</small>
+  <div class="chg">${c.n&&c.n.ar!=x.n.ar?chg(TL("pNameAr"),x.n.ar,c.n.ar):""}${c.n&&c.n.en!=x.n.en?chg(TL("pNameEn"),x.n.en,c.n.en):""}${"ph"in c?chg(TL("pPhone"),x.ph,c.ph):""}${c.p?`<div><span style="color:var(--mut)">${TL("pPass")}:</span> <b>${TL("pPassCh")}</b></div>`:""}${c.r?chg(TL("pRole"),R[x.r],R[c.r]):""}</div>
+  <div class="row" style="margin:0"><button class="btn gr s" data-ap="${q.id}">${TL("approve")}</button><button class="btn g s" data-rj="${q.id}">${TL("reject")}</button></div></div>`}).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`;
+ a.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>{const q=S.ue.find(r=>r.id==b.dataset.ap);
+  if(q.ch.r&&ownersAfter(q.u,q.ch.r)==0){msg(TL("pOwn"),TL("apr"));return}
+  applyU(q.u,q.ch);S.ue=S.ue.filter(r=>r!=q);S.un[q.u]="ok";save();render()});
+ a.querySelectorAll("[data-rj]").forEach(b=>b.onclick=()=>{const q=S.ue.find(r=>r.id==b.dataset.rj);S.ue=S.ue.filter(r=>r!=q);S.un[q.u]="rej";save();render()})}
 render();
 </script>
 </body>
