@@ -220,6 +220,10 @@ input[type=datetime-local],input[type=date],input[type=time]{color-scheme:dark}
 .bn button.on{color:#ff5a64}.bn button.on .bi{background:#3a1a20}
 .btn.g{color:var(--ink);border-color:var(--line)}
 @media(max-width:640px){header{border-radius:0}}
+/* sidebar: own scrollbar, independent of the page */
+.shell .nv{top:calc(var(--hh,0px) + 10px);max-height:calc(100vh - var(--hh,0px) - 20px);overflow-y:auto;overscroll-behavior:contain;padding:14px 8px 10px 4px;scrollbar-width:thin;scrollbar-color:var(--red) transparent}
+.shell .nv::-webkit-scrollbar{width:6px}.shell .nv::-webkit-scrollbar-thumb{background:var(--red);border-radius:99px}.shell .nv::-webkit-scrollbar-track{background:transparent}
+@media(max-width:640px){.shell .nv{max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
@@ -553,5 +557,6 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)pnCheck()}
 
 render();
 </script>
+<script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
 </body>
 </html>
