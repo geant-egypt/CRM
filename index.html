@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Géant CS">
 <title>Géant – Customer Service Department</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
 <style>
@@ -134,6 +139,56 @@ header .top{justify-content:flex-start;padding-right:12px}
 .pend-note{color:var(--amb);font-weight:600;margin:6px 0 0}
 .chg{display:grid;gap:2px;margin:8px 0;padding:8px 10px;background:#fbf3f3;border-radius:12px;font-size:14px}
 .chg s{color:var(--mut);margin-inline-end:8px}.chg b{color:var(--grn)}
+
+/* ===== v4: header left, bigger logo, mobile app shell, personal alerts ===== */
+header .hw{direction:ltr;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px}
+header .top.hb{flex:1;min-width:0;justify-content:flex-start;flex-wrap:nowrap;padding:4px 0;gap:8px}
+header .br{display:flex;align-items:center;gap:10px;flex:none}
+.hl{height:90px;width:90px}
+.bn{display:none}
+.mg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.mg button,.mg a{font:600 14px Cairo,Tahoma,sans-serif;padding:12px 10px;border-radius:14px;border:1.5px solid var(--red);background:#fff;color:var(--red);text-align:center;text-decoration:none}
+.mg a{border-color:var(--grn);color:var(--grn)}.mg button.on{background:var(--red);color:#fff}
+.pnb{justify-content:center;margin:16px 0 0}
+.pnb .btn{flex:0 0 auto}
+.pnr{cursor:default}.pnr:hover{background:none}
+#pnbox{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;right:8px;z-index:40;display:grid;gap:8px;max-width:440px;margin-inline:auto;pointer-events:none}
+.pnc{pointer-events:auto;display:flex;gap:12px;align-items:flex-start;background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 10px 30px #0004;border-inline-start:6px solid var(--amb)}
+.pnc.alarm{border-inline-start-color:var(--red);animation:pnr .9s ease-in-out infinite alternate}
+.pnc .pni{font-size:26px;line-height:1.2}.pnc .pnx{flex:1;min-width:0}.pnc small{color:var(--mut);display:block}
+@keyframes pnr{to{box-shadow:0 10px 30px #0004,0 0 0 4px #d7202c44}}
+@keyframes sh{from{transform:translateY(40px);opacity:.3}}
+@media(prefers-reduced-motion:reduce){.pnc.alarm{animation:none}.md{animation:none!important}}
+@media(max-width:640px){
+ html{-webkit-tap-highlight-color:transparent}
+ body{overscroll-behavior-y:none}
+ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:12;border-radius:0 0 22px 22px/0 0 16px 16px;padding-bottom:2px}
+ header .hw{padding:0 10px}
+ .hl{height:54px;width:54px}.logo{font-size:19px}
+ header .br{gap:6px}
+ header .top.hb{gap:6px}
+ header .btn.s{padding:5px 11px;font-size:12.5px;white-space:nowrap}
+ .pfr{display:none}
+ .shell{padding:0 12px}
+ .shell .nv{display:none}
+ .shell main{padding:12px 0 calc(96px + env(safe-area-inset-bottom,0px))}
+ .bn{display:flex;direction:ltr;position:fixed;left:0;right:0;bottom:0;z-index:15;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px #5a2a2418;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px))}
+ .bn button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--mut);font:600 11px Cairo,Tahoma,sans-serif;padding:4px 2px;border-radius:14px;min-height:54px;cursor:pointer}
+ .bn button.on{color:var(--red)}
+ .bn .bi{width:46px;height:28px;border-radius:99px;display:grid;place-items:center;transition:background .15s}
+ .bn button.on .bi{background:#fdecee}
+ .bn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .box,.st{border-radius:20px}
+ .btn{min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+ .btn.s{min-height:32px}
+ input,select,textarea{font-size:16px;padding:9px 12px}
+ .tk{padding:12px 6px}
+ .ov{align-items:flex-end;padding:0}
+ .md{max-width:none;border-radius:26px 26px 0 0;max-height:92vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));animation:sh .22s ease-out}
+ .lg{margin-top:4vh}
+ .pnb .btn{flex:1 1 calc(50% - 8px)}
+ #pnbox{left:6px;right:6px}
+}
 </style>
 </head>
 <body>
@@ -187,7 +242,7 @@ function render(){
  document.body.style.background=document.documentElement.style.background=me?"#fff":"var(--bg)";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
-  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:150px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
+  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
@@ -197,9 +252,9 @@ function render(){
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","req","short","svy","resv","fu","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
- r.innerHTML=`<header><div class="hw"><img class="hl" src="${LOGO}" alt="Géant"><div class="top" style="direction:ltr"><span class="logo">${L("app")}</span>${lb}<button class="btn w s" id="lo">${L("logout")}</button><button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)} (${L("role")[me.r]}) ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button></div></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length?" ("+S.ue.length+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>`;
- $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
- r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});
+ r.innerHTML=`<header><div class="hw"><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div><div class="br"><span class="logo">${L("app")}</span><img class="hl" src="${LOGO}" alt="Géant"></div></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length?" ("+S.ue.length+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
+ r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
@@ -290,10 +345,10 @@ function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
 function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح الخير":"مساء الخير"):(h<12?"Good morning":h<18?"Good afternoon":"Good evening");
  const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.fu.filter(r=>r.ag==me.u&&r.s=="pend").length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
- a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:86px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p></div>
+ a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:124px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p></div>
  <div class="stats"><div class="st"><b>${my}</b><span>${TL("myOpen")}</span></div><div class="st" style="--c:var(--grn)"><b>${fu}</b><span>${TL("myFu")}</span></div><div class="st"><b>${ho}</b><span>${TL("myHo")}</span></div></div>
  <div class="row"><button class="btn" id="gt">${TL("tk")}</button><button class="btn gr" id="gn">+ ${L("newTk")}</button></div>`;
- $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm}
+ $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm;pnHome(a)}
 let rt="tk",rf="",rto="";
 const dt=d=>new Date(d).toLocaleDateString("en-GB");
 function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,ok=r=>r.d>=fr&&r.d<=to;
@@ -324,10 +379,10 @@ ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"]],st:["pe
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):v};
 const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div><span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
 function mod(a){const M=MOD[view];let fq="",fst="";
- a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button></div><div class="box" id="lst"></div>`;
+ a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button>${view=="resv"?`<button class="btn gr" id="dpd">⬇ ${TL("depDl")}</button>`:""}</div><div class="box" id="lst"></div>`;
  const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&JSON.stringify(r.f).includes(fq)).sort((x,y)=>y.d-x.d);
   $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m))};
- $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;f()}
+ $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;if($("dpd"))$("dpd").onclick=()=>dlT("dep");f()}
 function mForm(){const M=MOD[view];
  const inp=([i,t])=>`<label>${TL(i)}${t=="cust"?`<input id="f_${i}" placeholder="${L("name")}"></label><label>${L("phone")}<input id="f_${i}_p" inputmode="tel">`:t=="br"?sel("f_"+i,[["",TL("pickB")],...BR.map(b=>[b,b])],""):t=="agent"?sel("f_"+i,AG.map(g=>[g,nm(g)]),""):t=="area"?`<textarea id="f_${i}" rows="3"></textarea>`:`<input id="f_${i}" type="${t=="num"?"number":t=="date"?"date":"text"}">`}</label>`;
  open(`<h2>${TL(view)}</h2><div class="f" style="margin-top:10px">${M.f.map(inp).join("")}<div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("save")}</button></div></div>`);
@@ -337,8 +392,8 @@ function mForm(){const M=MOD[view];
 function mView(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
  open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
- $("x").onclick=close;$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
+ $("x").onclick=close;if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
 function ext(a){a.innerHTML=`<div class="box"><h3>${TL(view)}</h3><p>${TL(view+"d")}</p><a class="btn gr" style="display:inline-block;text-decoration:none" href="${LK[view]}" target="_blank" rel="noopener">${TL("openL")}</a><p style="color:var(--mut);font-size:13px;direction:ltr;text-align:start">${LK[view]}</p></div>`}
 function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.max(1,...ch.map(x=>x[1]));
  const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&s.includes(r.s)).length;
@@ -392,6 +447,79 @@ function aprV(a){
   if(q.ch.r&&ownersAfter(q.u,q.ch.r)==0){msg(TL("pOwn"),TL("apr"));return}
   applyU(q.u,q.ch);S.ue=S.ue.filter(r=>r!=q);S.un[q.u]="ok";save();render()});
  a.querySelectorAll("[data-rj]").forEach(b=>b.onclick=()=>{const q=S.ue.find(r=>r.id==b.dataset.rj);S.ue=S.ue.filter(r=>r!=q);S.un[q.u]="rej";save();render()})}
+
+/* ===== v4: mobile bottom bar + notes / alarms / reminders ===== */
+Object.assign(X.ar,{more:"المزيد",depDl:"تنزيل نموذج Deposit",pnAddN:"إضافة ملاحظة",pnAddA:"إضافة منبه",pnAddR:"إضافة تذكير",pnMy:"ملاحظاتي وتنبيهاتي",pnNote:"الملاحظة",pnWhat:"التذكير بإيه؟",pnLbl:"اسم المنبه (اختياري)",pnWhen:"الموعد",pnDaily:"كرر يوميًا",pnAlarm:"منبه",pnRem:"تذكير",pnOk:"تمام",pnSnooze:"غفوة 5 دقائق",pnMissed:"فاتك الميعاد",pnNeedT:"اكتب النص الأول",pnNeedW:"اختار الموعد",pnPast:"الموعد لازم يكون في المستقبل",pnDel:"حذف",pnDone:"تم",pnDailyT:"يوميًا",pnHint:"التنبيهات بتظهر طول ما التطبيق مفتوح على الجهاز ده."});
+Object.assign(X.en,{more:"More",depDl:"Download Deposit form",pnAddN:"Add note",pnAddA:"Add alarm",pnAddR:"Add reminder",pnMy:"My notes & alerts",pnNote:"Note",pnWhat:"Remind me about",pnLbl:"Alarm name (optional)",pnWhen:"Date & time",pnDaily:"Repeat daily",pnAlarm:"Alarm",pnRem:"Reminder",pnOk:"OK",pnSnooze:"Snooze 5 min",pnMissed:"Missed",pnNeedT:"Write the text first",pnNeedW:"Pick a date and time",pnPast:"The time must be in the future",pnDel:"Delete",pnDone:"Done",pnDailyT:"Daily",pnHint:"Alerts show while the app is open on this device."});
+if(!S.pn)S.pn=[];
+
+const BI={home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',tk:'<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',resv:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>',fu:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
+const BMAIN=["home","tk","resv","fu"];
+function bnav(tabs){const k=BMAIN.filter(x=>tabs.some(t=>t[0]==x));
+ const it=(x,on,ic,lb)=>`<button data-b="${x}" class="${on?"on":""}"><span class="bi"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg></span>${lb}</button>`;
+ return `<div class="bn">${k.map(x=>it(x,view==x,BI[x],TL(x))).join("")}${it("more",!k.includes(view),BI.more,TL("more"))}</div>`}
+function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>{const v=b.dataset.b;if(v=="more"){moreMenu(tabs);return}view=v;window.scrollTo(0,0);render()})}
+function moreMenu(tabs){const l=tabs.filter(t=>!BMAIN.includes(t[0]));
+ open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length?" ("+S.ue.length+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ $("x").onclick=close;md.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;close();window.scrollTo(0,0);render()})}
+
+/* ---- personal notes / alarms / reminders ---- */
+const fdt=d=>new Date(d).toLocaleString(lang=="ar"?"ar-EG":"en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const lcl=ms=>new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString().slice(0,16);
+let pnAud=null,pnRing=null;
+function pnAudio(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;if(!pnAud)pnAud=new A();if(pnAud.state=="suspended")pnAud.resume();return pnAud}catch(e){return null}}
+document.addEventListener("pointerdown",pnAudio,{passive:true});
+function beep(n){const c=pnAudio();if(!c)return;try{let t=c.currentTime+.02;for(let i=0;i<n;i++){const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=i%2?988:740;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.4,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.3);t+=.34}}catch(e){}}
+function pnBox(){let b=$("pnbox");if(!b){b=document.createElement("div");b.id="pnbox";b.setAttribute("role","status");b.setAttribute("aria-live","assertive");document.body.appendChild(b)}return b}
+function pnStopRing(){if(pnRing){clearInterval(pnRing);pnRing=null}}
+function pnClear(){pnStopRing();const b=$("pnbox");if(b)b.innerHTML=""}
+function pnFire(p,late){
+ const box=pnBox(),el=document.createElement("div"),al=p.k=="alarm",ttl=al?TL("pnAlarm"):TL("pnRem"),at=p.at0||p.at;
+ el.className="pnc "+p.k;
+ el.innerHTML=`<div class="pni">${al?"⏰":"🔔"}</div><div class="pnx"><b>${ttl}${late?" • "+TL("pnMissed"):""}</b><div>${esc(p.t)}</div><small>${fdt(at)}</small><div class="row" style="margin:8px 0 0"><button class="btn s" data-a="ok">${TL("pnOk")}</button><button class="btn g s" data-a="sn">${TL("pnSnooze")}</button></div></div>`;
+ const done=()=>{el.remove();if(!box.querySelector(".pnc.alarm"))pnStopRing()};
+ el.querySelector('[data-a="ok"]').onclick=done;
+ el.querySelector('[data-a="sn"]').onclick=()=>{const t=Date.now()+5*6e4;if(p.rp){S.pn.push({id:S.n++,u:p.u,k:p.k,t:p.t,at:t,f:false,rp:false,d:Date.now()})}else{p.at=t;p.f=false}save();done();if(view=="home"&&!ov.classList.contains("on"))_render()};
+ box.appendChild(el);
+ try{if("Notification" in window&&Notification.permission=="granted")new Notification(ttl,{body:p.t,tag:"pn"+p.id,requireInteraction:al})}catch(e){}
+ try{navigator.vibrate&&navigator.vibrate(al?[400,200,400,200,400]:[200,100,200])}catch(e){}
+ if(al){beep(4);if(!pnRing)pnRing=setInterval(()=>beep(4),1800)}else beep(2)}
+function pnCheck(){if(!me){pnClear();return}
+ const n=Date.now();let fired=false;
+ S.pn.forEach(p=>{if(p.u==me.u&&p.at&&!p.f&&p.at<=n){const late=n-p.at>9e4,snap=Object.assign({},p);fired=true;
+   if(p.rp){while(p.at<=n)p.at+=day}else p.f=true;
+   pnFire(snap,late)}});
+ if(fired){save();if(view=="home"&&!ov.classList.contains("on"))_render()}}
+function pnForm(k){
+ const isN=k=="note",d0=lcl(Math.ceil((Date.now()+36e5)/36e5)*36e5),T={note:TL("pnAddN"),alarm:TL("pnAddA"),rem:TL("pnAddR")}[k];
+ open(`<h2>${T}</h2><div class="f" style="margin-top:10px">
+  ${k=="alarm"?`<label>${TL("pnLbl")}<input id="pn_t" placeholder="${TL("pnAlarm")}"></label>`:`<label>${isN?TL("pnNote"):TL("pnWhat")}<textarea id="pn_t" rows="${isN?4:2}"></textarea></label>`}
+  ${isN?"":`<label>${TL("pnWhen")}<input id="pn_a" type="datetime-local" value="${d0}"></label>`}
+  ${k=="alarm"?`<label style="display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input id="pn_r" type="checkbox" style="width:auto"> ${TL("pnDaily")}</label>`:""}
+  <div class="err" id="pn_e"></div>
+  <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
+ $("x").onclick=close;
+ $("sv").onclick=()=>{let t=$("pn_t").value.trim(),at=null,rp=false;const er=$("pn_e");
+  if(!t&&k=="alarm")t=TL("pnAlarm");
+  if(!t){er.textContent=TL("pnNeedT");$("pn_t").focus();return}
+  if(!isN){at=new Date($("pn_a").value).getTime();if(!$("pn_a").value||isNaN(at)){er.textContent=TL("pnNeedW");return}
+   if(at<=Date.now()){er.textContent=TL("pnPast");return}
+   if(k=="alarm")rp=$("pn_r").checked;
+   pnAudio();try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}}
+  S.pn.push({id:S.n++,u:me.u,k,t,at,f:false,rp,d:Date.now()});save();close();render()}}
+function pnHome(a){
+ const w=a.firstElementChild;if(!w)return;
+ w.insertAdjacentHTML("beforeend",`<div class="row pnb"><button class="btn" id="pn_n">+ ${TL("pnAddN")}</button><button class="btn" id="pn_a">+ ${TL("pnAddA")}</button><button class="btn" id="pn_r">+ ${TL("pnAddR")}</button></div>`);
+ $("pn_n").onclick=()=>pnForm("note");$("pn_a").onclick=()=>pnForm("alarm");$("pn_r").onclick=()=>pnForm("rem");
+ const ic={note:"📝",alarm:"⏰",rem:"🔔"},l=S.pn.filter(p=>p.u==me.u).sort((x,y)=>(x.k=="note")-(y.k=="note")||(x.at||x.d)-(y.at||y.d));
+ if(!l.length)return;
+ w.insertAdjacentHTML("afterend",`<div class="box" id="pnl"><h3>${TL("pnMy")}</h3>${l.map(p=>`<div class="tk pnr"><span style="font-size:20px">${ic[p.k]}</span><div class="t">${esc(p.t)}<small>${p.at?fdt(p.at)+(p.rp?" • "+TL("pnDailyT"):"")+(p.f&&!p.rp?" • ✓ "+TL("pnDone"):""):fd(p.d)}</small></div><button class="btn g s" data-pd="${p.id}" aria-label="${TL("pnDel")}" title="${TL("pnDel")}">✕</button></div>`).join("")}<div class="hint">${TL("pnHint")}</div></div>`);
+ $("pnl").querySelectorAll("[data-pd]").forEach(b=>b.onclick=()=>{S.pn=S.pn.filter(x=>x.id!=b.dataset.pd);save();render()})}
+const _render=render;
+render=function(){_render.apply(this,arguments);pnCheck()};
+setInterval(pnCheck,1e4);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)pnCheck()});
+
 render();
 </script>
 </body>
