@@ -298,7 +298,7 @@ const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّ
  for(let i=0;i<20;i++){const s=S[i%5],d=now-(i%9)*day-i*hr*2;t.push({id:i+1,cid:i%6+1,title:T[i%10],pr:P[i%4],s,ag:AG[i%5],d,r:s=="done"?d+(5+(i*7)%40)*hr:null,notes:i%3?[]:[{t:"تم التواصل مع العميل",d:d+hr}]})}
  return{n:30,c:[{id:1,name:"هدى علي",phone:"01012345678",email:"huda@example.com",co:"مكتبة النور"},{id:2,name:"كريم السيد",phone:"01123456789",email:"k@example.com",co:"شركة الدلتا"},{id:3,name:"نادية فؤاد",phone:"01234567890",email:"",co:""},{id:4,name:"مصطفى حسن",phone:"01098765432",email:"m@example.com",co:"مطعم الشرق"},{id:5,name:"سلمى رضا",phone:"01155554444",email:"",co:""},{id:6,name:"يوسف عادل",phone:"01277778888",email:"y@example.com",co:"مخازن الأمل"}],t}};
 const seedM=()=>({short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أرز مصري 5 كجم",branch:"فرع المعادي",qty:"40",det:""},notes:[]}],resv:[{id:22,ag:"abdullah",d:now-day,s:"res",f:{cust:2,product:"ثلاجة 400 لتر",qty:"1",branch:"فرع القاهرة الجديدة",due:""},notes:[]}],ho:[{id:24,ag:"karim",d:now,s:"pend",f:{to:"tamer",subject:"تسليم وردية الصباح",det:"3 شكاوى مفتوحة تحتاج متابعة"},notes:[]}]});
-function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];let ch=false;for(let i=U.length-1;i>=0;i--){if(!U[i]._nu&&S.ud.includes(U[i].u)){U.splice(i,1);ch=true}}
+function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];if(!S.bin)S.bin=[];if(!S.al)S.al=[];let ch=false;for(let i=U.length-1;i>=0;i--){if(!U[i]._nu&&S.ud.includes(U[i].u)){U.splice(i,1);ch=true}}
  for(let i=U.length-1;i>=0;i--){const x=U[i];if(x._nu&&!S.nu.some(e=>e.u==x.u)){U.splice(i,1);ch=true}}
  S.nu.forEach(e=>{if(!U.some(x=>x.u==e.u)){U.push(Object.assign({},e,{n:Object.assign({},e.n),_nu:1},(S.uo&&S.uo[e.u])||{}));ch=true}});
  if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u));
@@ -328,24 +328,24 @@ function render(){
   $("lb").onclick=langMenu;
   const go=()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,"");const x=U.find(a=>a.p==$("p").value&&(a.u==lv||(dv.length>=6&&String(a.ph||"").replace(/\D/g,"")==dv)));if(!x){$("er").textContent=L("bad");return}
     const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
-   me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render();showSplash()};
+   me=x;view="home";alog("in","");save();try{sessionStorage.setItem("g-me",x.u)}catch(e){}render();showSplash()};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"]);
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
+ const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
-  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
+  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
- if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else perf(a);
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
  if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
 }
 const late=t=>t.s!="done"&&now-t.d>2*day,opn=l=>l.filter(t=>t.s!="done");
 function dash(a){
- const l=mine(),n=k=>l.filter(t=>t.s==k).length,tot=l.length,dn=n("done"),rate=tot?Math.round(dn/tot*100):0,lt=l.filter(late).length;
+ const l=mine().filter(dflt),n=k=>l.filter(t=>t.s==k).length,tot=l.length,dn=n("done"),rate=tot?Math.round(dn/tot*100):0,lt=l.filter(late).length;
  const days=[...Array(7)].map((_,i)=>{const s=new Date(now-(6-i)*day).setHours(0,0,0,0);return{s,c:l.filter(t=>t.d>=s&&t.d<s+day).length,r:l.filter(t=>t.r&&t.r>=s&&t.r<s+day).length}}),mx=Math.max(1,...days.map(d=>Math.max(d.c,d.r)));
  const load=AG.map(g=>[g,opn(S.t.filter(t=>t.ag==g)).length]).sort((x,y)=>y[1]-x[1]);
  const best=AG.map(g=>[g,S.t.filter(t=>t.ag==g&&t.s=="done").length]).sort((x,y)=>y[1]-x[1])[0];
@@ -384,12 +384,12 @@ ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
 function tkView(id){
  const t=S.t.find(x=>x.id==id),c=cu(t.cid);
- open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)} ${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:""}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small><div class="f" style="margin-top:12px"><div class="row" style="margin:0">
+ open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)} ${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:""}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small> ${cb(c.phone)}<div class="f" style="margin-top:12px"><div class="row" style="margin:0">
  <label>${L("status")}${sel("s",["new","prog","done"].map(k=>[k,L(k)]),t.s)}</label>
  ${sup()?`<label>${L("assignee")}${sel("ag",AG.map(g=>[g,nm(g)]),t.ag)}</label><label>${L("priority")}${sel("pr",["hi","mid","lo"].map(k=>[k,L(k)]),t.pr)}</label><label>${TL("vd")}${sel("vd",[["",TL("vNone")],["valid",TL("vOk")],["invalid",TL("vNo")]],t.vd||"")}</label>`:""}</div>
  <div class="tl">${t.notes.map((n,i)=>`<p>${esc(n.t)}${ND("t",t.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${t.closed?"":t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn" id="ccs">${TL("clCase")}</button>`}${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
- $("x").onclick=close;if($("ccs"))$("ccs").onclick=()=>tkClose(t.id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.t=S.t.filter(x=>x.id!=t.id)});$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done"){t.r=null;delete t.closed}t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value;t.vd=$("vd").value}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${t.closed?"":t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn" id="ccs">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;if($("ccs"))$("ccs").onclick=()=>tkClose(t.id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.t=S.t.filter(x=>x.id!=t.id)});$("sv").onclick=()=>{alog("edit",tkn(t)+" "+t.title);const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done"){t.r=null;delete t.closed}t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value;t.vd=$("vd").value}
   const v=$("nt2").value.trim();if(v)t.notes.push({t:v,d:Date.now()});save();close();render()};
 }
 function tkForm(){
@@ -398,7 +398,7 @@ function tkForm(){
  <label>${L("assignee")}${sup()?sel("ag",AG.map(g=>[g,nm(g)]),AG[0]):`<select id="ag" disabled><option value="${me.u}">${nm(me.u)}</option></select>`}</label></div>
  <label>${L("det")}<textarea id="nt2" rows="3"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("create")}</button></div></div>`);
  $("x").onclick=close;$("sv").onclick=()=>{if(!$("br").value){$("br").focus();$("br").style.borderColor="var(--red)";return}if(!$("ch").value){$("ch").focus();$("ch").style.borderColor="var(--red)";return}if(!$("c").value.trim()){$("c").focus();$("c").placeholder=L("fillN");$("c").style.borderColor="var(--red)";return}if(!$("ti").value.trim()){$("ti").focus();$("ti").placeholder=L("fill");$("ti").style.borderColor="var(--red)";return}
-  const v=$("nt2").value.trim();S.t.push({id:S.n++,no:++S.tn,br:$("br").value,ch:$("ch").value,cid:getCust($("c").value,$("cp").value),title:$("ti").value.trim(),pr:$("pr").value,s:"new",ag:$("ag").value,d:Date.now(),r:null,notes:v?[{t:v,d:Date.now()}]:[]});save();close();view="tk";render();tkView(S.t[S.t.length-1].id)};
+  const v=$("nt2").value.trim();alog("new",$("ti").value.trim());S.t.push({id:S.n++,no:++S.tn,br:$("br").value,ch:$("ch").value,cid:getCust($("c").value,$("cp").value),title:$("ti").value.trim(),pr:$("pr").value,s:"new",ag:$("ag").value,d:Date.now(),r:null,notes:v?[{t:v,d:Date.now()}]:[]});save();close();view="tk";render();tkView(S.t[S.t.length-1].id)};
 }
 function cuForm(){
  open(`<h2>${L("newCu")}</h2><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n"></label><label>${L("phone")}<input id="p" inputmode="tel"></label><label>${L("email")}<input id="e"></label><label>${L("co")}<input id="co"></label>
@@ -408,8 +408,8 @@ function cuForm(){
 }
 function cuView(id){
  const c=cu(id),k=mine().filter(t=>t.cid==id);
- open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small><h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
  $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
 }
 </script>
@@ -432,10 +432,10 @@ function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح ال
  a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:124px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p><div class="hclk" id="hclk">${clk()}</div></div>
  <div class="stats"><div class="st"><b>${my}</b><span>${TL("myOpen")}</span></div><div class="st" style="--c:var(--grn)"><b>${fu}</b><span>${TL("resv")}</span></div><div class="st"><b>${ho}</b><span>${TL("myHo")}</span></div></div>
  <div class="row"><button class="btn" id="gt">${TL("tk")}</button><button class="btn gr" id="gn">+ ${L("newTk")}</button></div>`;
- $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm;pnHome(a);caseFeed(a)}
+ $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm;pnHome(a);caseFeed(a);lateBox(a)}
 let rt="tk",rf="",rto="";
 const dt=d=>new Date(d).toLocaleDateString("en-GB");
-function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,ok=r=>r.d>=fr&&r.d<=to;
+function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,ok=r=>r.d>=fr&&r.d<=to&&(!rbr||(r.f?r.f.branch:r.br)==rbr);
  if(rt=="tk")return{H:[lang=="ar"?"رقم التكت":"Ticket #",TL("date"),L("cust"),L("phone"),TL("channel"),TL("branch"),L("title"),L("priority"),L("status"),TL("by"),TL("resAt")],R:S.t.filter(ok).map(t=>{const c=cu(t.cid);return{o:t,c:[tkn(t),dt(t.d),c.name,c.phone||"",CHL(t.ch),t.br||"",t.title,L(t.pr),L(t.s),nm(t.ag),t.r?dt(t.r):""]}})};
  const M=MOD[rt];return{H:[TL("date"),TL("by"),L("status"),...M.f.map(x=>TL(x[0]))],R:S.m[rt].filter(ok).map(r=>({o:r,c:[dt(r.d),nm(r.ag),SL(r.s),...M.f.map(x=>String(fv(r,x)??""))]}))}}
 function rep(a){const{H,R}=repRows(),fin=rt=="tk"?"done":MOD[rt].st.slice(-1)[0],sts=rt=="tk"?["new","prog","done"]:MOD[rt].st,n=R.length,d=R.filter(x=>x.o.s==fin).length;
@@ -443,12 +443,12 @@ function rep(a){const{H,R}=repRows(),fin=rt=="tk"?"done":MOD[rt].st.slice(-1)[0]
  const grp=f=>{const m={};R.forEach(x=>{const k=f(x.o);m[k]=(m[k]||0)+1});return Object.entries(m).sort((p,q)=>q[1]-p[1])};
  const bars=(arr,lab)=>{const mx=Math.max(1,...arr.map(x=>x[1]));return arr.map(([k,c])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 100px">${lab(k)}</span><div class="bar" style="flex:1"><i style="width:${c/mx*100}%"></i></div><span style="flex:0 0 28px">${c}</span></div>`).join("")||`<div class="empty">${TL("empty")}</div>`};
  const lb2=t=>`<label style="font-size:12px;color:var(--mut)">${t}`;
- a.innerHTML=`<div class="row">${lb2(TL("rtype"))}<select id="rt">${["tk","short","resv","ho"].map(k=>`<option value="${k}" ${rt==k?"selected":""}>${TL(k)}</option>`).join("")}</select></label>${lb2(TL("fromD"))}<input type="date" id="rf" value="${rf}"></label>${lb2(TL("toD"))}<input type="date" id="rto" value="${rto}"></label><button class="btn gr" id="ex">${TL("exp")}</button></div>
+ a.innerHTML=`<div class="row">${lb2(TL("rtype"))}<select id="rt">${["tk","short","resv","ho"].map(k=>`<option value="${k}" ${rt==k?"selected":""}>${TL(k)}</option>`).join("")}</select></label>${lb2(TL("fromD"))}<input type="date" id="rf" value="${rf}"></label>${lb2(TL("toD"))}<input type="date" id="rto" value="${rto}"></label>${lb2(TL("branch"))}<select id="rbr">${[["",TL("all")],...BR.map(b=>[b,b])].map(([k,t])=>`<option value="${k}" ${rbr==k?"selected":""}>${t}</option>`).join("")}</select></label><button class="btn gr" id="ex">${TL("exp")}</button></div>
  <div class="stats"><div class="st"><b>${n}</b><span>${TL("cnt")}</span></div><div class="st" style="--c:var(--grn)"><b>${d}</b><span>${SL(fin)}</span></div><div class="st" style="--c:var(--grn)"><b>${n?Math.round(d/n*100):0}%</b><span>${L("rate")}</span></div>${rt=="tk"?`<div class="st"><b>${av}</b><span>${L("avg")}</span></div>`:""}</div>
  <div class="cols"><div class="box"><h3>${L("dist")}</h3>${bars(sts.map(k=>[k,R.filter(x=>x.o.s==k).length]),SL)}</div><div class="box"><h3>${TL("byEmp")}</h3>${bars(grp(o=>o.ag),nm)}</div>
  <div class="box"><h3>${TL("branch")}</h3>${bars(grp(o=>(o.f?o.f.branch:o.br)||"—"),x=>x)}</div>${rt=="tk"?`<div class="box"><h3>${TL("byCh")}</h3>${bars(grp(o=>o.ch),CHL)}</div><div class="box"><h3>${TL("byPr")}</h3>${bars(grp(o=>o.pr),L)}</div>`:""}</div>
  <div class="box"><div class="scroll"><table><tr>${H.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${R.slice(0,300).map(x=>`<tr>${x.c.map(v=>`<td>${esc(v)}</td>`).join("")}</tr>`).join("")||`<tr><td>${TL("empty")}</td></tr>`}</table></div></div>`;
- $("rt").onchange=e=>{rt=e.target.value;render()};$("rf").onchange=e=>{rf=e.target.value;render()};$("rto").onchange=e=>{rto=e.target.value;render()};$("ex").onclick=exportCsv}
+ $("rt").onchange=e=>{rt=e.target.value;render()};$("rf").onchange=e=>{rf=e.target.value;render()};$("rto").onchange=e=>{rto=e.target.value;render()};$("rbr").onchange=e=>{rbr=e.target.value;render()};$("ex").onclick=exportCsv}
 async function exportCsv(){const{H,R}=repRows(),q2=v=>`"${String(v).replace(/"/g,'""')}"`,dl=window.claude?await window.claude.use("downloads"):null;
  if(!dl){const csv="\ufeff"+[H,...R.map(x=>x.c)].map(r=>r.map(q2).join(",")).join("\r\n"),u=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),l=document.createElement("a");l.href=u;l.download=`geant-${rt}-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);return}
  try{await dl.save({filename:`geant-${rt}-${new Date().toISOString().slice(0,10)}.csv`,data:"\ufeff"+[H,...R.map(x=>x.c)].map(r=>r.map(q2).join(",")).join("\r\n")})}catch(e){}}
@@ -475,8 +475,8 @@ function mForm(){const M=MOD[view];
 function mView(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
  open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND(view,r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
- $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{alog("edit",TL(view)+" "+r.f[M.main]);r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
 function ext(a){a.innerHTML=`<div class="box"><h3>${TL(view)}</h3><p>${TL(view+"d")}</p><a class="btn gr" style="display:inline-block;text-decoration:none" href="${LK[view]}" target="_blank" rel="noopener">${TL("openL")}</a><p style="color:var(--mut);font-size:13px;direction:ltr;text-align:start">${LK[view]}</p></div>`}
 function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.max(1,...ch.map(x=>x[1]));
  const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&s.includes(r.s)).length;
@@ -616,7 +616,7 @@ function caseFeed(a){const w=a.firstElementChild;if(!w)return;
   dl=M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&x[0]!="due"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ");
   return `<div class="tk cs"><span style="font-size:20px">${caseIc[k]}</span><div class="t">${esc(r.f[M.main])}<small>${TL(k)} • ${dl} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small>${r.f.det?`<small>${esc(r.f.det)}</small>`:""}${at?`<small class="${late?"late":""}">⏰ ${fdt(at)}${late?" • "+TL("overdue"):""}</small>`:""}</div>${r.cl?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn gr s" data-cc="${k}:${r.id}">${TL("clCase")}</button>`}</div>`}).join("")||`<div class="empty">${TL("feedE")}</div>`}</div>`);
  a.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>caseClose(b.dataset.cc))}
-function caseClose(key){const[k,id]=key.split(":"),r=S.m[k].find(x=>x.id==id);if(!r||r.cl)return;const ow=me.r=="owner";
+function caseClose(key){const[k,id]=key.split(":"),r=S.m[k].find(x=>x.id==id);if(!r||r.cl)return;const ow=can("cls");
  open(`<h2>${TL("clCase")}</h2><p><b>${esc(r.f[MOD[k].main])}</b></p><p>${ow?TL("clAskO"):TL("clAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="cy">${TL("clYes")}</button></div>`);
  $("x").onclick=close;$("cy").onclick=()=>{
   if(ow){S.m[k]=S.m[k].filter(x=>x.id!=id)}
@@ -718,7 +718,7 @@ Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
-const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n","nu","ud"];
+const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al"];
 const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
 const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
 const skey=p=>p.replace(".","_");
@@ -767,8 +767,8 @@ setInterval(()=>{
 
 /* complaints: close-case approval (owner only) */
 const tcN=()=>S.t.filter(t=>t.cr&&!t.closed).length;
-function tkDone(t){t.s="done";if(!t.r)t.r=Date.now();t.closed=Date.now();delete t.cr}
-function tkClose(id){const t=S.t.find(x=>x.id==id);if(!t||t.cr||t.closed)return;const ow=me.r=="owner";
+function tkDone(t){alog("close",tkn(t)+" "+t.title);t.s="done";if(!t.r)t.r=Date.now();t.closed=Date.now();delete t.cr}
+function tkClose(id){const t=S.t.find(x=>x.id==id);if(!t||t.cr||t.closed)return;const ow=can("cls");
  open(`<h2>${TL("clCase")}</h2><p><b>${tkn(t)} ${esc(t.title)}</b></p><p>${ow?TL("tcAskO"):TL("tcAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="cy">${TL("clYes")}</button></div>`);
  $("x").onclick=close;$("cy").onclick=()=>{if(ow)tkDone(t);else t.cr={id:S.n++,by:me.u,d:Date.now()};save();close();render()}}
 const _aprV2=aprV;
@@ -789,16 +789,16 @@ function tkDetails(id){if(!me||!sup())return;const t=S.t.find(x=>x.id==id);if(!t
  const row=(l,v)=>v?`<b>${l}</b><span>${v}</span>`:"";
  const st=t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span> <small style="color:var(--mut)">${TL("clBy")}: ${esc(nm(t.cr.by))} • ${fdt(t.cr.d)}</small>`:"";
  open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)}</h2><div style="margin:6px 0">${vdTag(t)} <span class="tag ${t.s}">${L(t.s)}</span> <span class="tag ${t.pr}">${L(t.pr)}</span></div>
- <div class="dtl">${row(L("cust"),esc(c.name))}${row(L("phone"),esc(c.phone))}${row(TL("email"),esc(c.email))}${row(TL("co"),esc(c.co))}${row(TL("channel"),esc(CHL(t.ch)))}${row(TL("branch"),esc(t.br))}${row(L("assignee"),esc(nm(t.ag)))}${row(L("opened"),fdt(t.d))}${row(L("resolved"),t.r?fdt(t.r):"")}${row(TL("tcClosed"),t.closed?fdt(t.closed):"")}${row(TL("vd"),vdTag(t))}${row(L("status"),`<span class="tag ${t.s}">${L(t.s)}</span> ${st}`)}</div>
+ <div class="dtl">${row(L("cust"),esc(c.name))}${row(L("phone"),esc(c.phone)+" "+cb(c.phone))}${row(TL("email"),esc(c.email))}${row(TL("co"),esc(c.co))}${row(TL("channel"),esc(CHL(t.ch)))}${row(TL("branch"),esc(t.br))}${row(L("assignee"),esc(nm(t.ag)))}${row(L("opened"),fdt(t.d))}${row(L("resolved"),t.r?fdt(t.r):"")}${row(TL("tcClosed"),t.closed?fdt(t.closed):"")}${row(TL("vd"),vdTag(t))}${row(L("status"),`<span class="tag ${t.s}">${L(t.s)}</span> ${st}`)}</div>
  <h3 style="margin:10px 0 4px;font-size:15px;color:var(--red)">${TL("notes")}</h3><div class="tl">${t.notes.map((n,i)=>`<p>${esc(n.t)}${ND("t",t.id,i)}<small>${fdt(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="ed">${TL("tkEdit")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ <div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="ed">${TL("tkEdit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
  $("x").onclick=close;$("ed").onclick=()=>tkView(t.id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.t=S.t.filter(x=>x.id!=t.id)})}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-dt]");if(!b)return;e.stopPropagation();e.preventDefault();tkDetails(b.dataset.dt)},true);
 
 /* owner: delete anything + add users */
-function ownDel(fn){if(!me||me.r!="owner")return;
+function ownDel(fn){if(!can("del"))return;
  open(`<h2>${TL("del")}</h2><p>${TL("delAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="dy" style="background:var(--red2)">${TL("delYes")}</button></div>`);
- $("x").onclick=close;$("dy").onclick=()=>{fn();save();close();render()}}
+ $("x").onclick=close;$("dy").onclick=()=>{const sn=binSnap();fn();binDiff(sn);save();close();render()}}
 function usrV(a){const RC={owner:"hi",sup:"mid",agent:"lo"};
  a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div><span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}</span><button class="btn g s" data-ue="${esc(x.u)}">${TL("tkEdit")}</button>${x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
  $("nu").onclick=usrForm;
@@ -806,33 +806,69 @@ function usrV(a){const RC={owner:"hi",sup:"mid",agent:"lo"};
  a.querySelectorAll("[data-ud]").forEach(b=>b.onclick=()=>usrDel(b.dataset.ud))}
 function usrDel(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;
  if(x.r=="owner"&&U.filter(a=>a.r=="owner").length<2){msg(TL("pOwn"),TL("del"));return}
- ownDel(()=>{if(x._nu){S.nu=S.nu.filter(e=>e.u!=u)}else{if(!S.ud)S.ud=[];if(!S.ud.includes(u))S.ud.push(u)}
-  if(S.uo)delete S.uo[u];S.ue=S.ue.filter(q=>q.u!=u);if(S.un)delete S.un[u];nuApply()})}
+ const n=S.t.filter(t=>t.ag==u&&t.s!="done").length,go=to=>ownDel(()=>{if(to)S.t.forEach(t=>{if(t.ag==u&&t.s!="done")t.ag=to});alog("user","✕ "+nm(u));
+  if(x._nu){S.nu=S.nu.filter(e=>e.u!=u)}else{if(!S.ud)S.ud=[];if(!S.ud.includes(u))S.ud.push(u)}
+  if(S.uo)delete S.uo[u];S.ue=S.ue.filter(q=>q.u!=u);if(S.un)delete S.un[u];nuApply()});
+ if(!n){go();return}
+ open(`<h2>${TL("del")}: ${esc(nm(u))}</h2><p>${TL("rsAsk").replace("{n}",n)}</p>${sel("rsTo",AG.filter(g=>g!=u).map(g=>[g,nm(g)]),"")}<div class="row" style="margin:10px 0 0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="rsGo">${TL("rsGo")}</button></div>`);
+ $("x").onclick=close;$("rsGo").onclick=()=>go($("rsTo").value)}
 function usrEdit(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner")return;
- open(`<h2>${TL("tkEdit")}: ${esc(nm(u))}</h2><div class="f" style="margin-top:10px"><label>${TL("pNameAr")}<input id="ea" value="${esc(x.n.ar)}"></label><label>${TL("pNameEn")}<input id="en1" dir="ltr" value="${esc(x.n.en)}"></label><label>${TL("pPhone")}<input id="ep" inputmode="tel" value="${esc(x.ph||"")}"></label><label>${TL("pPass")}<input id="ew" autocomplete="off" placeholder="${TL("pPassH")}"></label><label>${TL("pRole")}${sel("er1",["owner","sup","agent"].map(k=>[k,L("role")[k]]),x.r)}</label><div class="err" id="eer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("pConfirm")}</button></div></div>`);
- $("x").onclick=close;$("sv").onclick=()=>{const na=$("ea").value.trim(),ne=$("en1").value.trim(),ph=$("ep").value.trim(),pw=$("ew").value,rl=$("er1").value,er=$("eer"),dg=ph.replace(/\D/g,"");
+ open(`<h2>${TL("tkEdit")}: ${esc(nm(u))}</h2><div class="f" style="margin-top:10px"><label>${TL("pNameAr")}<input id="ea" value="${esc(x.n.ar)}"></label><label>${TL("pNameEn")}<input id="en1" dir="ltr" value="${esc(x.n.en)}"></label><label>${TL("pPhone")}<input id="ep" inputmode="tel" value="${esc(x.ph||"")}"></label><label>${TL("pPass")}<input id="ew" autocomplete="off" placeholder="${TL("pPassH")}"></label><label>${TL("pRole")}${sel("er1",["owner","sup","agent"].map(k=>[k,L("role")[k]]),x.r)}</label>${pmBox(x)}<div class="err" id="eer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("pConfirm")}</button></div></div>`);
+ $("er1").onchange=()=>pmSync("er1");$("x").onclick=close;$("sv").onclick=()=>{const na=$("ea").value.trim(),ne=$("en1").value.trim(),ph=$("ep").value.trim(),pw=$("ew").value,rl=$("er1").value,er=$("eer"),dg=ph.replace(/\D/g,"");
   if(!na||!ne){er.textContent=TL("pNeed");return}
   if(ph&&dg.length<6){er.textContent=TL("uPh");return}
   if(pw&&pw.length<4){er.textContent=TL("pShort");return}
   if(dg&&U.some(a=>a.u!=u&&(a.u==dg||String(a.ph||"").replace(/\D/g,"")==dg))){er.textContent=TL("uDup");return}
   if(rl!=x.r&&ownersAfter(u,rl)==0){er.textContent=TL("pOwn");return}
-  const ch={n:{ar:na,en:ne},ph,r:rl};if(pw)ch.p=pw;
-  applyU(u,ch);save();close();render()}}
-const ND=(k,id,i)=>me&&me.r=="owner"?`<button class="btn g s dl" data-nd="${k}:${id}:${i}" style="margin-inline-start:8px;padding:0 8px" aria-label="${TL("del")}">✕</button>`:"";
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nd]");if(!b||!me||me.r!="owner")return;e.stopPropagation();e.preventDefault();
+  const ch={n:{ar:na,en:ne},ph,r:rl,pm:pmRead()};if(pw)ch.p=pw;
+  alog("user","✎ "+nm(u));applyU(u,ch);save();close();render()}}
+const ND=(k,id,i)=>can("del")?`<button class="btn g s dl" data-nd="${k}:${id}:${i}" style="margin-inline-start:8px;padding:0 8px" aria-label="${TL("del")}">✕</button>`:"";
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nd]");if(!b||!can("del"))return;e.stopPropagation();e.preventDefault();
  const[k,id,i]=b.dataset.nd.split(":");let arr=null;
  if(k=="t"){const t=S.t.find(x=>x.id==id);arr=t&&t.notes}else{const r=(S.m[k]||[]).find(x=>x.id==id);arr=r&&r.notes}
  if(!arr)return;const n=arr[+i];ownDel(()=>{const j=arr.indexOf(n);if(j>-1)arr.splice(j,1)})},true);
 function usrForm(){
- open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner"].map(k=>[k,L("role")[k]]),"agent")}</label><small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
- $("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),dg=ph.replace(/\D/g,"");
+ open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner"].map(k=>[k,L("role")[k]]),"agent")}</label>${pmBox({r:"agent"})}<small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
+ $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),dg=ph.replace(/\D/g,"");
   if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
   if(dg.length<6){er.textContent=TL("uPh");return}
   if(pw.length<4){er.textContent=TL("pShort");return}
   if(U.some(x=>x.u==dg||String(x.ph||"").replace(/\D/g,"")==dg)){er.textContent=TL("uDup");return}
-  S.nu.push({u:dg,p:pw,r:rl,n:{ar:nme,en:nme},ph});nuApply();save();close();render()}}
+  S.nu.push({u:dg,p:pw,r:rl,n:{ar:nme,en:nme},ph,pm:pmRead()});alog("user","+ "+nme);nuApply();save();close();render()}}
 
 document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("nv"))window.__navY=t.scrollTop},true);
+
+/* ===== v7: permissions, recycle bin, audit log, late alerts, call/WhatsApp, filters, idle logout ===== */
+Object.assign(X.ar,{bin:"سلة المحذوفات",log:"سجل العمليات",binH:"المحذوفات بتتحفظ 30 يوم وبعدها بتتمسح نهائيًا.",binD:"يوم متبقي",restore:"استرجاع",pmT:"الصلاحيات",pm_del:"يقدر يحذف",pm_rep:"يشوف التقارير",pm_cls:"يقفل الشكاوى مباشرة",la_in:"دخول",la_out:"خروج",la_del:"حذف",la_edit:"تعديل",la_close:"قفل شكوى",la_new:"شكوى جديدة",la_user:"مستخدم",la_rest:"استرجاع",la_auto:"خروج تلقائي",lateT:"شكاوى متأخرة (أكتر من يومين)",idleMsg:"تم تسجيل خروجك بسبب عدم النشاط",rsAsk:"عند الموظف {n} شكوى مفتوحة. اختار موظف تنقلها له قبل الحذف.",rsGo:"نقل وحذف",call:"اتصال"});
+Object.assign(X.en,{bin:"Recycle bin",log:"Audit log",binH:"Deleted items are kept for 30 days, then removed permanently.",binD:"days left",restore:"Restore",pmT:"Permissions",pm_del:"Can delete",pm_rep:"Can view reports",pm_cls:"Can close complaints directly",la_in:"Login",la_out:"Logout",la_del:"Delete",la_edit:"Edit",la_close:"Close complaint",la_new:"New complaint",la_user:"User",la_rest:"Restore",la_auto:"Auto logout",lateT:"Overdue complaints (over 2 days)",idleMsg:"You were signed out due to inactivity",rsAsk:"This employee has {n} open complaint(s). Choose who to move them to before deleting.",rsGo:"Move & delete",call:"Call"});
+if(!S.bin)S.bin=[];if(!S.al)S.al=[];
+let rbr="",df="",dto="",dbr="",lastAct=Date.now();const IDLE=30*6e4;
+const pv=(x,k)=>x.r=="owner"||(x.pm&&k in x.pm?!!x.pm[k]:(k=="rep"&&x.r=="sup"));
+const can=k=>!!me&&pv(me,k);
+const pmBox=x=>`<div class="box" style="margin:0;padding:10px"><b>${TL("pmT")}</b>${["del","rep","cls"].map(k=>`<label style="display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px"><input type="checkbox" id="pm_${k}" style="width:auto" ${pv(x,k)?"checked":""}> ${TL("pm_"+k)}</label>`).join("")}</div>`;
+const pmRead=()=>({del:$("pm_del").checked,rep:$("pm_rep").checked,cls:$("pm_cls").checked});
+const pmSync=id=>{const r=$(id).value;$("pm_del").checked=$("pm_cls").checked=r=="owner";$("pm_rep").checked=r!="agent"};
+function alog(a,x){if(!S.al)S.al=[];S.al.push({d:Date.now(),u:me?me.u:"",a,x:x||""});if(S.al.length>500)S.al.splice(0,S.al.length-500)}
+const binSnap=()=>({t:[...S.t],c:[...S.c],short:[...S.m.short],resv:[...S.m.resv],ho:[...S.m.ho]});
+function binDiff(sn){const add=(k,m,old,cur,lb)=>old.filter(x=>!cur.includes(x)).forEach(x=>{const l=lb(x);S.bin.push({id:S.n++,d:Date.now(),by:me.u,k,m,it:JSON.parse(JSON.stringify(x)),lb:l});alog("del",l)});
+ add("t","",sn.t,S.t,x=>tkn(x)+" "+x.title);add("c","",sn.c,S.c,x=>x.name);["short","resv","ho"].forEach(m=>add("m",m,sn[m],S.m[m],x=>String(x.f[MOD[m].main]||"")))}
+function binV(a){const o=S.bin.length;S.bin=S.bin.filter(b=>Date.now()-b.d<30*day);if(S.bin.length!=o)save();
+ a.innerHTML=`<div class="box"><h3>${TL("bin")} (${S.bin.length})</h3><p style="margin:0 0 8px;color:var(--mut);font-size:13px">${TL("binH")}</p>${[...S.bin].sort((x,y)=>y.d-x.d).map(b=>`<div class="tk cs"><span style="font-size:20px">${{t:"📋",c:"👤",m:"📁"}[b.k]}</span><div class="t">${esc(b.lb)}<small>${b.k=="m"?TL(b.m):b.k=="t"?TL("tk"):TL("cu")} • ${TL("by")}: ${esc(nm(b.by))} • ${fdt(b.d)} • ${Math.max(0,30-Math.floor((Date.now()-b.d)/day))} ${TL("binD")}</small></div><button class="btn gr s" data-br="${b.id}">${TL("restore")}</button><button class="btn g s dl" data-bp="${b.id}">${TL("del")}</button></div>`).join("")||`<div class="empty">${TL("empty")}</div>`}</div>`;
+ a.querySelectorAll("[data-br]").forEach(b=>b.onclick=()=>{const i=S.bin.find(x=>x.id==b.dataset.br);if(!i)return;const it=i.it;
+  if(i.k=="t"){if(!S.t.some(x=>x.id==it.id))S.t.push(it)}else if(i.k=="c"){if(!S.c.some(x=>x.id==it.id))S.c.push(it)}else if(!S.m[i.m].some(x=>x.id==it.id))S.m[i.m].push(it);
+  S.bin=S.bin.filter(x=>x!=i);alog("rest",i.lb);save();render()});
+ a.querySelectorAll("[data-bp]").forEach(b=>b.onclick=()=>ownDel(()=>{S.bin=S.bin.filter(x=>x.id!=b.dataset.bp)}))}
+function logV(a){a.innerHTML=`<div class="box"><h3>${TL("log")}</h3><div class="scroll"><table><tr><th>${TL("date")}</th><th>${TL("by")}</th><th></th><th></th></tr>${[...S.al].reverse().slice(0,200).map(r=>`<tr><td>${fdt(r.d)}</td><td>${esc(nm(r.u))}</td><td>${TL("la_"+r.a)}</td><td>${esc(r.x||"")}</td></tr>`).join("")||`<tr><td>${TL("empty")}</td></tr>`}</table></div></div>`}
+function lateBox(a){if(!me||!sup()||!a.firstElementChild)return;const n=Date.now(),l=S.t.filter(t=>t.s!="done"&&!t.closed&&n-t.d>2*day).sort((x,y)=>x.d-y.d);if(!l.length)return;
+ a.firstElementChild.insertAdjacentHTML("afterend",`<div class="box"><h3>⚠ ${TL("lateT")} (${l.length})</h3>${l.slice(0,8).map(tkRow).join("")}${l.length>8?`<div class="empty">+${l.length-8}</div>`:""}</div>`)}
+const cb=p=>{const d=String(p||"").replace(/\D/g,"");if(d.length<6)return"";const w=d.startsWith("00")?d.slice(2):d.startsWith("0")?"20"+d.slice(1):d;
+ return `<a class="btn gr s" href="tel:${d}" style="text-decoration:none;color:#fff">📞 ${TL("call")}</a> <a class="btn s" href="https://wa.me/${w}" target="_blank" rel="noopener" style="text-decoration:none;color:#fff;background:#25a244">💬 WhatsApp</a>`};
+const dflt=t=>(!df||t.d>=new Date(df).setHours(0,0,0,0))&&(!dto||t.d<=new Date(dto).setHours(23,59,59,999))&&(!dbr||t.br==dbr);
+const _dash=dash;dash=function(a){_dash(a);const lb=t=>`<label style="font-size:12px;color:var(--mut)">${t}`;
+ a.insertAdjacentHTML("afterbegin",`<div class="row">${lb(TL("fromD"))}<input type="date" id="df" value="${df}"></label>${lb(TL("toD"))}<input type="date" id="dto" value="${dto}"></label>${lb(TL("branch"))}<select id="dbr">${[["",TL("all")],...BR.map(b=>[b,b])].map(([k,t])=>`<option value="${k}" ${dbr==k?"selected":""}>${t}</option>`).join("")}</select></label></div>`);
+ $("df").onchange=e=>{df=e.target.value;render()};$("dto").onchange=e=>{dto=e.target.value;render()};$("dbr").onchange=e=>{dbr=e.target.value;render()}};
+["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now()},{passive:true,capture:true}));
+setInterval(()=>{if(me&&Date.now()-lastAct>IDLE){alog("auto","");save();presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}close();pnClear();render();const e=$("er");if(e)e.textContent=TL("idleMsg")}},15000);
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
