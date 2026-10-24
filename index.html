@@ -241,6 +241,10 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 
 /* login page: white backdrop behind the card */
 .lt .btn.w{border:1.5px solid var(--red)}
+/* complaint validity: Valid = red, Not Valid = green */
+.tag.vl{--c:var(--red)}.tag.nv{--c:var(--grn)}.tag.cx{--c:var(--mut)}
+.tk.vl{border-inline-start:5px solid var(--red);padding-inline-start:8px}
+.tk.nv{border-inline-start:5px solid var(--grn);padding-inline-start:8px}
 /* splash / loading */
 #spl{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 #spl.out{opacity:0;pointer-events:none}
@@ -302,7 +306,8 @@ const $=id=>document.getElementById(id);
 function setLang(){lang=lang=="ar"?"en":"ar";try{localStorage.setItem("g-lang",lang)}catch(e){}render()}
 const langBtn=`<button class="btn w s" id="lb">${lang=="ar"?"English":"عربي"}</button>`;
 const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
-const tkRow=t=>`<div class="tk" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span></div>`;
+const vdTag=t=>t.vd=="valid"?`<span class="tag vl">${TL("vOk")}</span>`:t.vd=="invalid"?`<span class="tag nv">${TL("vNo")}</span>`:"";
+const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vl":t.vd=="invalid"?"nv":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}</div>`;
 function render(){
  document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
@@ -318,7 +323,7 @@ function render(){
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length?" ("+(S.ue.length+S.cl.length)+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
@@ -368,12 +373,12 @@ ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
 function tkView(id){
  const t=S.t.find(x=>x.id==id),c=cu(t.cid);
- open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small><div class="f" style="margin-top:12px"><div class="row" style="margin:0">
+ open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)} ${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:""}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small><div class="f" style="margin-top:12px"><div class="row" style="margin:0">
  <label>${L("status")}${sel("s",["new","prog","done"].map(k=>[k,L(k)]),t.s)}</label>
- ${sup()?`<label>${L("assignee")}${sel("ag",AG.map(g=>[g,nm(g)]),t.ag)}</label><label>${L("priority")}${sel("pr",["hi","mid","lo"].map(k=>[k,L(k)]),t.pr)}</label>`:""}</div>
+ ${sup()?`<label>${L("assignee")}${sel("ag",AG.map(g=>[g,nm(g)]),t.ag)}</label><label>${L("priority")}${sel("pr",["hi","mid","lo"].map(k=>[k,L(k)]),t.pr)}</label><label>${TL("vd")}${sel("vd",[["",TL("vNone")],["valid",TL("vOk")],["invalid",TL("vNo")]],t.vd||"")}</label>`:""}</div>
  <div class="tl">${t.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
- $("x").onclick=close;$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done")t.r=null;t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${t.closed?"":t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn" id="ccs">${TL("clCase")}</button>`}</div></div>`);
+ $("x").onclick=close;if($("ccs"))$("ccs").onclick=()=>tkClose(t.id);$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done"){t.r=null;delete t.closed}t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value;t.vd=$("vd").value}
   const v=$("nt2").value.trim();if(v)t.notes.push({t:v,d:Date.now()});save();close();render()};
 }
 function tkForm(){
@@ -527,7 +532,7 @@ function bnav(tabs){const k=BMAIN.filter(x=>tabs.some(t=>t[0]==x));
  return `<div class="bn">${k.map(x=>it(x,view==x,BI[x],TL(x))).join("")}${it("more",!k.includes(view),BI.more,TL("more"))}</div>`}
 function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>{const v=b.dataset.b;if(v=="more"){moreMenu(tabs);return}view=v;window.scrollTo(0,0);render()})}
 function moreMenu(tabs){const l=tabs.filter(t=>!BMAIN.includes(t[0]));
- open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length?" ("+(S.ue.length+S.cl.length)+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
  $("x").onclick=close;md.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;close();window.scrollTo(0,0);render()})}
 
 /* ---- personal notes / alarms / reminders ---- */
@@ -697,8 +702,8 @@ addEventListener("storage",e=>{
 document.addEventListener("pointerdown",function f(){try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}document.removeEventListener("pointerdown",f)},{passive:true});
 
 /* ===== v6: shared data through Firebase Realtime Database (REST + live stream, no SDK) ===== */
-Object.assign(X.ar,{kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
-Object.assign(X.en,{kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
+Object.assign(X.ar,{vd:"صلاحية الشكوى",vNone:"— غير محدد —",vOk:"Valid",vNo:"Not Valid",tcAsk:"هتقفل الشكوى دي؟ هتتبعت للمدير للموافقة.",tcAskO:"هتقفل الشكوى دي؟",tcReq:"طلبات قفل الشكاوى",tcClosed:"مقفولة",tcNew:"طلب قفل شكوى جديد",kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
+Object.assign(X.en,{vd:"Validity",vNone:"— Not set —",vOk:"Valid",vNo:"Not Valid",tcAsk:"Close this case? It will be sent to the owner for approval.",tcAskO:"Close this case?",tcReq:"Complaint close requests",tcClosed:"Closed",tcNew:"New case close request",kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
@@ -748,6 +753,25 @@ setInterval(()=>{
  if(DB.ren){if(!me){DB.ren=false}else if(!ov.classList.contains("on")){const a=document.activeElement;
   if(!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("app")&&$("app").contains(a))){DB.ren=false;render()}}}
  if(DB.url&&DB.st=="err")syncPush()},900);
+
+/* complaints: close-case approval (owner only) */
+const tcN=()=>S.t.filter(t=>t.cr&&!t.closed).length;
+function tkDone(t){t.s="done";if(!t.r)t.r=Date.now();t.closed=Date.now();delete t.cr}
+function tkClose(id){const t=S.t.find(x=>x.id==id);if(!t||t.cr||t.closed)return;const ow=me.r=="owner";
+ open(`<h2>${TL("clCase")}</h2><p><b>${tkn(t)} ${esc(t.title)}</b></p><p>${ow?TL("tcAskO"):TL("tcAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="cy">${TL("clYes")}</button></div>`);
+ $("x").onclick=close;$("cy").onclick=()=>{if(ow)tkDone(t);else t.cr={id:S.n++,by:me.u,d:Date.now()};save();close();render()}}
+const _aprV2=aprV;
+aprV=function(a){_aprV2(a);const l=S.t.filter(t=>t.cr&&!t.closed);
+ a.insertAdjacentHTML("afterbegin",`<div class="box"><h3>${TL("tcReq")}${l.length?" ("+l.length+")":""}</h3>${l.map(t=>`<div class="tk cs"><span style="font-size:20px">📋</span><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${TL("clBy")}: ${nm(t.cr.by)} • ${t.br?TL("branch")+": "+esc(t.br)+" • ":""}${fdt(t.cr.d)}</small></div>${vdTag(t)}<div class="row" style="margin:0"><button class="btn gr s" data-ta="${t.id}">${TL("approve")}</button><button class="btn g s" data-tr="${t.id}">${TL("reject")}</button></div></div>`).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`);
+ a.querySelectorAll("[data-ta]").forEach(b=>b.onclick=()=>{const t=S.t.find(x=>x.id==b.dataset.ta);if(!t)return;tkDone(t);save();render()});
+ a.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>{const t=S.t.find(x=>x.id==b.dataset.tr);if(!t)return;delete t.cr;save();render()})};
+const _caseCheck2=caseCheck;
+caseCheck=function(){_caseCheck2();if(!me||me.r!="owner")return;
+ S.t.forEach(t=>{if(t.cr&&!t.closed&&nfNew("tc:"+t.cr.id+":"+me.u)){
+  const box=pnBox(),el=document.createElement("div");el.className="pnc case";
+  el.innerHTML=`<div class="pni">📋</div><div class="pnx"><b>${TL("tcNew")}</b><div>${tkn(t)} ${esc(t.title)}</div><small>${TL("clBy")}: ${nm(t.cr.by)}</small><div class="row" style="margin:8px 0 0"><button class="btn gr s" data-a="go">${TL("clOpenA")}</button><button class="btn g s" data-a="ok">${TL("pnOk")}</button></div></div>`;
+  el.querySelector('[data-a="ok"]').onclick=()=>el.remove();el.querySelector('[data-a="go"]').onclick=()=>{el.remove();view="apr";render()};
+  box.appendChild(el);beep(2)}})};
 
 render();dbInit();
 </script>
