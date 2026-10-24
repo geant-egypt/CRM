@@ -274,7 +274,7 @@ const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّ
 const seedM=()=>({short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أرز مصري 5 كجم",branch:"فرع المعادي",qty:"40",det:""},notes:[]}],resv:[{id:22,ag:"abdullah",d:now-day,s:"res",f:{cust:2,product:"ثلاجة 400 لتر",qty:"1",branch:"فرع القاهرة الجديدة",due:""},notes:[]}],ho:[{id:24,ag:"karim",d:now,s:"pend",f:{to:"tamer",subject:"تسليم وردية الصباح",det:"3 شكاوى مفتوحة تحتاج متابعة"},notes:[]}]});
 let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
-const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
 try{const s=sessionStorage.getItem("g-me");if(s)me=U.find(x=>x.u==s)||null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
@@ -300,7 +300,7 @@ function render(){
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div>${me.r=="owner"?`<div class="onl" id="onl"></div>`:""}</header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length?" ("+(S.ue.length+S.cl.length)+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length?" ("+(S.ue.length+S.cl.length)+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
@@ -597,13 +597,14 @@ function caseFire(k,r,late){const box=pnBox(),el=document.createElement("div");e
  try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
  beep(3)}
 function caseCheck(){if(!me)return;const n=Date.now();let f=false;
- ["ho","resv"].forEach(k=>S.m[k].forEach(r=>{const at=caseAt(r);if(at&&at<=n&&!r.cl){r.nf=r.nf||{};if(!r.nf[me.u]){r.nf[me.u]=1;f=true;caseFire(k,r,n-at>9e4)}}}));
- if(me.r=="owner")S.cl.forEach(q=>{const r=S.m[q.k]&&S.m[q.k].find(x=>x.id==q.rid);if(!q.nf&&r){q.nf=1;f=true;
+ ["ho","resv"].forEach(k=>S.m[k].forEach(r=>{const at=caseAt(r);if(at&&at<=n&&!r.cl&&nfNew(k+":"+r.id+":"+me.u)){caseFire(k,r,n-at>9e4)}}));
+ if(me.r=="owner")S.cl.forEach(q=>{const r=S.m[q.k]&&S.m[q.k].find(x=>x.id==q.rid);if(r&&nfNew("cl:"+q.id+":"+me.u)){
   const box=pnBox(),el=document.createElement("div");el.className="pnc case";
   el.innerHTML=`<div class="pni">✅</div><div class="pnx"><b>${TL("clNew")}</b><div>${esc(r.f[MOD[q.k].main])}</div><small>${TL("clBy")}: ${nm(q.by)} • ${TL("branch")}: ${esc(q.br||"—")}</small><div class="row" style="margin:8px 0 0"><button class="btn gr s" data-a="go">${TL("clOpenA")}</button><button class="btn g s" data-a="ok">${TL("pnOk")}</button></div></div>`;
   el.querySelector('[data-a="ok"]').onclick=()=>el.remove();el.querySelector('[data-a="go"]').onclick=()=>{el.remove();view="apr";render()};
   box.appendChild(el);beep(2)}});
- if(f){save();if(view=="home"&&!ov.classList.contains("on"))_render()}}
+ }
+function nfNew(k){let m={};try{m=JSON.parse(localStorage.getItem("g-nf"))||{}}catch(e){}if(m[k])return false;m[k]=1;const ks=Object.keys(m);if(ks.length>400)ks.slice(0,150).forEach(x=>delete m[x]);try{localStorage.setItem("g-nf",JSON.stringify(m))}catch(e){}return true}
 
 const _aprV=aprV;
 aprV=function(a){_aprV(a);S.cl=S.cl.filter(q=>S.m[q.k]&&S.m[q.k].some(x=>x.id==q.rid));
@@ -612,19 +613,25 @@ aprV=function(a){_aprV(a);S.cl=S.cl.filter(q=>S.m[q.k]&&S.m[q.k].some(x=>x.id==q
  a.querySelectorAll("[data-ca]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.ca);if(!q)return;S.m[q.k]=S.m[q.k].filter(x=>x.id!=q.rid);S.cl=S.cl.filter(x=>x!=q);save();render()});
  a.querySelectorAll("[data-cr]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.cr);if(!q)return;const r=S.m[q.k].find(x=>x.id==q.rid);if(r)delete r.cl;S.cl=S.cl.filter(x=>x!=q);save();render()})};
 
-/* presence: who is online (same browser; see note) */
+/* presence: who is online (shared through the database) */
 const PK="g-pres";
 function presRead(){try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return{}}}
 function presWrite(p){try{localStorage.setItem(PK,JSON.stringify(p))}catch(e){}}
-function presBeat(){if(!me)return;const p=presRead(),n=Date.now();p[me.u]=n;Object.keys(p).forEach(k=>{if(n-p[k]>6e4)delete p[k]});presWrite(p);onlineUpd()}
-function presOff(){const p=presRead();if(me)delete p[me.u];presWrite(p)}
-function onlineUpd(){const e=$("onl");if(!e||!me)return;const p=presRead(),n=Date.now(),l=U.filter(u=>u.u!=me.u&&p[u.u]&&n-p[u.u]<3e4);
- e.innerHTML=`<i></i>${TL("online")}: ${l.length?l.map(u=>esc(nm(u.u))).join(" • "):TL("noOnl")}`}
+function presBeat(){if(!me)return;const n=Date.now();
+ if(DB.url){if(!DB.first){fetch(DB.url+"/pres/"+me.u+".json",{method:"PUT",body:String(n)}).catch(()=>{});
+  if(me.r=="owner")fetch(DB.url+"/pres.json").then(r=>r.json()).then(p=>{DB.pres=p||{};onlineUpd()}).catch(()=>{})}}
+ else{const p=presRead();p[me.u]=n;Object.keys(p).forEach(k=>{if(n-p[k]>6e4)delete p[k]});presWrite(p)}
+ onlineUpd()}
+function presOff(){if(!me)return;if(DB.url){try{fetch(DB.url+"/pres/"+me.u+".json",{method:"DELETE",keepalive:true})}catch(e){}}else{const p=presRead();delete p[me.u];presWrite(p)}}
+function onlineUpd(){const e=$("onl");if(!e||!me)return;const n=Date.now(),p=DB.url?DB.pres:presRead();
+ const st={ok:"☁ "+TL("syOk"),conn:"☁ "+TL("syWait"),err:"⚠ "+TL("syErr"),off:""}[DB.st]||"";
+ let h="";if(me.r=="owner"){const l=U.filter(u=>u.u!=me.u&&p[u.u]&&n-p[u.u]<35e3);h=`<i></i>${TL("online")}: ${l.length?l.map(u=>esc(nm(u.u))).join(" • "):TL("noOnl")}`}
+ e.innerHTML=h+(h&&st?" &nbsp; ":"")+st}
 addEventListener("beforeunload",presOff);
 
 /* live sync between tabs/windows of this browser */
 addEventListener("storage",e=>{
- if(e.key=="gian-crm3"&&e.newValue){let n;try{n=JSON.parse(e.newValue)}catch(x){return}if(!n||!n.c)return;S=n;
+ if(e.key=="gian-crm3"&&e.newValue&&!DB.url){let n;try{n=JSON.parse(e.newValue)}catch(x){return}if(!n||!n.c)return;S=n;
   if(!S.cl)S.cl=[];if(!S.pn)S.pn=[];if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};
   ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});
   Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
@@ -632,7 +639,60 @@ addEventListener("storage",e=>{
  else if(e.key==PK)onlineUpd()});
 document.addEventListener("pointerdown",function f(){try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}document.removeEventListener("pointerdown",f)},{passive:true});
 
-render();
+/* ===== v6: shared data through Firebase Realtime Database (REST + live stream, no SDK) ===== */
+Object.assign(X.ar,{syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
+Object.assign(X.en,{syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
+const FB_NAME="geant-cs-crm-default-rtdb";
+const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
+const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
+const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n"];
+const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
+const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
+const skey=p=>p.replace(".","_");
+const sstr=p=>{const v=sget(p);return JSON.stringify(v===undefined?null:v)};
+const hasData=()=>S.c.length||S.t.length||S.m.short.length||S.m.resv.length||S.m.ho.length;
+const persist=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
+const reU=()=>Object.entries(S.uo||{}).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
+function setSt(s){if(DB.st!=s){DB.st=s;onlineUpd()}}
+function setLocal(p,rs){let v;try{v=JSON.parse(rs)}catch(e){return}if(v==null)return;if(p=="n"||p=="tn")v=Math.max(+v||0,+sget(p)||0);sset(p,v)}
+function syncPush(){if(!DB.url||DB.first)return;
+ SP.forEach(p=>{const cur=sstr(p);if(cur===DB.last[p]||DB.fl[p])return;DB.fl[p]=1;DB.wt[p]=Date.now();
+  fetch(DB.url+"/d/"+skey(p)+".json",{method:"PUT",body:JSON.stringify(cur)}).then(r=>{if(!r.ok)throw r.status;DB.last[p]=cur;DB.fl[p]=0;setSt("ok");if(sstr(p)!==cur)syncPush()}).catch(()=>{DB.fl[p]=0;setSt("err")})})}
+function applyRemote(){if(!DB.url)return;
+ if(ov.classList.contains("on")){DB.pend=true;return}
+ const R=DB.R;let ch=false;
+ if(DB.first){const has=SP.some(p=>R[skey(p)]!=null),mine=hasData();
+  if(has){try{localStorage.setItem("gian-crm3-backup",localStorage.getItem("gian-crm3")||"")}catch(e){}}
+  SP.forEach(p=>{const rs=R[skey(p)],cur=sstr(p);
+   if(rs!=null){if(rs!==cur){setLocal(p,rs);ch=true}DB.last[p]=rs}
+   else if(!has&&!mine)DB.last[p]=cur});
+  DB.first=false;if(ch){persist();reU();DB.ren=true}setSt("ok");syncPush();return}
+ SP.forEach(p=>{const rs=R[skey(p)];if(rs==null||rs===DB.last[p])return;
+  if(rs===sstr(p)){DB.last[p]=rs;return}
+  if(sstr(p)!==DB.last[p]||DB.fl[p]||Date.now()-(DB.wt[p]||0)<2000)return;
+  setLocal(p,rs);DB.last[p]=rs;ch=true});
+ if(ch){persist();reU();DB.ren=true}}
+function dbStream(){if(DB.es)DB.es.close();const es=new EventSource(DB.url+"/d.json");DB.es=es;
+ es.onopen=()=>setSt("ok");
+ es.addEventListener("put",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.path=="/"){DB.R=m.data||{}}else{const k=m.path.slice(1);if(m.data==null)delete DB.R[k];else DB.R[k]=m.data}applyRemote()});
+ es.addEventListener("patch",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.path=="/"&&m.data)Object.entries(m.data).forEach(([k,v])=>{if(v==null)delete DB.R[k];else DB.R[k]=v});applyRemote()});
+ es.addEventListener("cancel",()=>setSt("err"));es.addEventListener("auth_revoked",()=>setSt("err"));
+ es.onerror=()=>{setSt("err");if(es.readyState==2)setTimeout(dbStream,15000)}}
+async function dbInit(){if(!window.fetch||!window.EventSource||!Promise.any){setSt("off");return}
+ const c=localStorage.getItem("g-db"),l=c?[c,...FB_CAND.filter(x=>x!=c)]:FB_CAND;
+ const probe=u=>fetch(u+"/.json?shallow=true").then(r=>{if(r.ok||r.status==401||r.status==403)return u;throw 0});
+ let u="";try{u=await Promise.any(l.map(probe))}catch(e){}
+ if(!u){setSt("err");setTimeout(dbInit,15000);return}
+ DB.url=u;try{localStorage.setItem("g-db",u)}catch(e){}dbStream();presBeat()}
+setInterval(()=>{
+ if(DB.pend&&!ov.classList.contains("on")){DB.pend=false;applyRemote()}
+ if(DB.ren){if(!me){DB.ren=false}else if(!ov.classList.contains("on")){const a=document.activeElement;
+  if(!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("app")&&$("app").contains(a))){DB.ren=false;render()}}}
+ if(DB.url&&DB.st=="err")syncPush()},900);
+
+render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
 </body>
