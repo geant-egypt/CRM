@@ -247,6 +247,7 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .tk.vgn{border-inline-start:5px solid var(--grn);padding-inline-start:8px}
 .dtl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:12px 0;align-items:center}
 .dtl>b{color:var(--mut);font-weight:600;font-size:13px}.dtl>span{word-break:break-word}
+.btn.dl{color:var(--red)!important;border-color:var(--red)!important}
 /* splash / loading */
 #spl{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 #spl.out{opacity:0;pointer-events:none}
@@ -295,7 +296,12 @@ const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّ
  for(let i=0;i<20;i++){const s=S[i%5],d=now-(i%9)*day-i*hr*2;t.push({id:i+1,cid:i%6+1,title:T[i%10],pr:P[i%4],s,ag:AG[i%5],d,r:s=="done"?d+(5+(i*7)%40)*hr:null,notes:i%3?[]:[{t:"تم التواصل مع العميل",d:d+hr}]})}
  return{n:30,c:[{id:1,name:"هدى علي",phone:"01012345678",email:"huda@example.com",co:"مكتبة النور"},{id:2,name:"كريم السيد",phone:"01123456789",email:"k@example.com",co:"شركة الدلتا"},{id:3,name:"نادية فؤاد",phone:"01234567890",email:"",co:""},{id:4,name:"مصطفى حسن",phone:"01098765432",email:"m@example.com",co:"مطعم الشرق"},{id:5,name:"سلمى رضا",phone:"01155554444",email:"",co:""},{id:6,name:"يوسف عادل",phone:"01277778888",email:"y@example.com",co:"مخازن الأمل"}],t}};
 const seedM=()=>({short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أرز مصري 5 كجم",branch:"فرع المعادي",qty:"40",det:""},notes:[]}],resv:[{id:22,ag:"abdullah",d:now-day,s:"res",f:{cust:2,product:"ثلاجة 400 لتر",qty:"1",branch:"فرع القاهرة الجديدة",due:""},notes:[]}],ho:[{id:24,ag:"karim",d:now,s:"pend",f:{to:"tamer",subject:"تسليم وردية الصباح",det:"3 شكاوى مفتوحة تحتاج متابعة"},notes:[]}]});
-let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
+function nuApply(){if(!S.nu)S.nu=[];let ch=false;
+ for(let i=U.length-1;i>=0;i--){const x=U[i];if(x._nu&&!S.nu.some(e=>e.u==x.u)){U.splice(i,1);ch=true}}
+ S.nu.forEach(e=>{if(!U.some(x=>x.u==e.u)){U.push(Object.assign({},e,{n:Object.assign({},e.n),_nu:1},(S.uo&&S.uo[e.u])||{}));ch=true}});
+ if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u));
+ if(me&&!U.some(x=>x.u==me.u)){me=null;try{sessionStorage.removeItem("g-me")}catch(e){}}}
+let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
 const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
 try{const s=sessionStorage.getItem("g-me");if(s)me=U.find(x=>x.u==s)||null}catch(e){}
@@ -318,18 +324,18 @@ function render(){
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
-  const go=()=>{const x=U.find(a=>a.u==$("u").value.trim().toLowerCase()&&a.p==$("p").value);if(!x){$("er").textContent=L("bad");return}
+  const go=()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,"");const x=U.find(a=>a.p==$("p").value&&(a.u==lv||(dv.length>=6&&String(a.ph||"").replace(/\D/g,"")==dv)));if(!x){$("er").textContent=L("bad");return}
     const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
    me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render();showSplash()};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
+ const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
- if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else perf(a);
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
  if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
@@ -379,8 +385,8 @@ function tkView(id){
  <label>${L("status")}${sel("s",["new","prog","done"].map(k=>[k,L(k)]),t.s)}</label>
  ${sup()?`<label>${L("assignee")}${sel("ag",AG.map(g=>[g,nm(g)]),t.ag)}</label><label>${L("priority")}${sel("pr",["hi","mid","lo"].map(k=>[k,L(k)]),t.pr)}</label><label>${TL("vd")}${sel("vd",[["",TL("vNone")],["valid",TL("vOk")],["invalid",TL("vNo")]],t.vd||"")}</label>`:""}</div>
  <div class="tl">${t.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${t.closed?"":t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn" id="ccs">${TL("clCase")}</button>`}</div></div>`);
- $("x").onclick=close;if($("ccs"))$("ccs").onclick=()=>tkClose(t.id);$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done"){t.r=null;delete t.closed}t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value;t.vd=$("vd").value}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${t.closed?"":t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn" id="ccs">${TL("clCase")}</button>`}${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;if($("ccs"))$("ccs").onclick=()=>tkClose(t.id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.t=S.t.filter(x=>x.id!=t.id)});$("sv").onclick=()=>{const ns=$("s").value;if(ns=="done"&&t.s!="done")t.r=Date.now();if(ns!="done"){t.r=null;delete t.closed}t.s=ns;if(sup()){t.ag=$("ag").value;t.pr=$("pr").value;t.vd=$("vd").value}
   const v=$("nt2").value.trim();if(v)t.notes.push({t:v,d:Date.now()});save();close();render()};
 }
 function tkForm(){
@@ -400,8 +406,8 @@ function cuForm(){
 function cuView(id){
  const c=cu(id),k=mine().filter(t=>t.cid==id);
  open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small><h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
- $("x").onclick=close;md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
 }
 </script>
 <script>
@@ -466,8 +472,8 @@ function mForm(){const M=MOD[view];
 function mView(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
  open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map(n=>`<p>${esc(n.t)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
- $("x").onclick=close;if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
+ <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
 function ext(a){a.innerHTML=`<div class="box"><h3>${TL(view)}</h3><p>${TL(view+"d")}</p><a class="btn gr" style="display:inline-block;text-decoration:none" href="${LK[view]}" target="_blank" rel="noopener">${TL("openL")}</a><p style="color:var(--mut);font-size:13px;direction:ltr;text-align:start">${LK[view]}</p></div>`}
 function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.max(1,...ch.map(x=>x[1]));
  const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&s.includes(r.s)).length;
@@ -698,25 +704,25 @@ addEventListener("storage",e=>{
  if(e.key=="gian-crm3"&&e.newValue&&!DB.url){let n;try{n=JSON.parse(e.newValue)}catch(x){return}if(!n||!n.c)return;S=n;
   if(!S.cl)S.cl=[];if(!S.pn)S.pn=[];if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};
   ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});
-  Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
+  nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
   if(me&&!ov.classList.contains("on"))render()}
  else if(e.key==PK)onlineUpd()});
 document.addEventListener("pointerdown",function f(){try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}document.removeEventListener("pointerdown",f)},{passive:true});
 
 /* ===== v6: shared data through Firebase Realtime Database (REST + live stream, no SDK) ===== */
-Object.assign(X.ar,{tkEdit:"تعديل",vd:"صلاحية الشكوى",vNone:"— غير محدد —",vOk:"Valid",vNo:"Not Valid",tcAsk:"هتقفل الشكوى دي؟ هتتبعت للمدير للموافقة.",tcAskO:"هتقفل الشكوى دي؟",tcReq:"طلبات قفل الشكاوى",tcClosed:"مقفولة",tcNew:"طلب قفل شكوى جديد",kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
-Object.assign(X.en,{tkEdit:"Edit",vd:"Validity",vNone:"— Not set —",vOk:"Valid",vNo:"Not Valid",tcAsk:"Close this case? It will be sent to the owner for approval.",tcAskO:"Close this case?",tcReq:"Complaint close requests",tcClosed:"Closed",tcNew:"New case close request",kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
+Object.assign(X.ar,{usr:"المستخدمين",addU:"إضافة مستخدم",uNm:"الاسم",uPw:"كلمة المرور",uNeed:"اكتب الاسم ورقم التليفون وكلمة المرور",uPh:"رقم التليفون غير صحيح",uDup:"رقم التليفون ده مستخدم قبل كده",uHint:"هيدخل برقم التليفون وكلمة المرور",uCreate:"إضافة",del:"حذف",delAsk:"هتحذف ده نهائيًا؟ مفيش رجوع.",delYes:"تأكيد الحذف",tkEdit:"تعديل",vd:"صلاحية الشكوى",vNone:"— غير محدد —",vOk:"Valid",vNo:"Not Valid",tcAsk:"هتقفل الشكوى دي؟ هتتبعت للمدير للموافقة.",tcAskO:"هتقفل الشكوى دي؟",tcReq:"طلبات قفل الشكاوى",tcClosed:"مقفولة",tcNew:"طلب قفل شكوى جديد",kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
+Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:"Enter name, phone and password",uPh:"Invalid phone number",uDup:"This phone number is already used",uHint:"Logs in with phone number and password",uCreate:"Add",del:"Delete",delAsk:"Delete this permanently? This cannot be undone.",delYes:"Yes, delete",tkEdit:"Edit",vd:"Validity",vNone:"— Not set —",vOk:"Valid",vNo:"Not Valid",tcAsk:"Close this case? It will be sent to the owner for approval.",tcAskO:"Close this case?",tcReq:"Complaint close requests",tcClosed:"Closed",tcNew:"New case close request",kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
-const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n"];
+const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n","nu"];
 const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
 const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
 const skey=p=>p.replace(".","_");
 const sstr=p=>{const v=sget(p);return JSON.stringify(v===undefined?null:v)};
 const hasData=()=>S.c.length||S.t.length||S.m.short.length||S.m.resv.length||S.m.ho.length;
 const persist=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
-const reU=()=>Object.entries(S.uo||{}).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
+const reU=()=>{nuApply();Object.entries(S.uo||{}).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)})};
 function setSt(s){if(DB.st!=s){DB.st=s;onlineUpd()}}
 function setLocal(p,rs){let v;try{v=JSON.parse(rs)}catch(e){return}if(v==null)return;if(p=="n"||p=="tn")v=Math.max(+v||0,+sget(p)||0);sset(p,v)}
 function syncPush(){if(!DB.url||DB.first)return;
@@ -782,9 +788,26 @@ function tkDetails(id){if(!me||!sup())return;const t=S.t.find(x=>x.id==id);if(!t
  open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)}</h2><div style="margin:6px 0">${vdTag(t)} <span class="tag ${t.s}">${L(t.s)}</span> <span class="tag ${t.pr}">${L(t.pr)}</span></div>
  <div class="dtl">${row(L("cust"),esc(c.name))}${row(L("phone"),esc(c.phone))}${row(TL("email"),esc(c.email))}${row(TL("co"),esc(c.co))}${row(TL("channel"),esc(CHL(t.ch)))}${row(TL("branch"),esc(t.br))}${row(L("assignee"),esc(nm(t.ag)))}${row(L("opened"),fdt(t.d))}${row(L("resolved"),t.r?fdt(t.r):"")}${row(TL("tcClosed"),t.closed?fdt(t.closed):"")}${row(TL("vd"),vdTag(t))}${row(L("status"),`<span class="tag ${t.s}">${L(t.s)}</span> ${st}`)}</div>
  <h3 style="margin:10px 0 4px;font-size:15px;color:var(--red)">${TL("notes")}</h3><div class="tl">${t.notes.map(n=>`<p>${esc(n.t)}<small>${fdt(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
- <div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="ed">${TL("tkEdit")}</button></div>`);
- $("x").onclick=close;$("ed").onclick=()=>tkView(t.id)}
+ <div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="ed">${TL("tkEdit")}</button>${me.r=="owner"?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ $("x").onclick=close;$("ed").onclick=()=>tkView(t.id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.t=S.t.filter(x=>x.id!=t.id)})}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-dt]");if(!b)return;e.stopPropagation();e.preventDefault();tkDetails(b.dataset.dt)},true);
+
+/* owner: delete anything + add users */
+function ownDel(fn){if(!me||me.r!="owner")return;
+ open(`<h2>${TL("del")}</h2><p>${TL("delAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="dy" style="background:var(--red2)">${TL("delYes")}</button></div>`);
+ $("x").onclick=close;$("dy").onclick=()=>{fn();save();close();render()}}
+function usrV(a){const RC={owner:"hi",sup:"mid",agent:"lo"};
+ a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div><span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}</span>${x._nu&&x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
+ $("nu").onclick=usrForm;
+ a.querySelectorAll("[data-ud]").forEach(b=>b.onclick=()=>{const u=b.dataset.ud;ownDel(()=>{S.nu=S.nu.filter(e=>e.u!=u);if(S.uo)delete S.uo[u];nuApply()})})}
+function usrForm(){
+ open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner"].map(k=>[k,L("role")[k]]),"agent")}</label><small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
+ $("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),dg=ph.replace(/\D/g,"");
+  if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
+  if(dg.length<6){er.textContent=TL("uPh");return}
+  if(pw.length<4){er.textContent=TL("pShort");return}
+  if(U.some(x=>x.u==dg||String(x.ph||"").replace(/\D/g,"")==dg)){er.textContent=TL("uDup");return}
+  S.nu.push({u:dg,p:pw,r:rl,n:{ar:nme,en:nme},ph});nuApply();save();close();render()}}
 
 render();dbInit();
 </script>
