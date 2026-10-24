@@ -224,6 +224,11 @@ input[type=datetime-local],input[type=date],input[type=time]{color-scheme:dark}
 .shell .nv{top:calc(var(--hh,0px) + 10px);max-height:calc(100vh - var(--hh,0px) - 20px);overflow-y:auto;overscroll-behavior:contain;padding:14px 8px 10px 4px;scrollbar-width:thin;scrollbar-color:var(--red) transparent}
 .shell .nv::-webkit-scrollbar{width:6px}.shell .nv::-webkit-scrollbar-thumb{background:var(--red);border-radius:99px}.shell .nv::-webkit-scrollbar-track{background:transparent}
 @media(max-width:640px){.shell .nv{max-height:none;overflow:visible}}
+
+/* Frozen header */
+header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-index:12!important}
+/* Home clock */
+.hclk{margin:0;color:var(--mut);font:inherit;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -378,9 +383,11 @@ en:{prof:"Edit my profile",pNameAr:"Name (Arabic)",pNameEn:"Name (English)",pPho
 function getCust(n,p){n=n.trim();p=(p||"").trim();let c=S.c.find(x=>p?x.phone==p:x.name==n);if(!c){c={id:S.n++,name:n,phone:p,email:"",co:""};S.c.push(c)}return c.id}
 function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render()}
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
+function clk(){return new Date().toLocaleTimeString(typeof lang!=="undefined"&&lang=="ar"?"ar-EG":"en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",hour12:true})}
+setInterval(function(){var e=document.getElementById("hclk");if(e)e.textContent=clk()},1000);
 function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح الخير":"مساء الخير"):(h<12?"Good morning":h<18?"Good afternoon":"Good evening");
  const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.fu.filter(r=>r.ag==me.u&&r.s=="pend").length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
- a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:124px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p></div>
+ a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:124px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p><div class="hclk" id="hclk">${clk()}</div></div>
  <div class="stats"><div class="st"><b>${my}</b><span>${TL("myOpen")}</span></div><div class="st" style="--c:var(--grn)"><b>${fu}</b><span>${TL("myFu")}</span></div><div class="st"><b>${ho}</b><span>${TL("myHo")}</span></div></div>
  <div class="row"><button class="btn" id="gt">${TL("tk")}</button><button class="btn gr" id="gn">+ ${L("newTk")}</button></div>`;
  $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm;pnHome(a)}
