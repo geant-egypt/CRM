@@ -239,6 +239,8 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .onl .kk{margin-inline-start:8px;padding:1px 10px;font-size:11px}
 .onl i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3ddc5a;margin:0 5px 0 2px}
 
+/* login page: white backdrop behind the card */
+.lt .btn.w{border:1.5px solid var(--red)}
 /* splash / loading */
 #spl{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 #spl.out{opacity:0;pointer-events:none}
@@ -252,7 +254,6 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 </style>
 </head>
 <body>
-<div id="spl"><img id="spi" alt=""><div class="spt"><span id="spx">Loading</span><b></b><b></b><b></b></div></div>
 <div id="root"></div>
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
 <script>
@@ -301,7 +302,7 @@ const langBtn=`<button class="btn w s" id="lb">${lang=="ar"?"English":"عربي"
 const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const tkRow=t=>`<div class="tk" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span></div>`;
 function render(){
- document.body.style.background=document.documentElement.style.background=me?"#fff":"var(--bg)";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
+ document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
   r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
@@ -310,7 +311,7 @@ function render(){
   $("lb").onclick=langMenu;
   const go=()=>{const x=U.find(a=>a.u==$("u").value.trim().toLowerCase()&&a.p==$("p").value);if(!x){$("er").textContent=L("bad");return}
     const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
-   me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render()};
+   me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render();showSplash()};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
@@ -749,8 +750,11 @@ setInterval(()=>{
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
-<script>(function(){var i=document.getElementById("spi"),t=document.getElementById("spx"),p=document.getElementById("spl");if(!p)return;
-try{i.src=LOGO;t.textContent=(lang=="ar"?"جاري التحميل":"Loading")}catch(e){}
-setTimeout(function(){p.classList.add("out")},1900);setTimeout(function(){p.remove()},2500)})()</script>
+<script>function showSplash(){var o=document.getElementById("spl");if(o)o.remove();
+var p=document.createElement("div");p.id="spl";
+p.innerHTML='<img alt=""><div class="spt"><span></span><b></b><b></b><b></b></div>';
+p.querySelector("img").src=LOGO;p.querySelector("span").textContent=(lang=="ar"?"جاري التحميل":"Loading");
+document.body.appendChild(p);
+setTimeout(function(){p.classList.add("out")},1900);setTimeout(function(){p.remove()},2500)}</script>
 </body>
 </html>
