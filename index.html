@@ -234,11 +234,25 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .cs{cursor:default}.cs:hover{background:none!important}
 .cs .late{color:var(--red);font-weight:700}
 .pnc.case{border-inline-start-color:var(--red)}
-.onl{max-width:1020px;margin:0 auto;padding:2px 14px 4px;font-size:12px;color:#ffd9dc;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.onl{max-width:1020px;margin:0 auto;padding:2px 14px 4px;font-size:12px;color:#ffd9dc;direction:ltr;text-align:right;white-space:normal;overflow:visible}
+.onl .on1{display:block;line-height:1.5;margin:2px 0}
+.onl .kk{margin-inline-start:8px;padding:1px 10px;font-size:11px}
 .onl i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3ddc5a;margin:0 5px 0 2px}
+
+/* splash / loading */
+#spl{position:fixed;inset:0;z-index:100;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s ease;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+#spl.out{opacity:0;pointer-events:none}
+#spl img{width:min(62vw,300px);height:auto;max-height:50vh;object-fit:contain;animation:spz 2s cubic-bezier(.22,.8,.3,1) forwards}
+#spl .spt{font:700 17px/1 Cairo,Tahoma,sans-serif;color:var(--red);letter-spacing:.3px;display:flex;align-items:flex-end;gap:2px;direction:ltr}
+#spl .spt b{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--grn);margin-bottom:2px;animation:spd 1s infinite ease-in-out}
+#spl .spt b:nth-of-type(2){animation-delay:.15s}#spl .spt b:nth-of-type(3){animation-delay:.3s}
+@keyframes spz{0%{transform:scale(.45);opacity:0}30%{opacity:1}75%{transform:scale(1)}100%{transform:scale(1.4)}}
+@keyframes spd{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-6px);opacity:1}}
+@media (prefers-reduced-motion:reduce){#spl img{animation:none}}
 </style>
 </head>
 <body>
+<div id="spl"><img id="spi" alt=""><div class="spt"><span id="spx">Loading</span><b></b><b></b><b></b></div></div>
 <div id="root"></div>
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
 <script>
@@ -295,6 +309,7 @@ function render(){
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
   const go=()=>{const x=U.find(a=>a.u==$("u").value.trim().toLowerCase()&&a.p==$("p").value);if(!x){$("er").textContent=L("bad");return}
+    const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
    me=x;view="home";try{sessionStorage.setItem("g-me",x.u)}catch(e){}render()};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
@@ -617,7 +632,7 @@ aprV=function(a){_aprV(a);S.cl=S.cl.filter(q=>S.m[q.k]&&S.m[q.k].some(x=>x.id==q
 const PK="g-pres";
 function presRead(){try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return{}}}
 function presWrite(p){try{localStorage.setItem(PK,JSON.stringify(p))}catch(e){}}
-function presBeat(){if(!me)return;const n=Date.now();
+function presBeat(){if(!me)return;if(kickChk())return;const n=Date.now();
  if(DB.url){if(!DB.first){fetch(DB.url+"/pres/"+me.u+".json",{method:"PUT",body:String(n)}).catch(()=>{});
   if(me.r=="owner")fetch(DB.url+"/pres.json").then(r=>r.json()).then(p=>{DB.pres=p||{};onlineUpd()}).catch(()=>{})}}
  else{const p=presRead();p[me.u]=n;Object.keys(p).forEach(k=>{if(n-p[k]>6e4)delete p[k]});presWrite(p)}
@@ -625,9 +640,48 @@ function presBeat(){if(!me)return;const n=Date.now();
 function presOff(){if(!me)return;if(DB.url){try{fetch(DB.url+"/pres/"+me.u+".json",{method:"DELETE",keepalive:true})}catch(e){}}else{const p=presRead();delete p[me.u];presWrite(p)}}
 function onlineUpd(){const e=$("onl");if(!e||!me)return;const n=Date.now(),p=DB.url?DB.pres:presRead();
  const st={ok:"☁ "+TL("syOk"),conn:"☁ "+TL("syWait"),err:"⚠ "+TL("syErr"),off:""}[DB.st]||"";
- let h="";if(me.r=="owner"){const l=U.filter(u=>u.u!=me.u&&p[u.u]&&n-p[u.u]<35e3);h=`<i></i>${TL("online")}: ${l.length?l.map(u=>esc(nm(u.u))).join(" • "):TL("noOnl")}`}
- e.innerHTML=h+(h&&st?" &nbsp; ":"")+st}
+ let h="";if(me.r=="owner"){const l=U.filter(u=>u.u!=me.u&&p[u.u]&&n-p[u.u]<35e3);h=l.length?`<i></i>${TL("online")}:`+l.map(u=>`<div class="on1"><i></i>${esc(nm(u.u))} <button class="btn s kk" data-kick="${esc(u.u)}">${TL("kick")}</button></div>`).join(""):`<i></i>${TL("online")}: ${TL("noOnl")}`}
+ e.innerHTML=h+(h&&st?" &nbsp; ":"")+st;
+ e.querySelectorAll("[data-kick]").forEach(b=>b.onclick=()=>kickUser(b.dataset.kick))}
 addEventListener("beforeunload",presOff);
+
+/* owner can force a logout of any online user (1 minute cooldown before that user can log in again) */
+const KK="g-kick",KB="g-kb",KMAX=2e4,BAN=6e4;let banU=null;
+function kickRead(){try{return JSON.parse(localStorage.getItem(KK))||{}}catch(e){return{}}}
+function kbRead(){try{return JSON.parse(localStorage.getItem(KB))||{}}catch(e){return{}}}
+function banLeft(u){const n=Date.now(),t=(DB.url?(DB.K||{})[u]:kickRead()[u])||0,b=kbRead()[u]||0;
+ return Math.min(BAN,Math.max(BAN-(n-t),BAN-(n-b)))}
+function kickUser(u){if(!me||me.r!="owner"||u==me.u)return;
+ if(!confirm(TL("kickAsk")+" "+nm(u)+"؟"))return;
+ const n=Date.now();
+ if(DB.url){DB.K=DB.K||{};DB.K[u]=n;fetch(DB.url+"/kick/"+u+".json",{method:"PUT",body:String(n)}).catch(()=>{});
+  fetch(DB.url+"/pres/"+u+".json",{method:"DELETE"}).catch(()=>{});delete DB.pres[u]}
+ else{const k=kickRead();k[u]=n;try{localStorage.setItem(KK,JSON.stringify(k))}catch(e){}const p=presRead();delete p[u];presWrite(p)}
+ onlineUpd()}
+function doKick(t){if(!me)return;const u=me.u;
+ try{sessionStorage.setItem("g-kseen",String(t))}catch(e){}
+ const b=kbRead();b[u]=Date.now();try{localStorage.setItem(KB,JSON.stringify(b))}catch(e){}
+ if(DB.url){try{fetch(DB.url+"/pres/"+u+".json",{method:"DELETE"})}catch(e){}}
+ else{const p=presRead();delete p[u];presWrite(p)}
+ me=null;banU=u;try{sessionStorage.removeItem("g-me")}catch(e){}
+ const o=$("ov");if(o)o.classList.remove("on");
+ render();banTick()}
+function kickChk(){if(!me)return false;
+ const t=DB.url?(DB.K||{})[me.u]:kickRead()[me.u];
+ let seen="";try{seen=sessionStorage.getItem("g-kseen")||""}catch(e){}
+ if(t&&String(t)!==seen&&Date.now()-t<KMAX){doKick(t);return true}return false}
+function banTick(){if(me||!banU)return;const el=$("er");if(!el)return;const l=banLeft(banU);
+ if(l>0){el.textContent=TL("banMsg").replace("{s}",Math.ceil(l/1e3));el.dataset.ban=1}
+ else if(el.dataset.ban){el.textContent="";delete el.dataset.ban;banU=null}}
+function kickStream(){DB.K=DB.K||{};const es=new EventSource(DB.url+"/kick.json");
+ es.addEventListener("put",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.path=="/")DB.K=m.data||{};else{const k=m.path.slice(1);if(m.data==null)delete DB.K[k];else DB.K[k]=m.data}kickChk()});
+ es.addEventListener("patch",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.path=="/"&&m.data)Object.entries(m.data).forEach(([k,v])=>{if(v==null)delete DB.K[k];else DB.K[k]=v});kickChk()});
+ es.onerror=()=>{if(es.readyState==2)setTimeout(kickStream,15000)}}
+setInterval(()=>{kickChk();banTick()},1000);
+addEventListener("storage",e=>{if(e.key==KK)kickChk()});
+
 
 /* live sync between tabs/windows of this browser */
 addEventListener("storage",e=>{
@@ -640,8 +694,8 @@ addEventListener("storage",e=>{
 document.addEventListener("pointerdown",function f(){try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}document.removeEventListener("pointerdown",f)},{passive:true});
 
 /* ===== v6: shared data through Firebase Realtime Database (REST + live stream, no SDK) ===== */
-Object.assign(X.ar,{syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
-Object.assign(X.en,{syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
+Object.assign(X.ar,{kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
+Object.assign(X.en,{kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
@@ -685,7 +739,7 @@ async function dbInit(){if(!window.fetch||!window.EventSource||!Promise.any){set
  const probe=u=>fetch(u+"/.json?shallow=true").then(r=>{if(r.ok||r.status==401||r.status==403)return u;throw 0});
  let u="";try{u=await Promise.any(l.map(probe))}catch(e){}
  if(!u){setSt("err");setTimeout(dbInit,15000);return}
- DB.url=u;try{localStorage.setItem("g-db",u)}catch(e){}dbStream();presBeat()}
+ DB.url=u;try{localStorage.setItem("g-db",u)}catch(e){}dbStream();kickStream();presBeat()}
 setInterval(()=>{
  if(DB.pend&&!ov.classList.contains("on")){DB.pend=false;applyRemote()}
  if(DB.ren){if(!me){DB.ren=false}else if(!ov.classList.contains("on")){const a=document.activeElement;
@@ -695,5 +749,8 @@ setInterval(()=>{
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
+<script>(function(){var i=document.getElementById("spi"),t=document.getElementById("spx"),p=document.getElementById("spl");if(!p)return;
+try{i.src=LOGO;t.textContent=(lang=="ar"?"جاري التحميل":"Loading")}catch(e){}
+setTimeout(function(){p.classList.add("out")},1900);setTimeout(function(){p.remove()},2500)})()</script>
 </body>
 </html>
