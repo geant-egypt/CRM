@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Géant CS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Géant – Customer Service Department</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
 <style>
@@ -879,5 +882,6 @@ p.querySelector("img").src=LOGO;
 p.querySelector("span").textContent=out?(lang=="ar"?"جاري تسجيل الخروج":"Signing out"):(lang=="ar"?"جاري التحميل":"Loading");
 document.body.appendChild(p);
 setTimeout(function(){p.classList.add("out")},out?1450:1900);setTimeout(function(){p.remove()},out?2050:2500)}</script>
+<script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(e){console.warn("SW",e)})})}</script>
 </body>
 </html>
