@@ -249,6 +249,8 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 #spl .spt b{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--grn);margin-bottom:2px;animation:spd 1s infinite ease-in-out}
 #spl .spt b:nth-of-type(2){animation-delay:.15s}#spl .spt b:nth-of-type(3){animation-delay:.3s}
 @keyframes spz{0%{transform:scale(.45);opacity:0}30%{opacity:1}75%{transform:scale(1)}100%{transform:scale(1.4)}}
+#spl.zo img{animation:spo 1.6s cubic-bezier(.4,0,.6,1) forwards}
+@keyframes spo{0%{transform:scale(1.4);opacity:0}20%{opacity:1}45%{transform:scale(1)}100%{transform:scale(.45);opacity:0}}
 @keyframes spd{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-6px);opacity:1}}
 @media (prefers-reduced-motion:reduce){#spl img{animation:none}}
 </style>
@@ -317,7 +319,7 @@ function render(){
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!sup())view="tk";if(view=="apr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(sup())tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length?" ("+(S.ue.length+S.cl.length)+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
-  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render()};
+  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else perf(a);
@@ -750,11 +752,12 @@ setInterval(()=>{
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
-<script>function showSplash(){var o=document.getElementById("spl");if(o)o.remove();
-var p=document.createElement("div");p.id="spl";
+<script>function showSplash(mode){var o=document.getElementById("spl");if(o)o.remove();
+var out=mode=="out",p=document.createElement("div");p.id="spl";if(out)p.className="zo";
 p.innerHTML='<img alt=""><div class="spt"><span></span><b></b><b></b><b></b></div>';
-p.querySelector("img").src=LOGO;p.querySelector("span").textContent=(lang=="ar"?"جاري التحميل":"Loading");
+p.querySelector("img").src=LOGO;
+p.querySelector("span").textContent=out?(lang=="ar"?"جاري تسجيل الخروج":"Signing out"):(lang=="ar"?"جاري التحميل":"Loading");
 document.body.appendChild(p);
-setTimeout(function(){p.classList.add("out")},1900);setTimeout(function(){p.remove()},2500)}</script>
+setTimeout(function(){p.classList.add("out")},out?1450:1900);setTimeout(function(){p.remove()},out?2050:2500)}</script>
 </body>
 </html>
