@@ -343,7 +343,7 @@ function render(){
  const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
-  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
+  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
@@ -1152,6 +1152,21 @@ function mgTick(){
  if(me.r=="owner"&&!MG.abs){MG.abs=1;mgSeenLoad(mgAbs)}}
 setInterval(()=>{if(me){mgBeat();if(DB.es&&!MG.es)mgStream();if(me.r=="owner"&&$("mgrep"))mgSeenLoad(mgPaint)}},3e4);
 setInterval(()=>{if(me&&MG.es)authTok().then(()=>{if(me)mgStream()})},45*6e4);
+
+/* ===== v8: audit-log clear by date/time range + close window after sign out ===== */
+Object.assign(X.ar,{la_clr:"مسح سجل"});Object.assign(X.en,{la_clr:"Cleared log"});
+const _mgLogV=logV;
+logV=function(a){_mgLogV(a);if(!me||me.r!="owner")return;
+ a.insertAdjacentHTML("afterbegin",`<div class="box"><h3>🧹 ${mgT("مسح من السجل","Clear audit log")}</h3><div class="row" style="align-items:flex-end"><label style="font-size:12px;color:var(--mut)">${mgT("من (تاريخ وساعة)","From (date & time)")}<input type="datetime-local" id="lcf"></label><label style="font-size:12px;color:var(--mut)">${mgT("إلى (تاريخ وساعة)","To (date & time)")}<input type="datetime-local" id="lct"></label><button class="btn gr" id="lcb">${mgT("مسح","Clear")}</button></div><div class="err" id="lce"></div></div>`);
+ $("lcb").onclick=()=>{const f=$("lcf").value,t=$("lct").value,er=$("lce");
+  if(!f||!t){er.textContent=mgT("اختار من وإلى (التاريخ والساعة)","Choose both From and To");return}
+  const a1=new Date(f).getTime(),b1=new Date(t).getTime()+59999;
+  if(isNaN(a1)||isNaN(b1)||a1>b1){er.textContent=mgT("الفترة غير صحيحة","Invalid range");return}
+  const n=S.al.filter(r=>r.d>=a1&&r.d<=b1).length;
+  if(!n){er.textContent=mgT("مفيش سجلات في الفترة دي","No entries in this range");return}
+  if(!confirm(mgT("هتمسح "+n+" سجل من "+new Date(a1).toLocaleString("ar-EG")+" إلى "+new Date(b1).toLocaleString("ar-EG")+"؟ مفيش رجوع.","Delete "+n+" entries from "+new Date(a1).toLocaleString("en-GB")+" to "+new Date(b1).toLocaleString("en-GB")+"? This cannot be undone.")))return;
+  S.al=S.al.filter(r=>!(r.d>=a1&&r.d<=b1));alog("clr",n+" • "+new Date(a1).toLocaleString("en-GB")+" → "+new Date(b1).toLocaleString("en-GB"));save();render()}};
+function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{if(!window.closed)location.replace("about:blank")},300)},1300)}
 
 render();dbInit();
 </script>
