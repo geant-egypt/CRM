@@ -272,7 +272,7 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 <div class="ov" id="ov"><div class="md" id="md"></div></div>
 <script>
 const D={
-ar:{app:"Géant",sub:"إدارة خدمة العملاء",user:"اسم المستخدم",pass:"كلمة المرور",login:"دخول",logout:"خروج",bad:"اسم المستخدم أو كلمة المرور غير صحيحة",demo:"حسابات تجريبية: owner / karim / tamer / abdullah / amr / ahmed — كلمة المرور: الاسم + 123 (مثال: karim123)",
+ar:{app:"Géant",sub:"إدارة خدمة العملاء",user:"اسم المستخدم",pass:"كلمة المرور",login:"دخول",logout:"خروج",bad:"اسم المستخدم أو كلمة المرور غير صحيحة",demo:"",
 dash:"التحليلات",tk:"التذاكر",cu:"العملاء",perf:"أداء الفريق",newTk:"شكوى جديدة",newCu:"إضافة عميل",new:"جديدة",prog:"قيد التنفيذ",done:"تم الحل",hi:"عالية",mid:"متوسطة",lo:"منخفضة",
 late:"متأخرة (+2 يوم)",total:"إجمالي التذاكر",rate:"معدل الحل",ins:"ملخص تحليلي",trend:"آخر 7 أيام (أحمر: وارد، أخضر: تم حله)",dist:"توزيع الحالات",work:"حمل العمل على الفريق (المفتوحة)",prio:"التذاكر المفتوحة حسب الأولوية",recent:"آخر التذاكر",
 status:"الحالة",assignee:"المسؤول",priority:"الأولوية",notes:"الملاحظات",noNote:"لا توجد ملاحظات بعد",addNote:"ملاحظة جديدة",save:"حفظ التغييرات",close:"إغلاق",cancel:"إلغاء",create:"إضافة الشكوى",saveCu:"حفظ العميل",
@@ -281,7 +281,7 @@ cust:"اسم العميل",title:"عنوان المشكلة",det:"التفاصي
 opened:"فُتحت",resolved:"تم حلها",open:"مفتوحة",avg:"متوسط وقت الحل (ساعة)",mine:"أنت ترى تذاكرك فقط",role:{owner:"المدير",sup:"مشرف",agent:"موظف"},
 i_rate:(r,t)=>`تم حل ${r}% من التذاكر (${t} تذكرة).`,i_late:n=>n?`يوجد ${n} تذكرة متأخرة وتحتاج تدخّل.`:"لا توجد تذاكر متأخرة.",i_hi:n=>n?`${n} تذكرة عالية الأولوية ما زالت مفتوحة.`:"لا توجد تذاكر عالية الأولوية مفتوحة.",i_top:(a,n)=>`أعلى حمل حالياً على ${a} (${n} تذكرة مفتوحة).`,i_best:(a,n)=>`الأكثر حلاً: ${a} (${n} تذكرة).`,
 fill:"اكتب عنوان المشكلة",fillN:"اكتب الاسم"},
-en:{app:"Géant",sub:"Customer Service Department",user:"Username",pass:"Password",login:"Sign in",logout:"Sign out",bad:"Wrong username or password",demo:"Demo accounts: owner / karim / tamer / abdullah / amr / ahmed — password: name + 123 (e.g. karim123)",
+en:{app:"Géant",sub:"Customer Service Department",user:"Username",pass:"Password",login:"Sign in",logout:"Sign out",bad:"Wrong username or password",demo:"",
 dash:"Analytics",tk:"Tickets",cu:"Customers",perf:"Team performance",newTk:"New complaint",newCu:"Add customer",new:"New",prog:"In progress",done:"Resolved",hi:"High",mid:"Medium",lo:"Low",
 late:"Overdue (2+ days)",total:"Total tickets",rate:"Resolution rate",ins:"Insights",trend:"Last 7 days (red: received, green: resolved)",dist:"Status split",work:"Team workload (open)",prio:"Open tickets by priority",recent:"Latest tickets",
 status:"Status",assignee:"Assigned to",priority:"Priority",notes:"Notes",noNote:"No notes yet",addNote:"New note",save:"Save changes",close:"Close",cancel:"Cancel",create:"Add complaint",saveCu:"Save customer",
@@ -290,8 +290,8 @@ cust:"Customer name",title:"Issue title",det:"Details",name:"Name",phone:"Mobile
 opened:"Opened",resolved:"Resolved",open:"Open",avg:"Avg. resolution (hrs)",mine:"You only see your own tickets",role:{owner:"Owner",sup:"Supervisor",agent:"Agent"},
 i_rate:(r,t)=>`${r}% of tickets are resolved (${t} total).`,i_late:n=>n?`${n} ticket(s) are overdue and need attention.`:"No overdue tickets.",i_hi:n=>n?`${n} high-priority ticket(s) still open.`:"No open high-priority tickets.",i_top:(a,n)=>`Heaviest workload: ${a} (${n} open).`,i_best:(a,n)=>`Most resolved: ${a} (${n} tickets).`,
 fill:"Enter the issue title",fillN:"Enter the name"}};
-const U=[{u:"owner",p:"owner123",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",p:"karim123",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",p:"tamer123",r:"sup",n:{ar:"تامر",en:"Tamer"}},
-{u:"abdullah",p:"abdullah123",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",p:"amr123",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",p:"ahmed123",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
+const U=[{u:"owner",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",r:"sup",n:{ar:"تامر",en:"Tamer"}},
+{u:"abdullah",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
 const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
 try{lang=localStorage.getItem("g-lang")||"en"}catch(e){}
@@ -309,7 +309,7 @@ function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];if(!S.bin)S.bin=[];if(!S.al
 let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
 const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
-try{const s=sessionStorage.getItem("g-me");if(s)me=U.find(x=>x.u==s)||null}catch(e){}
+try{const s=sessionStorage.getItem("g-me");if(s)me=null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
 const cu=id=>S.c.find(x=>x.id==id)||{name:"—"};
@@ -329,9 +329,14 @@ function render(){
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
-  const go=()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,"");const x=U.find(a=>a.p==$("p").value&&(a.u==lv||(dv.length>=6&&String(a.ph||"").replace(/\D/g,"")==dv)));if(!x){$("er").textContent=L("bad");return}
-    const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
-   me=x;view="home";alog("in","");save();try{sessionStorage.setItem("g-me",x.u)}catch(e){}render();showSplash()};
+  const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv,er=$("er");er.textContent="...";
+ try{await authIn(em(id),$("p").value);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
+  if(!DB.es){DB.url=DBU;dbStream();kickStream()}
+  for(let i=0;i<40&&DB.first;i++)await new Promise(r=>setTimeout(r,150));
+  reU();const x=U.find(a=>a.u==ro.u);if(!x)throw 0;
+  const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
+  (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
+  me=x;view="home";alog("in","");save();render();showSplash()}catch(e){er.textContent=L("bad")}};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
@@ -423,8 +428,8 @@ const TPLS=[{"k": "dep", "f": "Deposit.docx", "en": "Deposit", "ar": "نموذج
 <script>
 const BR=["REH","TRI"];
 const CH=["branch","call","social"],LK={svy:"https://geant-egypt.github.io/geant-survey/",sch:"https://geant-egypt.github.io/CS-schedule/"};
-const X={ar:{prof:"تعديل بياناتي",pNameAr:"الاسم بالعربي",pNameEn:"الاسم بالإنجليزي",pPhone:"رقم التليفون",pPass:"كلمة مرور جديدة",pPassH:"سيبها فاضية لو مش هتغيرها",pRole:"الصلاحية",pConfirm:"تأكيد",pNeed:"اكتب الاسم بالعربي والإنجليزي",pShort:"كلمة المرور لازم تكون 4 حروف على الأقل",pNone:"لم تغيّر أي شيء",pOwn:"لازم يفضل مدير واحد على الأقل",pPend:"عندك طلب تعديل في انتظار موافقة المدير",pSent:"تم إرسال طلب التعديل للمدير، وهيتطبق بعد الموافقة.",pPassCh:"تم تغيير كلمة المرور",apr:"الموافقات",aprE:"لا توجد طلبات معلّقة",approve:"موافقة",reject:"رفض",nOk:"تمت الموافقة على تعديل بياناتك.",nRej:"تم رفض طلب تعديل بياناتك.",by:"الموظف",pick:"اختر القناة",pickB:"اختر الفرع",home:"الرئيسية",myOpen:"شكاواك المفتوحة",myFu:"Follow up مطلوب منك",myHo:"Hand Over موجّه لك",rep:"التقارير",date:"التاريخ",fromD:"من تاريخ",toD:"إلى تاريخ",exp:"تصدير CSV (Excel)",resAt:"تاريخ الحل",cnt:"إجمالي السجلات",rtype:"نوع التقرير",byEmp:"حسب الموظف",byPr:"حسب الأولوية",noDl:"التحميل غير متاح هنا",section:"القسم",resp:"المسؤول عن القسم",tk:"شكاوى",req:"طلبات العملاء",short:"نواقص المنتجات",svy:"السيرفي",resv:"حجوزات المنتجات",fu:"Follow up",ho:"Hand Over",sch:"الجدول",tpl:"Templates",tplD:"نماذج جاهزة للتحميل والطباعة",dl:"تحميل",tsr:"ابحث عن نموذج",ch_branch:"فرع",ch_call:"كول سنتر",ch_social:"سوشيال ميديا",all:"الكل",channel:"القناة",subject:"الموضوع",product:"المنتج",branch:"الفرع",qty:"الكمية",due:"الموعد",to:"تسليم إلى",add:"إضافة",empty:"لا توجد سجلات. أضف أول سجل.",byCh:"الشكاوى حسب المصدر",pending:"المفتوح في باقي الأقسام",openL:"فتح الصفحة في نافذة جديدة",svyd:"استبيان رضا العملاء الخاص بجيان.",schd:"جدول مناوبات خدمة العملاء.",s_rep:"تم الإبلاغ",s_ord:"تم الطلب",s_av:"متوفر",s_res:"محجوز",s_rdy:"جاهز للاستلام",s_del:"تم التسليم",s_pend:"قيد الانتظار",s_dn:"تمت",s_rcv:"تم الاستلام"},
-en:{prof:"Edit my profile",pNameAr:"Name (Arabic)",pNameEn:"Name (English)",pPhone:"Phone number",pPass:"New password",pPassH:"Leave empty to keep current",pRole:"Role",pConfirm:"Confirm",pNeed:"Enter the name in Arabic and English",pShort:"Password must be at least 4 characters",pNone:"Nothing was changed",pOwn:"At least one owner must remain",pPend:"You have a change request waiting for the owner's approval",pSent:"Your request was sent to the owner and will apply once approved.",pPassCh:"Password changed",apr:"Approvals",aprE:"No pending requests",approve:"Approve",reject:"Reject",nOk:"Your profile changes were approved.",nRej:"Your profile change request was rejected.",by:"Employee",pick:"Select channel",pickB:"Select branch",home:"Home",myOpen:"Your open complaints",myFu:"Your pending follow-ups",myHo:"Hand overs for you",rep:"Reports",date:"Date",fromD:"From date",toD:"To date",exp:"Export CSV (Excel)",resAt:"Resolved on",cnt:"Total records",rtype:"Report type",byEmp:"By employee",byPr:"By priority",noDl:"Download is not available here",section:"Section",resp:"Section supervisor",tk:"Complaints",req:"Customer requests",short:"Product shortages",svy:"Survey",resv:"Reservations",fu:"Follow up",ho:"Hand Over",sch:"Schedule",tpl:"Templates",tplD:"Ready-made forms to download and print",dl:"Download",tsr:"Search templates",ch_branch:"Branch",ch_call:"Call center",ch_social:"Social media",all:"All",channel:"Channel",subject:"Subject",product:"Product",branch:"Branch",qty:"Quantity",due:"Due date",to:"Hand over to",add:"Add",empty:"No records yet. Add the first one.",byCh:"Complaints by source",pending:"Open in other sections",openL:"Open page in a new tab",svyd:"Géant customer satisfaction survey.",schd:"Customer service shift schedule.",s_rep:"Reported",s_ord:"Ordered",s_av:"Available",s_res:"Reserved",s_rdy:"Ready for pickup",s_del:"Delivered",s_pend:"Pending",s_dn:"Done",s_rcv:"Received"}};
+const X={ar:{prof:"تعديل بياناتي",pNameAr:"الاسم بالعربي",pNameEn:"الاسم بالإنجليزي",pPhone:"رقم التليفون",pPass:"كلمة مرور جديدة",pPassH:"سيبها فاضية لو مش هتغيرها",pRole:"الصلاحية",pConfirm:"تأكيد",pNeed:"اكتب الاسم بالعربي والإنجليزي",pShort:"كلمة المرور لازم تكون 6 حروف على الأقل",pNone:"لم تغيّر أي شيء",pOwn:"لازم يفضل مدير واحد على الأقل",pPend:"عندك طلب تعديل في انتظار موافقة المدير",pSent:"تم إرسال طلب التعديل للمدير، وهيتطبق بعد الموافقة.",pPassCh:"تم تغيير كلمة المرور",apr:"الموافقات",aprE:"لا توجد طلبات معلّقة",approve:"موافقة",reject:"رفض",nOk:"تمت الموافقة على تعديل بياناتك.",nRej:"تم رفض طلب تعديل بياناتك.",by:"الموظف",pick:"اختر القناة",pickB:"اختر الفرع",home:"الرئيسية",myOpen:"شكاواك المفتوحة",myFu:"Follow up مطلوب منك",myHo:"Hand Over موجّه لك",rep:"التقارير",date:"التاريخ",fromD:"من تاريخ",toD:"إلى تاريخ",exp:"تصدير CSV (Excel)",resAt:"تاريخ الحل",cnt:"إجمالي السجلات",rtype:"نوع التقرير",byEmp:"حسب الموظف",byPr:"حسب الأولوية",noDl:"التحميل غير متاح هنا",section:"القسم",resp:"المسؤول عن القسم",tk:"شكاوى",req:"طلبات العملاء",short:"نواقص المنتجات",svy:"السيرفي",resv:"حجوزات المنتجات",fu:"Follow up",ho:"Hand Over",sch:"الجدول",tpl:"Templates",tplD:"نماذج جاهزة للتحميل والطباعة",dl:"تحميل",tsr:"ابحث عن نموذج",ch_branch:"فرع",ch_call:"كول سنتر",ch_social:"سوشيال ميديا",all:"الكل",channel:"القناة",subject:"الموضوع",product:"المنتج",branch:"الفرع",qty:"الكمية",due:"الموعد",to:"تسليم إلى",add:"إضافة",empty:"لا توجد سجلات. أضف أول سجل.",byCh:"الشكاوى حسب المصدر",pending:"المفتوح في باقي الأقسام",openL:"فتح الصفحة في نافذة جديدة",svyd:"استبيان رضا العملاء الخاص بجيان.",schd:"جدول مناوبات خدمة العملاء.",s_rep:"تم الإبلاغ",s_ord:"تم الطلب",s_av:"متوفر",s_res:"محجوز",s_rdy:"جاهز للاستلام",s_del:"تم التسليم",s_pend:"قيد الانتظار",s_dn:"تمت",s_rcv:"تم الاستلام"},
+en:{prof:"Edit my profile",pNameAr:"Name (Arabic)",pNameEn:"Name (English)",pPhone:"Phone number",pPass:"New password",pPassH:"Leave empty to keep current",pRole:"Role",pConfirm:"Confirm",pNeed:"Enter the name in Arabic and English",pShort:"Password must be at least 6 characters",pNone:"Nothing was changed",pOwn:"At least one owner must remain",pPend:"You have a change request waiting for the owner's approval",pSent:"Your request was sent to the owner and will apply once approved.",pPassCh:"Password changed",apr:"Approvals",aprE:"No pending requests",approve:"Approve",reject:"Reject",nOk:"Your profile changes were approved.",nRej:"Your profile change request was rejected.",by:"Employee",pick:"Select channel",pickB:"Select branch",home:"Home",myOpen:"Your open complaints",myFu:"Your pending follow-ups",myHo:"Hand overs for you",rep:"Reports",date:"Date",fromD:"From date",toD:"To date",exp:"Export CSV (Excel)",resAt:"Resolved on",cnt:"Total records",rtype:"Report type",byEmp:"By employee",byPr:"By priority",noDl:"Download is not available here",section:"Section",resp:"Section supervisor",tk:"Complaints",req:"Customer requests",short:"Product shortages",svy:"Survey",resv:"Reservations",fu:"Follow up",ho:"Hand Over",sch:"Schedule",tpl:"Templates",tplD:"Ready-made forms to download and print",dl:"Download",tsr:"Search templates",ch_branch:"Branch",ch_call:"Call center",ch_social:"Social media",all:"All",channel:"Channel",subject:"Subject",product:"Product",branch:"Branch",qty:"Quantity",due:"Due date",to:"Hand over to",add:"Add",empty:"No records yet. Add the first one.",byCh:"Complaints by source",pending:"Open in other sections",openL:"Open page in a new tab",svyd:"Géant customer satisfaction survey.",schd:"Customer service shift schedule.",s_rep:"Reported",s_ord:"Ordered",s_av:"Available",s_res:"Reserved",s_rdy:"Ready for pickup",s_del:"Delivered",s_pend:"Pending",s_dn:"Done",s_rcv:"Received"}};
 function getCust(n,p){n=n.trim();p=(p||"").trim();let c=S.c.find(x=>p?x.phone==p:x.name==n);if(!c){c={id:S.n++,name:n,phone:p,email:"",co:""};S.c.push(c)}return c.id}
 function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render()}
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
@@ -515,7 +520,7 @@ function profForm(){
   const ch={};
   if(na!=u.n.ar||ne!=u.n.en)ch.n={ar:na,en:ne};
   if(ph!=(u.ph||""))ch.ph=ph;
-  if(np)ch.p=np;else if(pd&&pd.ch.p)ch.p=pd.ch.p;
+  if(np){authTok().then(t=>authCall("update",{idToken:t,password:np})).then(()=>msg("✓",TL("prof"))).catch(()=>{});if(!Object.keys(ch).length){close();return}}
   if(ch.p==u.p)delete ch.p;
   if(rl!=u.r)ch.r=rl;
   if(!Object.keys(ch).length){er.textContent=TL("pNone");return}
@@ -695,7 +700,7 @@ function kickChk(){if(!me)return false;
 function banTick(){if(me||!banU)return;const el=$("er");if(!el)return;const l=banLeft(banU);
  if(l>0){el.textContent=TL("banMsg").replace("{s}",Math.ceil(l/1e3));el.dataset.ban=1}
  else if(el.dataset.ban){el.textContent="";delete el.dataset.ban;banU=null}}
-function kickStream(){DB.K=DB.K||{};const es=new EventSource(DB.url+"/kick.json");
+function kickStream(){DB.K=DB.K||{};if(DB.ks)DB.ks.close();const es=DB.ks=new EventSource(DB.url+"/kick.json");
  es.addEventListener("put",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
   if(m.path=="/")DB.K=m.data||{};else{const k=m.path.slice(1);if(m.data==null)delete DB.K[k];else DB.K[k]=m.data}kickChk()});
  es.addEventListener("patch",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
@@ -754,14 +759,14 @@ function dbStream(){if(DB.es)DB.es.close();const es=new EventSource(DB.url+"/d.j
   if(m.path=="/"){DB.R=m.data||{}}else{const k=m.path.slice(1);if(m.data==null)delete DB.R[k];else DB.R[k]=m.data}applyRemote()});
  es.addEventListener("patch",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
   if(m.path=="/"&&m.data)Object.entries(m.data).forEach(([k,v])=>{if(v==null)delete DB.R[k];else DB.R[k]=v});applyRemote()});
- es.addEventListener("cancel",()=>setSt("err"));es.addEventListener("auth_revoked",()=>setSt("err"));
+ es.addEventListener("cancel",()=>setSt("err"));es.addEventListener("auth_revoked",()=>{setSt("err");authTok().then(()=>{es.close();dbStream()})});
  es.onerror=()=>{setSt("err");if(es.readyState==2)setTimeout(dbStream,15000)}}
 async function dbInit(){if(!window.fetch||!window.EventSource||!Promise.any){setSt("off");return}
  const c=localStorage.getItem("g-db"),l=c?[c,...FB_CAND.filter(x=>x!=c)]:FB_CAND;
  const probe=u=>fetch(u+"/.json?shallow=true").then(r=>{if(r.ok||r.status==401||r.status==403)return u;throw 0});
- let u="";try{u=await Promise.any(l.map(probe))}catch(e){}
+ let u=DBU;
  if(!u){setSt("err");setTimeout(dbInit,15000);return}
- DB.url=u;try{localStorage.setItem("g-db",u)}catch(e){}dbStream();kickStream();presBeat()}
+ DB.url=u;try{localStorage.setItem("g-db",u)}catch(e){}presBeat()}
 setInterval(()=>{
  if(DB.pend&&!ov.classList.contains("on")){DB.pend=false;applyRemote()}
  if(DB.ren){if(!me){DB.ren=false}else if(!ov.classList.contains("on")){const a=document.activeElement;
@@ -820,7 +825,7 @@ function usrEdit(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner")return;
  $("er1").onchange=()=>pmSync("er1");$("x").onclick=close;$("sv").onclick=()=>{const na=$("ea").value.trim(),ne=$("en1").value.trim(),ph=$("ep").value.trim(),pw=$("ew").value,rl=$("er1").value,er=$("eer"),dg=ph.replace(/\D/g,"");
   if(!na||!ne){er.textContent=TL("pNeed");return}
   if(ph&&dg.length<6){er.textContent=TL("uPh");return}
-  if(pw&&pw.length<4){er.textContent=TL("pShort");return}
+  if(pw){er.textContent=lang=="ar"?"تغيير كلمة سر مستخدم آخر بيتم من لوحة Firebase":"Another user's password is reset from the Firebase console";return}
   if(dg&&U.some(a=>a.u!=u&&(a.u==dg||String(a.ph||"").replace(/\D/g,"")==dg))){er.textContent=TL("uDup");return}
   if(rl!=x.r&&ownersAfter(u,rl)==0){er.textContent=TL("pOwn");return}
   const ch={n:{ar:na,en:ne},ph,r:rl,pm:pmRead()};if(pw)ch.p=pw;
@@ -835,9 +840,9 @@ function usrForm(){
  $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),dg=ph.replace(/\D/g,"");
   if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
   if(dg.length<6){er.textContent=TL("uPh");return}
-  if(pw.length<4){er.textContent=TL("pShort");return}
+  if(pw.length<6){er.textContent=TL("pShort");return}
   if(U.some(x=>x.u==dg||String(x.ph||"").replace(/\D/g,"")==dg)){er.textContent=TL("uDup");return}
-  S.nu.push({u:dg,p:pw,r:rl,n:{ar:nme,en:nme},ph,pm:pmRead()});alog("user","+ "+nme);nuApply();save();close();render()}}
+  er.textContent="...";authCall("signUp",{email:em(dg),password:pw,returnSecureToken:false}).then(j=>fetch(DBU+"/roles/"+j.localId+".json",{method:"PUT",body:JSON.stringify({u:dg,r:rl})})).then(()=>{S.nu.push({u:dg,r:rl,n:{ar:nme,en:nme},ph,pm:pmRead()});alog("user","+ "+nme);nuApply();save();close();render()}).catch(e=>{er.textContent=(e&&e.error&&e.error.message=="EMAIL_EXISTS")?TL("uDup"):"Error"})}}
 
 document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("nv"))window.__navY=t.scrollTop},true);
 
@@ -872,6 +877,14 @@ const _dash=dash;dash=function(a){_dash(a);const lb=t=>`<label style="font-size:
  $("df").onchange=e=>{df=e.target.value;render()};$("dto").onchange=e=>{dto=e.target.value;render()};$("dbr").onchange=e=>{dbr=e.target.value;render()}};
 ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now()},{passive:true,capture:true}));
 setInterval(()=>{if(me&&Date.now()-lastAct>IDLE){alog("auto","");save();presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}close();pnClear();render();const e=$("er");if(e)e.textContent=TL("idleMsg")}},15000);
+const FBK="AIzaSyDXFZjntvRJdZ9ppDlLO1a-1UQ70gbLyvA",DBU="https://geant-cs-crm-default-rtdb.europe-west1.firebasedatabase.app",AUTH={t:"",rt:"",uid:"",exp:0},_fetch=window.fetch.bind(window),_ES=window.EventSource;
+const em=v=>v+"@geant-cs.app";
+async function authCall(p,b){const r=await _fetch("https://identitytoolkit.googleapis.com/v1/accounts:"+p+"?key="+FBK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),j=await r.json();if(!r.ok)throw j;return j}
+async function authIn(e,p){const j=await authCall("signInWithPassword",{email:e,password:p,returnSecureToken:true});AUTH.t=j.idToken;AUTH.rt=j.refreshToken;AUTH.uid=j.localId;AUTH.exp=Date.now()+j.expiresIn*1e3}
+async function authTok(){if(AUTH.rt&&Date.now()>AUTH.exp-6e4){try{const r=await _fetch("https://securetoken.googleapis.com/v1/token?key="+FBK,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+AUTH.rt}),j=await r.json();if(r.ok){AUTH.t=j.id_token;AUTH.rt=j.refresh_token;AUTH.exp=Date.now()+j.expires_in*1e3}}catch(e){}}return AUTH.t}
+window.fetch=async(u,o)=>{if(typeof u=="string"&&u.startsWith(DBU)){const t=await authTok();if(t)u+=(u.includes("?")?"&":"?")+"auth="+t}return _fetch(u,o)};
+window.EventSource=function(u){return new _ES(AUTH.t&&u.startsWith(DBU)?u+(u.includes("?")?"&":"?")+"auth="+AUTH.t:u)};
+setInterval(()=>{if(AUTH.t&&DB.es)authTok().then(()=>{dbStream();kickStream()})},45*6e4);
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
