@@ -468,19 +468,19 @@ resv:{f:[["cust","cust"],["product","text"],["qty","num"],["branch","br"],["due"
 ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"],["due","dt"]],st:["pend","rcv"],main:"subject",shared:1}};
 const dtf=v=>!v?"":String(v).length>10?fdt(new Date(v).getTime()):v;
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):x[1]=="dt"?dtf(v):v};
-const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div><span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
-function mod(a){const M=MOD[view];let fq="",fst="";
+const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div><span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
+function mod(a){const M=MOD[view];if(view=="resv")dpNums();let fq="",fst="";
  a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button>${view=="resv"?`<button class="btn gr" id="dpd">⬇ ${TL("depDl")}</button>`:""}</div><div class="box" id="lst"></div>`;
- const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&JSON.stringify(r.f).includes(fq)).sort((x,y)=>y.d-x.d);
+ const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&(JSON.stringify(r.f)+" #"+(r.no||"")+" "+(r.f.cust?cu(r.f.cust).name+" "+(cu(r.f.cust).phone||""):"")).includes(fq)).sort((x,y)=>y.d-x.d);
   $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m))};
  $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;if($("dpd"))$("dpd").onclick=()=>dlT("dep");f()}
-function mForm(){const M=MOD[view];
+function mForm0(){const M=MOD[view];
  const inp=([i,t])=>`<label>${TL(i)}${t=="cust"?`<input id="f_${i}" placeholder="${L("name")}"></label><label>${L("phone")}<input id="f_${i}_p" inputmode="tel">`:t=="br"?sel("f_"+i,[["",TL("pickB")],...BR.map(b=>[b,b])],""):t=="agent"?sel("f_"+i,AG.map(g=>[g,nm(g)]),""):t=="area"?`<textarea id="f_${i}" rows="3"></textarea>`:`<input id="f_${i}" type="${t=="num"?"number":t=="date"?"date":t=="dt"?"datetime-local":"text"}">`}</label>`;
  open(`<h2>${TL(view)}</h2><div class="f" style="margin-top:10px">${M.f.map(inp).join("")}<div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("save")}</button></div></div>`);
  $("x").onclick=close;$("sv").onclick=()=>{const f={};M.f.forEach(([i])=>f[i]=$("f_"+i).value.trim());
   const nd=[...(M.need||[M.main])];if(M.f.some(x=>x[0]=="cust"))nd.push("cust");if(M.f.some(x=>x[0]=="branch"))nd.push("branch");const bd=nd.find(i=>!f[i]);if(bd){$("f_"+bd).focus();$("f_"+bd).style.borderColor="var(--red)";return}if("cust" in f)f.cust=getCust(f.cust,$("f_cust_p").value);
   S.m[view].push({id:S.n++,ag:me.u,d:Date.now(),s:M.st[0],f,notes:[]});save();close();render()}}
-function mView(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
+function mView0(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
  open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND(view,r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
  <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
@@ -892,6 +892,77 @@ async function adminCall(action,u,password){if(!ADMIN_URL)throw new Error(lang==
 function usrOff(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;const off=!x.off;
  adminCall(off?"disable":"enable",u).then(()=>{alog("user",(off?"⏸ ":"▶ ")+nm(u));applyU(u,{off});save();render()}).catch(e=>msg(e.message||"Error",TL("usr")))}
 Object.assign(X.ar,{uOff:"إيقاف",uOn:"تفعيل"});Object.assign(X.en,{uOff:"Suspend",uOn:"Activate"});
+/* ===== v8: Deposit upgrade (items, value, paid, number, details, edit, close approval) ===== */
+const dpD=(a,e)=>lang=="ar"?a:e;
+const dpFm=n=>(+n||0).toLocaleString(lang=="ar"?"ar-EG":"en-US");
+Object.assign(X.ar,{vtot:"إجمالي القيمة",vpaid:"المدفوع",vrem:"المتبقي"});
+Object.assign(X.en,{vtot:"Total value",vpaid:"Paid",vrem:"Remaining"});
+MOD.resv.f=[["cust","cust"],["product","text"],["qty","num"],["branch","br"],["due","dt"],["vtot","num"],["vpaid","num"],["vrem","num"]];
+function dpNums(){const l=S.m.resv.filter(r=>!r.no).sort((a,b)=>a.d-b.d||a.id-b.id);if(!l.length)return;let m=Math.max(0,...S.m.resv.map(r=>r.no||0));l.forEach(r=>r.no=++m);save()}
+function dpNext(){return Math.max(0,...S.m.resv.map(r=>r.no||0))+1}
+function dpItems(r){return r.items&&r.items.length?r.items:[{p:r.f.product||"",q:+r.f.qty||0,v:0}]}
+function dpRows(items){return items.map((it,i)=>`<div class="dpi" style="display:grid;grid-template-columns:2fr 1fr 1.3fr auto;gap:6px;margin-bottom:6px;align-items:center"><input class="ip" placeholder="${esc(TL("product"))}" value="${esc(it.p||"")}"><input class="iq" type="number" min="0" placeholder="${esc(dpD("الكمية","Qty"))}" value="${esc(it.q||"")}"><input class="iv" type="number" min="0" placeholder="${esc(dpD("القيمة","Value"))}" value="${esc(it.v||"")}"><button class="btn g s" type="button" data-rm="${i}">×</button></div>`).join("")}
+function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>({p:d.querySelector(".ip").value.trim(),q:+d.querySelector(".iq").value||0,v:+d.querySelector(".iv").value||0}))}
+function dpReqClose(r){if(r.cl)return false;const c={id:S.n++,k:"resv",rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c);return true}
+function mForm(ed){
+ if(view!="resv")return mForm0();
+ dpNums();
+ const r=(typeof ed=="number"||typeof ed=="string")?S.m.resv.find(x=>x.id==ed):null,c=r?cu(r.f.cust):{name:"",phone:""};
+ let items=r?dpItems(r).map(x=>({...x})):[{p:"",q:1,v:""}];
+ open(`<h2>${r?dpD("تعديل حجز","Edit deposit")+" #"+r.no:TL("resv")}</h2><div class="f" style="margin-top:10px">
+<label>${TL("cust")}<input id="d_c" value="${esc(r?c.name:"")}"></label>
+<label>${L("phone")}<input id="d_p" inputmode="tel" value="${esc(r?c.phone||"":"")}"></label>
+<label>${TL("branch")}${sel("d_br",[["",TL("pickB")],...BR.map(b=>[b,b])],r?r.f.branch:"")}</label>
+<label>${TL("due")}<input id="d_due" type="datetime-local" value="${esc(r&&r.f.due||"")}"></label>
+<div><small style="color:var(--mut)">${dpD("المنتجات المحجوزة (الاسم / الكمية / القيمة)","Reserved items (name / qty / value)")}</small><div id="dpl" style="margin-top:6px"></div><button class="btn g s" type="button" id="d_add">+ ${dpD("إضافة منتج","Add item")}</button></div>
+<label>${TL("vpaid")}<input id="d_paid" type="number" min="0" value="${esc(r&&r.f.vpaid||"")}"></label>
+<div id="d_sum" style="font-size:15px"></div>
+<div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("save")}</button></div></div>`);
+ const calc=()=>{const it=dpRead(),t=it.reduce((s,x)=>s+x.v,0),p=+$("d_paid").value||0;$("d_sum").innerHTML=`${dpD("الإجمالي","Total")}: <b>${dpFm(t)}</b> · ${dpD("المتبقي","Remaining")}: <b style="color:${t-p>0?"var(--red)":"var(--grn)"}">${dpFm(t-p)}</b>`};
+ const draw=()=>{$("dpl").innerHTML=dpRows(items);calc()};draw();
+ $("dpl").oninput=calc;$("d_paid").oninput=calc;
+ $("dpl").onclick=e=>{const b=e.target.closest("[data-rm]");if(!b)return;items=dpRead();items.splice(+b.dataset.rm,1);if(!items.length)items=[{p:"",q:1,v:""}];draw()};
+ $("d_add").onclick=()=>{items=dpRead();items.push({p:"",q:1,v:""});draw()};
+ $("x").onclick=close;
+ $("sv").onclick=()=>{
+  const bad=id=>{$(id).focus();$(id).style.borderColor="var(--red)"};
+  const nmv=$("d_c").value.trim(),br=$("d_br").value,its=dpRead().filter(x=>x.p),t=its.reduce((s,x)=>s+x.v,0),p=+$("d_paid").value||0;
+  if(!nmv)return bad("d_c");if(!br)return bad("d_br");
+  if(!its.length){const e=document.querySelector(".dpi .ip");if(e){e.focus();e.style.borderColor="var(--red)"}return}
+  if(t>0&&p>t)return bad("d_paid");
+  const f={cust:getCust(nmv,$("d_p").value),product:its.map(x=>x.p).join("، "),qty:its.reduce((s,x)=>s+(x.q||0),0),branch:br,due:$("d_due").value,vtot:t,vpaid:p,vrem:t-p};
+  if(r){r.f=Object.assign({},r.f,f);r.items=its;(r.ed=r.ed||[]).push({u:me.u,d:Date.now()});alog("edit",TL("resv")+" #"+r.no+" "+f.product)}
+  else{S.m.resv.push({id:S.n++,no:dpNext(),ag:me.u,d:Date.now(),s:"res",f,items:its,notes:[],ed:[]});alog("new",TL("resv")+" "+f.product)}
+  save();close();render()}}
+function mView(id){
+ if(view!="resv")return mView0(id);
+ dpNums();
+ const M=MOD.resv,r=S.m.resv.find(x=>x.id==id);if(!r)return;
+ const c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
+ const dr=(k,v)=>`<div><small style="color:var(--mut)">${k}</small><div>${v||"—"}</div></div>`,td="padding:5px 8px;border:1px solid var(--bd,#ddd)";
+ open(`<h2>#${r.no||""} ${esc(c.name)}</h2><small style="color:var(--mut)">${nm(r.ag)} · ${fdt(r.d)}</small>
+<div class="f" style="margin-top:10px">
+${dr(L("phone"),esc(c.phone||""))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("due"),esc(dtf(r.f.due)))}
+<div><small style="color:var(--mut)">${dpD("المنتجات","Items")} (${it.length})</small><div class="scroll"><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr><th style="${td}">${TL("product")}</th><th style="${td}">${dpD("الكمية","Qty")}</th><th style="${td}">${dpD("القيمة","Value")}</th></tr>${it.map(x=>`<tr><td style="${td}">${esc(x.p)}</td><td style="${td}">${dpFm(x.q)}</td><td style="${td}">${dpFm(x.v)}</td></tr>`).join("")}</table></div></div>
+${dr(TL("vtot"),dpFm(tot))}${dr(TL("vpaid"),dpFm(paid))}<div><small style="color:var(--mut)">${TL("vrem")}</small><div style="font-weight:700;color:${rem>0?"var(--red)":"var(--grn)"}">${dpFm(rem)}</div></div>
+${r.cl?`<div><span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span></div>`:""}
+${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""}
+<label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label>
+<div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND("resv",r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
+<label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>
+<div class="row" style="margin:0"><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn" id="dd">⬇ ${TL("depDl")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;
+ $("dpe").onclick=()=>{close();mForm(r.id)};
+ if($("dpc"))$("dpc").onclick=()=>{close();caseClose("resv:"+r.id)};
+ if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
+ if($("dd"))$("dd").onclick=()=>dlT("dep");
+ $("sv").onclick=()=>{
+  alog("edit",TL("resv")+" #"+r.no+" "+r.f[M.main]);
+  const ns=$("s").value;let ask=false;
+  if(ns!=r.s){if(ns==M.st[M.st.length-1]&&!can("cls"))ask=dpReqClose(r);else r.s=ns}
+  const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});
+  save();close();if(ask)pnClear();render();
+  if(ask)msg(dpD("تم إرسال طلب إقفال الحجز للمالك للتأكيد","Close request was sent to the owner for confirmation"),TL("resv"))}}
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
