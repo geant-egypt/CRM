@@ -339,14 +339,14 @@ function render(){
   me=x;view="home";alog("in","");save();render();showSplash()}catch(e){er.textContent=L("bad")}};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
+ const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
+ r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out")};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
- if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else perf(a);
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
  if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
@@ -551,7 +551,7 @@ function bnav(tabs){const k=BMAIN.filter(x=>tabs.some(t=>t[0]==x));
  return `<div class="bn">${k.map(x=>it(x,view==x,BI[x],TL(x))).join("")}${it("more",!k.includes(view),BI.more,TL("more"))}</div>`}
 function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>{const v=b.dataset.b;if(v=="more"){moreMenu(tabs);return}view=v;window.scrollTo(0,0);render()})}
 function moreMenu(tabs){const l=tabs.filter(t=>!BMAIN.includes(t[0]));
- open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
  $("x").onclick=close;md.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;close();window.scrollTo(0,0);render()})}
 
 /* ---- personal notes / alarms / reminders ---- */
@@ -1008,6 +1008,154 @@ ${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""
   const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});
   save();close();if(ask)pnClear();render();
   if(ask)msg(dpD("تم إرسال طلب إقفال الحجز للمالك للتأكيد","Close request was sent to the owner for confirmation"),TL("resv"))}}
+/* ===== v7: internal messages & tasks (pop-up until "read", tasks inside open cases, who-opened report) ===== */
+Object.assign(X.ar,{mgv:"الرسائل"});Object.assign(X.en,{mgv:"Messages"});
+const mgT=(a,e)=>lang=="ar"?a:e;
+const mgH=s=>esc(s).replace(/\n/g,"<br>");
+const MG={d:{},s:{},es:null,ready:false,shown:null,bt:0,lg:0,abs:0};
+(function(){const st=document.createElement("style");st.textContent=`
+#mgpop{position:fixed;inset:0;z-index:60;background:#000b;display:none;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#mgpop.on{display:flex}
+#mgpop .mgc{background:var(--card);color:var(--ink);border-radius:22px;max-width:460px;width:100%;padding:20px;border-top:6px solid var(--red);box-shadow:0 12px 40px #0006;animation:mgp .25s ease-out}
+#mgpop .mgb{margin:14px 0 4px;font-size:18px;line-height:1.6;word-break:break-word}
+@keyframes mgp{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.mgm{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 10px}
+.mgm .mgx{margin:6px 0;word-break:break-word}
+.mgch{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mgta{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;resize:vertical}
+.mgpk{display:flex;flex-wrap:wrap;gap:8px 14px;margin:8px 0}
+.mgpk label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.mgtb{width:100%;border-collapse:collapse}.mgtb th,.mgtb td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+.mgbad{color:var(--red);font-weight:700}.mgok{color:var(--grn);font-weight:700}
+@media(prefers-reduced-motion:reduce){#mgpop .mgc{animation:none}}`;document.head.appendChild(st)})();
+
+/* ---- live data: /d/mg (messages) ---- */
+function mgApply(p,v){if(p=="/"){MG.d=v||{};return}
+ const a=p.split("/").filter(Boolean);let o=MG.d;
+ for(let i=0;i<a.length-1;i++){if(o[a[i]]==null||typeof o[a[i]]!="object"){if(v==null)return;o[a[i]]={}}o=o[a[i]]}
+ if(v==null)delete o[a[a.length-1]];else o[a[a.length-1]]=v}
+function mgLocal(id,path,val){let o=MG.d[id];if(!o)return;for(let i=0;i<path.length-1;i++){if(o[path[i]]==null)o[path[i]]={};o=o[path[i]]}
+ if(val==null)delete o[path[path.length-1]];else o[path[path.length-1]]=val}
+function mgStream(){if(!DB.url||!me)return;if(MG.es)MG.es.close();
+ const es=MG.es=new EventSource(DB.url+"/d/mg.json");
+ es.addEventListener("put",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}mgApply(m.path,m.data);mgChanged()});
+ es.addEventListener("patch",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+  if(m.data&&typeof m.data=="object")Object.entries(m.data).forEach(([k,v])=>mgApply((m.path=="/"?"":m.path)+"/"+k,v));mgChanged()});
+ es.addEventListener("auth_revoked",()=>{es.close();MG.es=null;authTok().then(()=>{if(me)mgStream()})});
+ es.onerror=()=>{if(es.readyState==2){MG.es=null;setTimeout(()=>{if(me&&!MG.es)mgStream()},15000)}}}
+function mgChanged(){MG.ready=true;if(!me)return;mgPop();mgNotify();
+ if($("mglist"))mgPaint();else if(view=="home"&&!ov.classList.contains("on"))render()}
+
+/* ---- "who opened the app" heartbeat: /d/seen/<user> = {t:last seen, l:login time} ---- */
+function mgBeat(){if(!me||!DB.url||DB.first)return;const n=Date.now();if(n-MG.bt<25000)return;MG.bt=n;if(!MG.lg)MG.lg=n;
+ fetch(DB.url+"/d/seen/"+me.u+".json",{method:"PUT",body:JSON.stringify({t:n,l:MG.lg})}).catch(()=>{})}
+function mgSeenLoad(cb){if(!DB.url||!me||me.r!="owner")return;
+ fetch(DB.url+"/d/seen.json").then(r=>r.json()).then(s=>{MG.s=s||{};if(cb)cb()}).catch(()=>{})}
+function mgDur(ms){const m=Math.floor(ms/6e4);if(m<1)return mgT("أقل من دقيقة","< 1 min");if(m<60)return m+mgT(" دقيقة"," min");
+ const h=Math.floor(m/60);if(h<24)return h+mgT(" ساعة"," h")+(m%60?" "+(m%60)+mgT(" د"," m"):"");
+ const d=Math.floor(h/24);return d+mgT(" يوم"," d")+(h%24?" "+(h%24)+mgT(" س"," h"):"")}
+function mgAbs(){if(!me||me.r!="owner")return;const n=Date.now();
+ const l=U.filter(x=>x.u!=me.u&&!x.off&&(!(MG.s[x.u]&&MG.s[x.u].t)||n-MG.s[x.u].t>=864e5));
+ if(!l.length)return;const day=new Date().toISOString().slice(0,10);if(!nfNew("mgabs:"+day+":"+me.u))return;
+ mgToast("🚫",mgT("موظفين مفتحوش التطبيق","Employees who did not open the app"),
+  l.slice(0,6).map(x=>nm(x.u)).join("، ")+(l.length>6?" +"+(l.length-6):""),
+  [[mgT("عرض التقرير","Open report"),()=>{view="mgv";render()},"gr"],[mgT("تمام","OK"),()=>{}]])}
+
+/* ---- toast (same look as the existing case notifications) ---- */
+function mgToast(ic,t,b,btns){const box=pnBox(),el=document.createElement("div");el.className="pnc case";
+ el.innerHTML=`<div class="pni">${ic}</div><div class="pnx"><b>${esc(t)}</b><div>${esc(b)}</div><div class="row" style="margin:8px 0 0">${btns.map((x,i)=>`<button class="btn ${x[2]||"g"} s" data-i="${i}">${esc(x[0])}</button>`).join("")}</div></div>`;
+ el.querySelectorAll("button").forEach(bt=>bt.onclick=()=>{el.remove();btns[bt.dataset.i][1]()});box.appendChild(el);beep(2)}
+
+/* ---- employee side: blocking pop-up until "Read" ---- */
+function mgUnread(){return Object.values(MG.d||{}).filter(m=>m&&m.to&&m.to[me.u]&&!(m.r&&m.r[me.u])).sort((a,b)=>a.d-b.d)}
+function mgPop(){let el=$("mgpop");if(!el){el=document.createElement("div");el.id="mgpop";el.setAttribute("role","alertdialog");document.body.appendChild(el)}
+ const l=me?mgUnread():[];
+ if(!l.length){el.classList.remove("on");el.innerHTML="";MG.shown=null;return}
+ const m=l[0];
+ if(MG.shown!=m.id){MG.shown=m.id;beep(3);try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
+  try{if("Notification" in window&&Notification.permission=="granted")new Notification(nm(m.f)+(m.k=="t"?" • "+mgT("تاسك","Task"):""),{body:m.x,tag:"mg"+m.id})}catch(e){}}
+ el.innerHTML=`<div class="mgc"><div style="font-size:34px;line-height:1">${m.k=="t"?"📌":"💬"}</div><h2 style="margin:6px 0 2px">${m.k=="t"?mgT("تاسك جديد","New task"):mgT("رسالة جديدة","New message")}</h2><small style="color:var(--mut)">${mgT("من","From")}: <b>${esc(nm(m.f))}</b> • ${fdt(m.d)}${l.length>1?" • "+mgT("وفي "+(l.length-1)+" كمان","+"+(l.length-1)+" more"):""}</small><div class="mgb">${mgH(m.x)}</div>${m.k=="t"?`<small style="color:var(--mut)">${mgT("التاسك ده هيفضل عندك في الحالات المفتوحة لحد ما تدوس تم.","This task stays in your open cases until you press Done.")}</small>`:""}<button class="btn gr" id="mgrd" style="width:100%;margin-top:14px">${mgT("قريت","Read")} ✓</button></div>`;
+ el.classList.add("on");$("mgrd").onclick=()=>mgRead(m.id)}
+function mgPatch(id,node,obj){return fetch(DB.url+"/d/mg/"+id+"/"+node+".json",{method:"PATCH",body:JSON.stringify(obj)}).then(r=>{if(!r.ok)throw 0})}
+function mgRead(id){const n=Date.now(),u=me.u;mgLocal(id,["r",u],n);
+ mgPatch(id,"r",{[u]:n}).catch(()=>{mgLocal(id,["r",u],null);if(me)mgPop()});
+ mgPop();if(view=="home"&&!ov.classList.contains("on"))render()}
+
+/* ---- tasks inside the "Open cases" box on the home page ---- */
+function mgFeed(a){const b=$("csf");if(!b||!me)return;
+ const l=Object.values(MG.d||{}).filter(m=>m&&m.k=="t"&&m.to&&m.to[me.u]&&m.r&&m.r[me.u]&&!(m.cf&&m.cf[me.u])).sort((x,y)=>x.d-y.d);
+ if(!l.length)return;const h=b.querySelector("h3"),em=b.querySelector(".empty");if(em)em.remove();
+ h.insertAdjacentHTML("afterend",l.map(m=>{const dn=m.dn&&m.dn[me.u];
+  return `<div class="tk cs"><span style="font-size:20px">📌</span><div class="t">${mgH(m.x)}<small>${mgT("تاسك من","Task from")}: ${esc(nm(m.f))} • ${fdt(m.d)}</small></div>${dn?`<span class="tag" style="--c:var(--amb)">⏳ ${mgT("بانتظار تأكيد","Waiting for")} ${esc(nm(m.f))}</span>`:`<button class="btn gr s" data-mgd="${esc(m.id)}">${mgT("تم","Done")}</button>`}</div>`}).join(""));
+ h.textContent=TL("feed")+" ("+b.querySelectorAll(".tk").length+")";
+ b.querySelectorAll("[data-mgd]").forEach(x=>x.onclick=()=>mgDone(x.dataset.mgd))}
+function mgDone(id){if(!me||!confirm(mgT("تأكيد إنك خلّصت التاسك؟ هيتبعت لمرسله للتأكيد.","Mark this task as done? It goes back to the sender to confirm.")))return;
+ const n=Date.now(),u=me.u;mgLocal(id,["dn",u],n);
+ mgPatch(id,"dn",{[u]:n}).catch(()=>{mgLocal(id,["dn",u],null);if(me)render()});render()}
+
+/* ---- sender side ---- */
+function mgConfirm(id,u){const n=Date.now();mgLocal(id,["cf",u],n);mgPatch(id,"cf",{[u]:n}).catch(()=>{mgLocal(id,["cf",u],null);mgPaint()});mgPaint();mgBadgeRefresh()}
+function mgReopen(id,u){mgLocal(id,["dn",u],null);mgLocal(id,["cf",u],null);mgPatch(id,"dn",{[u]:null}).catch(()=>{});mgPaint();mgBadgeRefresh()}
+function mgDel(id){if(!confirm(mgT("تمسح الرسالة دي من عند الجميع؟","Delete this message for everyone?")))return;
+ delete MG.d[id];fetch(DB.url+"/d/mg/"+id+".json",{method:"DELETE"}).catch(()=>{});mgPaint()}
+function mgBadge(){if(!me||me.r=="agent")return"";let c=0;
+ Object.values(MG.d||{}).forEach(m=>{if(m&&m.k=="t"&&m.dn&&(m.f==me.u||me.r=="owner"))Object.keys(m.dn).forEach(u=>{if(!(m.cf&&m.cf[u]))c++})});return c?" ("+c+")":""}
+function mgBadgeRefresh(){document.querySelectorAll('nav button[data-v="mgv"]').forEach(b=>{b.textContent=TL("mgv")+mgBadge()})}
+function mgNotify(){if(!me||me.r=="agent")return;
+ Object.values(MG.d||{}).forEach(m=>{if(!m||!m.f||!m.to)return;
+  if(m.k=="t"&&m.dn&&(m.f==me.u))Object.keys(m.dn).forEach(u=>{if(m.cf&&m.cf[u])return;if(!nfNew("mgd:"+m.id+":"+u+":"+me.u))return;
+   mgToast("✅",mgT("تاسك اتنفذ","Task done")+" • "+nm(u),m.x,[[mgT("تأكيد","Confirm"),()=>mgConfirm(m.id,u),"gr"],[mgT("فتح","Open"),()=>{view="mgv";render()}]])});
+  if(me.r=="owner"&&m.f!=me.u&&!m.to[me.u]){const f=U.find(x=>x.u==m.f);
+   if(f&&f.r=="sup"&&nfNew("mgs:"+m.id+":"+me.u))mgToast("💬",mgT("رسالة من المشرف ","Supervisor message: ")+nm(m.f),(m.all?mgT("للكل","To all"):Object.keys(m.to).map(nm).join("، "))+" — "+m.x,[[mgT("فتح","Open"),()=>{view="mgv";render()},"gr"],[mgT("تمام","OK"),()=>{}]])}})}
+function mgSt(m,u){const r=m.r&&m.r[u],dn=m.dn&&m.dn[u],cf=m.cf&&m.cf[u];let c,t;
+ if(m.k=="t"){if(cf){c="done";t="✅ "+mgT("مؤكد","Confirmed")}else if(dn){c="prog";t="✔ "+mgT("خلّص — بانتظار التأكيد","Done — awaiting confirm")}else if(r){c="mid";t="👁 "+mgT("قرأ — لسه مخلصش","Read — not done")}else{c="hi";t="⏳ "+mgT("لم يقرأ","Unread")}}
+ else{if(r){c="done";t="👁 "+mgT("قرأ","Read")+" "+fdt(r)}else{c="hi";t="⏳ "+mgT("لم يقرأ","Unread")}}
+ return `<span class="tag ${c}">${esc(nm(u))}: ${t}</span>`}
+function mgSend(){const x=$("mgx").value.trim(),k=(document.querySelector('input[name="mgk"]:checked')||{}).value||"m",er=$("mger"),to={};
+ document.querySelectorAll("#mgto input[data-u]:checked").forEach(c=>to[c.dataset.u]=1);
+ if(!Object.keys(to).length){er.textContent=mgT("اختار حد تبعتله","Choose who to send to");return}
+ if(!x){er.textContent=mgT("اكتب الرسالة","Write the message");$("mgx").focus();return}
+ const tot=U.filter(a=>a.u!=me.u&&!a.off).length,id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+  m={id,f:me.u,k,x,d:Date.now(),to};if(Object.keys(to).length==tot)m.all=1;
+ er.textContent="...";MG.d[id]=m;
+ fetch(DB.url+"/d/mg/"+id+".json",{method:"PUT",body:JSON.stringify(m)}).then(r=>{if(!r.ok)throw 0;er.textContent="";$("mgx").value="";
+   document.querySelectorAll("#mgto input").forEach(c=>c.checked=false);mgPaint()})
+  .catch(()=>{delete MG.d[id];er.textContent=mgT("ماتبعتتش — اتأكد من الاتصال","Not sent — check your connection");mgPaint()})}
+function mgV(a){const us=U.filter(x=>x.u!=me.u&&!x.off);
+ a.innerHTML=`<div class="box"><h3>${mgT("رسالة / تاسك جديد","New message / task")}</h3>
+ <div class="mgpk" id="mgto"><label><input type="checkbox" id="mgall"> <b>${mgT("كل الفريق","All team")}</b></label>${us.map(x=>`<label><input type="checkbox" data-u="${esc(x.u)}"> ${esc(nm(x.u))} <small style="color:var(--mut)">(${L("role")[x.r]})</small></label>`).join("")}</div>
+ <div class="mgpk"><label><input type="radio" name="mgk" value="m" checked> 💬 ${mgT("رسالة (قراءة بس)","Message (read only)")}</label><label><input type="radio" name="mgk" value="t"> 📌 ${mgT("تاسك (لازم يرد بـ تم)","Task (must reply Done)")}</label></div>
+ <textarea id="mgx" class="mgta" rows="3" placeholder="${mgT("اكتب هنا...","Type here...")}"></textarea>
+ <div class="err" id="mger"></div><div class="row" style="margin:8px 0 0"><button class="btn gr" id="mgs">${mgT("إرسال","Send")}</button></div></div>
+ <div id="mglist"></div>${me.r=="owner"?`<div id="mgrep"></div>`:""}`;
+ $("mgall").onchange=e=>document.querySelectorAll("#mgto input[data-u]").forEach(c=>c.checked=e.target.checked);
+ $("mgs").onclick=mgSend;mgPaint();if(me.r=="owner")mgSeenLoad(mgPaint)}
+function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
+ const all=Object.values(MG.d||{}).filter(m=>m&&m.id&&m.f&&m.to);
+ const vis=all.filter(m=>me.r=="owner"||m.f==me.u||m.to[me.u]).sort((a,b)=>b.d-a.d);
+ const pend=[];vis.forEach(m=>{if(m.k=="t"&&m.dn&&(m.f==me.u||me.r=="owner"))Object.keys(m.dn).forEach(u=>{if(!(m.cf&&m.cf[u]))pend.push([m,u])})});
+ A.innerHTML=(pend.length?`<div class="box" style="border-inline-start:6px solid var(--amb)"><h3>✅ ${mgT("بانتظار تأكيدك","Waiting for your confirmation")} (${pend.length})</h3>${pend.map(([m,u])=>`<div class="tk"><div class="t"><b>${esc(nm(u))}</b> ${mgT("خلّص","finished")}: ${mgH(m.x)}<small>${mgT("تاسك من","Task from")}: ${esc(nm(m.f))} • ${fdt(m.dn[u])}</small></div><button class="btn gr s" data-mgc="${esc(m.id)}|${esc(u)}">${mgT("تأكيد","Confirm")}</button><button class="btn g s" data-mgo="${esc(m.id)}|${esc(u)}">↩ ${mgT("رجّعها","Reopen")}</button></div>`).join("")}</div>`:"")
+ +`<div class="box"><h3>${mgT("الرسائل والتاسكات","Messages & tasks")} (${vis.length})</h3>${vis.slice(0,60).map(m=>`<div class="mgm"><div style="display:flex;gap:8px;align-items:center;justify-content:space-between"><b>${m.k=="t"?"📌":"💬"} ${esc(nm(m.f))} ← ${esc(m.all?mgT("كل الفريق","All team"):Object.keys(m.to).map(nm).join("، "))}</b>${(m.f==me.u||me.r=="owner")?`<button class="btn g s dl" data-mgx="${esc(m.id)}">${TL("del")}</button>`:""}</div><small style="color:var(--mut)">${fdt(m.d)}</small><div class="mgx">${mgH(m.x)}</div><div class="mgch">${Object.keys(m.to).map(u=>mgSt(m,u)).join("")}</div></div>`).join("")||`<div class="empty">${mgT("لا توجد رسائل","No messages yet")}</div>`}</div>`;
+ A.querySelectorAll("[data-mgc]").forEach(b=>b.onclick=()=>{const[i,u]=b.dataset.mgc.split("|");mgConfirm(i,u)});
+ A.querySelectorAll("[data-mgo]").forEach(b=>b.onclick=()=>{const[i,u]=b.dataset.mgo.split("|");mgReopen(i,u)});
+ A.querySelectorAll("[data-mgx]").forEach(b=>b.onclick=()=>mgDel(b.dataset.mgx));
+ const R=$("mgrep");if(R&&me.r=="owner"){
+  const rows=U.filter(x=>x.u!=me.u&&!x.off).map(x=>{const s=MG.s&&MG.s[x.u],t=s&&s.t;return{x,t,l:s&&s.l,un:all.filter(m=>m.to[x.u]&&!(m.r&&m.r[x.u])).length,gap:t?n-t:9e15}}).sort((a,b)=>b.gap-a.gap);
+  R.innerHTML=`<div class="box"><h3>📊 ${mgT("تقرير الفتح — مين فتح ومين لأ","Who opened the app")}</h3><div style="overflow-x:auto"><table class="mgtb"><tr><th>${mgT("الموظف","Employee")}</th><th>${mgT("الحالة","Status")}</th><th>${mgT("آخر ظهور","Last seen")}</th><th>${mgT("آخر دخول","Last login")}</th><th>${mgT("رسائل لم تُقرأ","Unread")}</th></tr>${rows.map(r=>{
+   const on=r.gap<9e4,never=!r.t,st=on?`<span class="mgok">● ${mgT("أونلاين الآن","Online now")}</span>`:never?`<span class="mgbad">${mgT("لم يفتح التطبيق بعد","Never opened")}</span>`:`<span class="${r.gap>=864e5?"mgbad":""}">${mgT("مفتحش من","Away for")} ${mgDur(r.gap)}</span>`;
+   return `<tr><td><b>${esc(nm(r.x.u))}</b><br><small style="color:var(--mut)">${L("role")[r.x.r]}</small></td><td>${st}</td><td>${r.t?fdt(r.t):"—"}</td><td>${r.l?fdt(r.l):"—"}</td><td>${r.un?`<span class="mgbad">${r.un}</span>`:"0"}</td></tr>`}).join("")}</table></div><div class="hint">${mgT("بيتحدث تلقائيًا كل نص دقيقة تقريبًا.","Refreshes automatically about every 30 seconds.")}</div></div>`}}
+
+/* ---- wiring ---- */
+const _mgCaseFeed=caseFeed;caseFeed=function(a){_mgCaseFeed(a);try{mgFeed(a)}catch(e){}};
+const _mgRender=render;
+render=function(){_mgRender.apply(this,arguments);mgTick()};
+function mgTick(){
+ if(!me){if(MG.es){MG.es.close();MG.es=null}MG.d={};MG.ready=false;MG.shown=null;MG.lg=0;MG.abs=0;MG.bt=0;const p=$("mgpop");if(p){p.classList.remove("on");p.innerHTML=""}return}
+ if(DB.url&&DB.es&&!MG.es)mgStream();mgBeat();mgPop();
+ if(me.r=="owner"&&!MG.abs){MG.abs=1;mgSeenLoad(mgAbs)}}
+setInterval(()=>{if(me){mgBeat();if(DB.es&&!MG.es)mgStream();if(me.r=="owner"&&$("mgrep"))mgSeenLoad(mgPaint)}},3e4);
+setInterval(()=>{if(me&&MG.es)authTok().then(()=>{if(me)mgStream()})},45*6e4);
+
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
