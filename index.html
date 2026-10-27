@@ -1172,6 +1172,12 @@ function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{
 try{const MGV="v8";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
  .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
+/* ===== v9: warn before closing the page while still signed in ===== */
+let mgWt=0;
+addEventListener("beforeunload",e=>{if(!me)return;
+ const m=mgT("لسه مسجل دخول — اعمل Sign out الأول","You are still signed in — please sign out first");
+ const n=Date.now();if(n-mgWt>3000){mgWt=n;try{mgToast("🚪",mgT("اعمل Sign out الأول","Sign out first"),mgT("عشان تقفل، اضغط Logout.","To close, press Logout."),[[mgT("Logout","Logout"),()=>{const b=$("lo");if(b)b.click()},"gr"],[mgT("تمام","OK"),()=>{}]])}catch(x){}}
+ e.preventDefault();e.returnValue=m;return m});
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
