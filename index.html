@@ -1168,6 +1168,10 @@ logV=function(a){_mgLogV(a);if(!me||me.r!="owner")return;
   S.al=S.al.filter(r=>!(r.d>=a1&&r.d<=b1));alog("clr",n+" • "+new Date(a1).toLocaleString("en-GB")+" → "+new Date(b1).toLocaleString("en-GB"));save();render()}};
 function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{if(!window.closed)location.replace("about:blank")},300)},1300)}
 
+/* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
+try{const MGV="v8";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
+ Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
+ .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
