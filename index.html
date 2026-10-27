@@ -387,7 +387,7 @@ function perf(a){
  ${rows.map(x=>`<tr><td><b>${nm(x.g)}</b> <small style="color:var(--mut)">${L("role")[U.find(u=>u.u==x.g).r]}</small></td><td>${x.tot}</td><td style="color:var(--grn);font-weight:600">${x.d}</td><td>${x.o}</td><td style="color:${x.lt?"var(--red)":"inherit"}">${x.lt}</td>
  <td><div class="bar" style="width:80px;display:inline-flex"><i style="width:${x.rt}%;--c:var(--grn)"></i></div> ${x.rt}%</td><td>${x.av}</td></tr>`).join("")}</table></div></div>`;
 }
-const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>ov.classList.remove("on");
+const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>{ov.classList.remove("on");if(dpBack){const v=dpBack;dpBack=null;view=v;render()}};
 ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{if(e.key=="Escape")close()});
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
 function tkView(id){
@@ -622,8 +622,8 @@ function caseFeed(a){const w=a.firstElementChild;if(!w)return;
  o.sort((x,y)=>(x.at||9e15)-(y.at||9e15)||y.r.d-x.r.d);const n=Date.now();
  w.insertAdjacentHTML("afterend",`<div class="box" id="csf"><h3>${TL("feed")}${o.length?" ("+o.length+")":""}</h3>${o.map(({k,r,at})=>{const M=MOD[k],late=at&&at<=n,
   dl=M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&x[0]!="due"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ");
-  return `<div class="tk cs"><span style="font-size:20px">${caseIc[k]}</span><div class="t">${esc(r.f[M.main])}<small>${TL(k)} • ${dl} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small>${r.f.det?`<small>${esc(r.f.det)}</small>`:""}${at?`<small class="${late?"late":""}">⏰ ${fdt(at)}${late?" • "+TL("overdue"):""}</small>`:""}</div>${r.cl?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn gr s" data-cc="${k}:${r.id}">${TL("clCase")}</button>`}</div>`}).join("")||`<div class="empty">${TL("feedE")}</div>`}</div>`);
- a.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>caseClose(b.dataset.cc))}
+  return `<div class="tk cs" data-ov="${k}:${r.id}" style="cursor:pointer"><span style="font-size:20px">${caseIc[k]}</span><div class="t">${esc(r.f[M.main])}<small>${TL(k)} • ${dl} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small>${r.f.det?`<small>${esc(r.f.det)}</small>`:""}${at?`<small class="${late?"late":""}">⏰ ${fdt(at)}${late?" • "+TL("overdue"):""}</small>`:""}</div>${r.cl?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn gr s" data-cc="${k}:${r.id}">${TL("clCase")}</button>`}</div>`}).join("")||`<div class="empty">${TL("feedE")}</div>`}</div>`);
+ a.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>caseClose(b.dataset.cc));a.querySelectorAll("#csf [data-ov]").forEach(e=>e.onclick=ev=>{if(ev.target.closest("[data-cc]"))return;const[k,id]=e.dataset.ov.split(":");dpOpen(k,id,view)})}
 function caseClose(key){const[k,id]=key.split(":"),r=S.m[k].find(x=>x.id==id);if(!r||r.cl)return;const ow=can("cls");
  open(`<h2>${TL("clCase")}</h2><p><b>${esc(r.f[MOD[k].main])}</b></p><p>${ow?TL("clAskO"):TL("clAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="cy">${TL("clYes")}</button></div>`);
  $("x").onclick=close;$("cy").onclick=()=>{
@@ -651,8 +651,8 @@ function nfNew(k){let m={};try{m=JSON.parse(localStorage.getItem("g-nf"))||{}}ca
 const _aprV=aprV;
 aprV=function(a){_aprV(a);S.cl=S.cl.filter(q=>S.m[q.k]&&S.m[q.k].some(x=>x.id==q.rid));
  a.insertAdjacentHTML("afterbegin",`<div class="box"><h3>${TL("clReq")}${S.cl.length?" ("+S.cl.length+")":""}</h3>${S.cl.map(q=>{const r=S.m[q.k].find(x=>x.id==q.rid);
-  return `<div class="tk cs"><span style="font-size:20px">${caseIc[q.k]}</span><div class="t">${esc(r.f[MOD[q.k].main])}<small>${TL(q.k)} • ${TL("clBy")}: ${nm(q.by)} • ${TL("branch")}: ${esc(q.br||"—")} • ${fdt(q.d)}</small></div><div class="row" style="margin:0"><button class="btn gr s" data-ca="${q.id}">${TL("approve")}</button><button class="btn g s" data-cr="${q.id}">${TL("reject")}</button></div></div>`}).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`);
- a.querySelectorAll("[data-ca]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.ca);if(!q)return;S.m[q.k]=S.m[q.k].filter(x=>x.id!=q.rid);S.cl=S.cl.filter(x=>x!=q);save();render()});
+  return `<div class="tk cs" data-ov="${q.k}:${q.rid}" style="cursor:pointer"><span style="font-size:20px">${caseIc[q.k]}</span><div class="t">${esc(r.f[MOD[q.k].main])}<small>${TL(q.k)} • ${TL("clBy")}: ${nm(q.by)} • ${TL("branch")}: ${esc(q.br||"—")} • ${fdt(q.d)}</small></div><div class="row" style="margin:0"><button class="btn gr s" data-ca="${q.id}">${TL("approve")}</button><button class="btn g s" data-cr="${q.id}">${TL("reject")}</button></div></div>`}).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`);
+ a.querySelectorAll("[data-ov]").forEach(e=>e.onclick=ev=>{if(ev.target.closest("button"))return;const[k,id]=e.dataset.ov.split(":");dpOpen(k,id,view)});a.querySelectorAll("[data-ca]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.ca);if(!q)return;S.m[q.k]=S.m[q.k].filter(x=>x.id!=q.rid);S.cl=S.cl.filter(x=>x!=q);save();render()});
  a.querySelectorAll("[data-cr]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.cr);if(!q)return;const r=S.m[q.k].find(x=>x.id==q.rid);if(r)delete r.cl;S.cl=S.cl.filter(x=>x!=q);save();render()})};
 
 /* presence: who is online (shared through the database) */
@@ -892,6 +892,8 @@ async function adminCall(action,u,password){if(!ADMIN_URL)throw new Error(lang==
 function usrOff(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;const off=!x.off;
  adminCall(off?"disable":"enable",u).then(()=>{alog("user",(off?"⏸ ":"▶ ")+nm(u));applyU(u,{off});save();render()}).catch(e=>msg(e.message||"Error",TL("usr")))}
 Object.assign(X.ar,{uOff:"إيقاف",uOn:"تفعيل"});Object.assign(X.en,{uOff:"Suspend",uOn:"Activate"});
+let dpBack=null;
+function dpOpen(k,id,back){dpBack=back;view=k;mView(id)}
 /* ===== v8: Deposit upgrade (items, value, paid, number, details, edit, close approval) ===== */
 const dpD=(a,e)=>lang=="ar"?a:e;
 const dpFm=n=>(+n||0).toLocaleString(lang=="ar"?"ar-EG":"en-US");
@@ -952,7 +954,7 @@ ${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""
 <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>
 <div class="row" style="margin:0"><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn" id="dd">⬇ ${TL("depDl")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;
- $("dpe").onclick=()=>{close();mForm(r.id)};
+ $("dpe").onclick=()=>{const b=dpBack;dpBack=null;close();view="resv";mForm(r.id);dpBack=b};
  if($("dpc"))$("dpc").onclick=()=>{close();caseClose("resv:"+r.id)};
  if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
  if($("dd"))$("dd").onclick=()=>dlT("dep");
