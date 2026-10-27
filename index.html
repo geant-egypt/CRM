@@ -906,6 +906,42 @@ function dpItems(r){return r.items&&r.items.length?r.items:[{p:r.f.product||"",q
 function dpRows(items){return items.map((it,i)=>`<div class="dpi" style="display:grid;grid-template-columns:2fr 1fr 1.3fr auto;gap:6px;margin-bottom:6px;align-items:center"><input class="ip" placeholder="${esc(TL("product"))}" value="${esc(it.p||"")}"><input class="iq" type="number" min="0" placeholder="${esc(dpD("الكمية","Qty"))}" value="${esc(it.q||"")}"><input class="iv" type="number" min="0" placeholder="${esc(dpD("القيمة","Value"))}" value="${esc(it.v||"")}"><button class="btn g s" type="button" data-rm="${i}">×</button></div>`).join("")}
 function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>({p:d.querySelector(".ip").value.trim(),q:+d.querySelector(".iq").value||0,v:+d.querySelector(".iv").value||0}))}
 function dpReqClose(r){if(r.cl)return false;const c={id:S.n++,k:"resv",rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c);return true}
+function dpPrint(r){
+ const rtl=lang=="ar",c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
+ const COPIES=[dpD("نسخة العميل","Customer copy"),dpD("نسخة خدمة العملاء","Customer service copy"),dpD("نسخة الخزينة المركزية","Central treasury copy")];
+ const row=(k,v)=>`<tr><th>${k}</th><td>${v||"—"}</td></tr>`;
+ const page=cp=>`<div class="pg">
+<div class="hd"><div class="tt"><h1>${esc(TL("resv"))} #${r.no||""}</h1><div class="sub">${esc(fdt(r.d))}</div></div><img src="${LOGO}" alt=""></div>
+<div class="cp">${esc(cp)}</div>
+<table>${row(esc(TL("cust")),esc(c.name))}${row(esc(L("phone")),esc(c.phone||""))}${row(esc(TL("branch")),esc(r.f.branch||""))}${row(esc(TL("due")),esc(dtf(r.f.due)))}${row(esc(L("status")),esc(SL(r.s)))}${last?row(esc(dpD("آخر تعديل","Last edit")),esc(nm(last.u)+" · "+fdt(last.d))):""}</table>
+<h3>${esc(dpD("المنتجات المحجوزة","Reserved items"))}</h3>
+<table class="it"><tr><th>#</th><th>${esc(TL("product"))}</th><th>${esc(dpD("الكمية","Qty"))}</th><th>${esc(dpD("القيمة","Value"))}</th></tr>${it.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.p)}</td><td>${dpFm(x.q)}</td><td>${dpFm(x.v)}</td></tr>`).join("")}</table>
+<table class="tot"><tr><th>${esc(TL("vtot"))}</th><td>${dpFm(tot)}</td></tr><tr><th>${esc(TL("vpaid"))}</th><td>${dpFm(paid)}</td></tr><tr><th>${esc(TL("vrem"))}</th><td>${dpFm(rem)}</td></tr></table>
+${r.notes&&r.notes.length?`<h3>${esc(L("addNote"))}</h3><ul>${r.notes.map(n=>`<li>${esc(n.t)} <small>(${esc(fd(n.d))})</small></li>`).join("")}</ul>`:""}
+<div class="emp">${esc(dpD("الموظف","Employee"))}: <b>${esc(nm(r.ag))}</b></div>
+<div class="ft">${esc(dpD("تاريخ الطباعة","Printed"))}: ${esc(fdt(Date.now()))}</div>
+</div>`;
+ const h=`<!doctype html><html dir="${rtl?"rtl":"ltr"}"><head><meta charset="utf-8"><title>${esc(TL("resv"))} #${r.no||""}</title><style>
+@page{size:A4;margin:14mm}
+body{font-family:Tahoma,Arial,sans-serif;color:#111;font-size:13px;margin:0}
+.pg{page-break-after:always}.pg:last-child{page-break-after:auto}
+.hd{direction:ltr;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:10px}
+.hd img{height:64px;max-width:200px;object-fit:contain}
+.hd .tt{text-align:${rtl?"right":"left"};direction:${rtl?"rtl":"ltr"}}
+h1{margin:0;font-size:22px}.sub{color:#555;margin-top:4px}
+.cp{display:inline-block;border:2px solid #111;padding:4px 16px;font-weight:700;font-size:15px;margin-bottom:12px}
+h3{margin:14px 0 6px;font-size:14px}
+table{width:100%;border-collapse:collapse;margin-bottom:12px}
+th,td{border:1px solid #999;padding:6px 8px;text-align:start;vertical-align:top}
+th{background:#f0f0f0;width:30%}.it th{width:auto}
+.tot th,.tot td{font-weight:700}
+ul{margin:0;padding-inline-start:20px}
+.emp{margin-top:20px;font-size:14px}
+.ft{margin-top:24px;color:#777;font-size:11px}
+</style></head><body>${COPIES.map(page).join("")}</body></html>`;
+ const fr=document.createElement("iframe");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0";let done=0;
+ fr.onload=()=>{if(done++)return;try{fr.contentWindow.focus();fr.contentWindow.print()}catch(e){}setTimeout(()=>fr.remove(),60000)};
+ document.body.appendChild(fr);fr.srcdoc=h}
 function mForm(ed){
  if(view!="resv")return mForm0();
  dpNums();
@@ -952,9 +988,9 @@ ${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""
 <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label>
 <div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND("resv",r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
 <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>
-<div class="row" style="margin:0"><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn" id="dd">⬇ ${TL("depDl")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+<div class="row" style="margin:0"><button class="btn" id="dpp">🖨 ${dpD("طباعة","Print")}</button><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn" id="dd">⬇ ${TL("depDl")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;
- $("dpe").onclick=()=>{const b=dpBack;dpBack=null;close();view="resv";mForm(r.id);dpBack=b};
+ $("dpp").onclick=()=>dpPrint(r);$("dpe").onclick=()=>{const b=dpBack;dpBack=null;close();view="resv";mForm(r.id);dpBack=b};
  if($("dpc"))$("dpc").onclick=()=>{close();caseClose("resv:"+r.id)};
  if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
  if($("dd"))$("dd").onclick=()=>dlT("dep");
