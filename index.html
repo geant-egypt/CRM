@@ -333,7 +333,7 @@ function render(){
  try{await authIn(em(id),$("p").value);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
   if(!DB.es){DB.url=DBU;dbStream();kickStream()}
   for(let i=0;i<40&&DB.first;i++)await new Promise(r=>setTimeout(r,150));
-  reU();const x=U.find(a=>a.u==ro.u);if(!x)throw 0;
+  reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
   const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
   (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
   me=x;view="home";alog("in","");save();render();showSplash()}catch(e){er.textContent=L("bad")}};
@@ -516,11 +516,11 @@ function profForm(){
  $("x").onclick=close;
  $("sv").onclick=()=>{const na=$("pa").value.trim(),ne=$("pn").value.trim(),ph=$("pp").value.trim(),np=$("pw").value,rl=$("pr").value,er=$("perr");
   if(!na||!ne){er.textContent=TL("pNeed");return}
-  if(np&&np.length<4){er.textContent=TL("pShort");return}
+  if(np&&np.length<6){er.textContent=TL("pShort");return}
   const ch={};
   if(na!=u.n.ar||ne!=u.n.en)ch.n={ar:na,en:ne};
   if(ph!=(u.ph||""))ch.ph=ph;
-  if(np){authTok().then(t=>authCall("update",{idToken:t,password:np})).then(()=>msg("✓",TL("prof"))).catch(()=>{});if(!Object.keys(ch).length){close();return}}
+  if(np){authTok().then(t=>authCall("update",{idToken:t,password:np})).then(j=>{if(j.idToken){AUTH.t=j.idToken;AUTH.rt=j.refreshToken;AUTH.exp=Date.now()+j.expiresIn*1e3}msg("✓",TL("prof"))}).catch(()=>{});if(!Object.keys(ch).length){close();return}}
   if(ch.p==u.p)delete ch.p;
   if(rl!=u.r)ch.r=rl;
   if(!Object.keys(ch).length){er.textContent=TL("pNone");return}
@@ -808,13 +808,14 @@ function ownDel(fn){if(!can("del"))return;
  open(`<h2>${TL("del")}</h2><p>${TL("delAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="dy" style="background:var(--red2)">${TL("delYes")}</button></div>`);
  $("x").onclick=close;$("dy").onclick=()=>{const sn=binSnap();fn();binDiff(sn);save();close();render()}}
 function usrV(a){const RC={owner:"hi",sup:"mid",agent:"lo"};
- a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div><span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}</span><button class="btn g s" data-ue="${esc(x.u)}">${TL("tkEdit")}</button>${x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
+ a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div><span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}${x.off?" ⏸":""}</span><button class="btn g s" data-ue="${esc(x.u)}">${TL("tkEdit")}</button>${x.u!=me.u?`<button class="btn g s" data-uo="${esc(x.u)}">${x.off?TL("uOn"):TL("uOff")}</button>`:""}${x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
  $("nu").onclick=usrForm;
  a.querySelectorAll("[data-ue]").forEach(b=>b.onclick=()=>usrEdit(b.dataset.ue));
+ a.querySelectorAll("[data-uo]").forEach(b=>b.onclick=()=>usrOff(b.dataset.uo));
  a.querySelectorAll("[data-ud]").forEach(b=>b.onclick=()=>usrDel(b.dataset.ud))}
 function usrDel(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;
  if(x.r=="owner"&&U.filter(a=>a.r=="owner").length<2){msg(TL("pOwn"),TL("del"));return}
- const n=S.t.filter(t=>t.ag==u&&t.s!="done").length,go=to=>ownDel(()=>{if(to)S.t.forEach(t=>{if(t.ag==u&&t.s!="done")t.ag=to});alog("user","✕ "+nm(u));
+ const n=S.t.filter(t=>t.ag==u&&t.s!="done").length,go=to=>ownDel(()=>{if(ADMIN_URL)adminCall("delete",u).catch(e=>msg(e.message||"Error",TL("del")));if(to)S.t.forEach(t=>{if(t.ag==u&&t.s!="done")t.ag=to});alog("user","✕ "+nm(u));
   if(x._nu){S.nu=S.nu.filter(e=>e.u!=u)}else{if(!S.ud)S.ud=[];if(!S.ud.includes(u))S.ud.push(u)}
   if(S.uo)delete S.uo[u];S.ue=S.ue.filter(q=>q.u!=u);if(S.un)delete S.un[u];nuApply()});
  if(!n){go();return}
@@ -825,11 +826,11 @@ function usrEdit(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner")return;
  $("er1").onchange=()=>pmSync("er1");$("x").onclick=close;$("sv").onclick=()=>{const na=$("ea").value.trim(),ne=$("en1").value.trim(),ph=$("ep").value.trim(),pw=$("ew").value,rl=$("er1").value,er=$("eer"),dg=ph.replace(/\D/g,"");
   if(!na||!ne){er.textContent=TL("pNeed");return}
   if(ph&&dg.length<6){er.textContent=TL("uPh");return}
-  if(pw){er.textContent=lang=="ar"?"تغيير كلمة سر مستخدم آخر بيتم من لوحة Firebase":"Another user's password is reset from the Firebase console";return}
+  if(pw&&pw.length<6){er.textContent=TL("pShort");return}
   if(dg&&U.some(a=>a.u!=u&&(a.u==dg||String(a.ph||"").replace(/\D/g,"")==dg))){er.textContent=TL("uDup");return}
   if(rl!=x.r&&ownersAfter(u,rl)==0){er.textContent=TL("pOwn");return}
-  const ch={n:{ar:na,en:ne},ph,r:rl,pm:pmRead()};if(pw)ch.p=pw;
-  alog("user","✎ "+nm(u));applyU(u,ch);save();close();render()}}
+  const ch={n:{ar:na,en:ne},ph,r:rl,pm:pmRead()};
+  alog("user","✎ "+nm(u));const fin=()=>{applyU(u,ch);save();close();render()};if(!pw){fin();return}er.textContent="...";adminCall("password",u,pw).then(()=>{fin();msg("✓ "+TL("pPassCh"),TL("tkEdit"))}).catch(e=>{er.textContent=e.message||"Error"})}}
 const ND=(k,id,i)=>can("del")?`<button class="btn g s dl" data-nd="${k}:${id}:${i}" style="margin-inline-start:8px;padding:0 8px" aria-label="${TL("del")}">✕</button>`:"";
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nd]");if(!b||!can("del"))return;e.stopPropagation();e.preventDefault();
  const[k,id,i]=b.dataset.nd.split(":");let arr=null;
@@ -885,6 +886,12 @@ async function authTok(){if(AUTH.rt&&Date.now()>AUTH.exp-6e4){try{const r=await 
 window.fetch=async(u,o)=>{if(typeof u=="string"&&u.startsWith(DBU)){const t=await authTok();if(t)u+=(u.includes("?")?"&":"?")+"auth="+t}return _fetch(u,o)};
 window.EventSource=function(u){return new _ES(AUTH.t&&u.startsWith(DBU)?u+(u.includes("?")?"&":"?")+"auth="+AUTH.t:u)};
 setInterval(()=>{if(AUTH.t&&DB.es)authTok().then(()=>{dbStream();kickStream()})},45*6e4);
+const ADMIN_URL="https://geant-admin.mbahaa1-mb.workers.dev";/* ضع هنا رابط الـ Cloudflare Worker بعد النشر */
+async function adminCall(action,u,password){if(!ADMIN_URL)throw new Error(lang=="ar"?"الوسيط لسه مش متفعّل (ADMIN_URL فاضي)":"Admin worker is not configured");
+ const r=await _fetch(ADMIN_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:await authTok(),action,u,password})}),j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Error");return j}
+function usrOff(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;const off=!x.off;
+ adminCall(off?"disable":"enable",u).then(()=>{alog("user",(off?"⏸ ":"▶ ")+nm(u));applyU(u,{off});save();render()}).catch(e=>msg(e.message||"Error",TL("usr")))}
+Object.assign(X.ar,{uOff:"إيقاف",uOn:"تفعيل"});Object.assign(X.en,{uOff:"Suspend",uOn:"Activate"});
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
