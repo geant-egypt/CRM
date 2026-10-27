@@ -1044,7 +1044,7 @@ function mgStream(){if(!DB.url||!me)return;if(MG.es)MG.es.close();
  es.addEventListener("auth_revoked",()=>{es.close();MG.es=null;authTok().then(()=>{if(me)mgStream()})});
  es.onerror=()=>{if(es.readyState==2){MG.es=null;setTimeout(()=>{if(me&&!MG.es)mgStream()},15000)}}}
 function mgChanged(){MG.ready=true;if(!me)return;mgPop();mgNotify();
- if($("mglist"))mgPaint();else if(view=="home"&&!ov.classList.contains("on"))render()}
+ if($("mglist"))mgPaint();mgTasks()}
 
 /* ---- "who opened the app" heartbeat: /d/seen/<user> = {t:last seen, l:login time} ---- */
 function mgBeat(){if(!me||!DB.url||DB.first)return;const n=Date.now();if(n-MG.bt<25000)return;MG.bt=n;if(!MG.lg)MG.lg=n;
@@ -1079,19 +1079,17 @@ function mgPop(){let el=$("mgpop");if(!el){el=document.createElement("div");el.i
 function mgPatch(id,node,obj){return fetch(DB.url+"/d/mg/"+id+"/"+node+".json",{method:"PATCH",body:JSON.stringify(obj)}).then(r=>{if(!r.ok)throw 0})}
 function mgRead(id){const n=Date.now(),u=me.u;mgLocal(id,["r",u],n);
  mgPatch(id,"r",{[u]:n}).catch(()=>{mgLocal(id,["r",u],null);if(me)mgPop()});
- mgPop();if(view=="home"&&!ov.classList.contains("on"))render()}
+ mgPop();mgTasks()}
 
-/* ---- tasks inside the "Open cases" box on the home page ---- */
-function mgFeed(a){const b=$("csf");if(!b||!me)return;
- const l=Object.values(MG.d||{}).filter(m=>m&&m.k=="t"&&m.to&&m.to[me.u]&&m.r&&m.r[me.u]&&!(m.cf&&m.cf[me.u])).sort((x,y)=>x.d-y.d);
- if(!l.length)return;const h=b.querySelector("h3"),em=b.querySelector(".empty");if(em)em.remove();
- h.insertAdjacentHTML("afterend",l.map(m=>{const dn=m.dn&&m.dn[me.u];
-  return `<div class="tk cs"><span style="font-size:20px">📌</span><div class="t">${mgH(m.x)}<small>${mgT("تاسك من","Task from")}: ${esc(nm(m.f))} • ${fdt(m.d)}</small></div>${dn?`<span class="tag" style="--c:var(--amb)">⏳ ${mgT("بانتظار تأكيد","Waiting for")} ${esc(nm(m.f))}</span>`:`<button class="btn gr s" data-mgd="${esc(m.id)}">${mgT("تم","Done")}</button>`}</div>`}).join(""));
- h.textContent=TL("feed")+" ("+b.querySelectorAll(".tk").length+")";
- b.querySelectorAll("[data-mgd]").forEach(x=>x.onclick=()=>mgDone(x.dataset.mgd))}
+/* ---- my open tasks: box at the top of every page (stays until Done is confirmed by the sender) ---- */
+function mgMyTasks(){return Object.values(MG.d||{}).filter(m=>m&&m.k=="t"&&m.to&&m.to[me.u]&&m.r&&m.r[me.u]&&!(m.cf&&m.cf[me.u])).sort((x,y)=>x.d-y.d)}
+function mgTasks(){const old=$("mgtk");if(old)old.remove();const a=$("app");if(!me||!a)return;const l=mgMyTasks();if(!l.length)return;
+ a.insertAdjacentHTML("afterbegin",`<div class="box" id="mgtk" style="border-inline-start:6px solid var(--red)"><h3>📌 ${mgT("مهامك المفتوحة","Your open tasks")} (${l.length})</h3>${l.map(m=>{const dn=m.dn&&m.dn[me.u];
+  return `<div class="tk cs"><span style="font-size:20px">📌</span><div class="t">${mgH(m.x)}<small>${mgT("تاسك من","Task from")}: ${esc(nm(m.f))} • ${fdt(m.d)}</small></div>${dn?`<span class="tag" style="--c:var(--amb)">⏳ ${mgT("بانتظار تأكيد","Waiting for")} ${esc(nm(m.f))}</span>`:`<button class="btn gr s" data-mgd="${esc(m.id)}">${mgT("تم","Done")}</button>`}</div>`}).join("")}</div>`);
+ $("mgtk").querySelectorAll("[data-mgd]").forEach(x=>x.onclick=()=>mgDone(x.dataset.mgd))}
 function mgDone(id){if(!me||!confirm(mgT("تأكيد إنك خلّصت التاسك؟ هيتبعت لمرسله للتأكيد.","Mark this task as done? It goes back to the sender to confirm.")))return;
  const n=Date.now(),u=me.u;mgLocal(id,["dn",u],n);
- mgPatch(id,"dn",{[u]:n}).catch(()=>{mgLocal(id,["dn",u],null);if(me)render()});render()}
+ mgPatch(id,"dn",{[u]:n}).catch(()=>{mgLocal(id,["dn",u],null);if(me)mgTasks()});mgTasks()}
 
 /* ---- sender side ---- */
 function mgConfirm(id,u){const n=Date.now();mgLocal(id,["cf",u],n);mgPatch(id,"cf",{[u]:n}).catch(()=>{mgLocal(id,["cf",u],null);mgPaint()});mgPaint();mgBadgeRefresh()}
@@ -1146,12 +1144,11 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
    return `<tr><td><b>${esc(nm(r.x.u))}</b><br><small style="color:var(--mut)">${L("role")[r.x.r]}</small></td><td>${st}</td><td>${r.t?fdt(r.t):"—"}</td><td>${r.l?fdt(r.l):"—"}</td><td>${r.un?`<span class="mgbad">${r.un}</span>`:"0"}</td></tr>`}).join("")}</table></div><div class="hint">${mgT("بيتحدث تلقائيًا كل نص دقيقة تقريبًا.","Refreshes automatically about every 30 seconds.")}</div></div>`}}
 
 /* ---- wiring ---- */
-const _mgCaseFeed=caseFeed;caseFeed=function(a){_mgCaseFeed(a);try{mgFeed(a)}catch(e){}};
 const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
 function mgTick(){
  if(!me){if(MG.es){MG.es.close();MG.es=null}MG.d={};MG.ready=false;MG.shown=null;MG.lg=0;MG.abs=0;MG.bt=0;const p=$("mgpop");if(p){p.classList.remove("on");p.innerHTML=""}return}
- if(DB.url&&DB.es&&!MG.es)mgStream();mgBeat();mgPop();
+ if(DB.url&&DB.es&&!MG.es)mgStream();mgBeat();mgPop();mgTasks();
  if(me.r=="owner"&&!MG.abs){MG.abs=1;mgSeenLoad(mgAbs)}}
 setInterval(()=>{if(me){mgBeat();if(DB.es&&!MG.es)mgStream();if(me.r=="owner"&&$("mgrep"))mgSeenLoad(mgPaint)}},3e4);
 setInterval(()=>{if(me&&MG.es)authTok().then(()=>{if(me)mgStream()})},45*6e4);
