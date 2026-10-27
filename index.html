@@ -908,12 +908,12 @@ function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>({p:d.quer
 function dpReqClose(r){if(r.cl)return false;const c={id:S.n++,k:"resv",rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c);return true}
 function dpPrint(r){
  const rtl=lang=="ar",c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
- const COPIES=[dpD("نسخة العميل","Customer copy"),dpD("نسخة خدمة العملاء","Customer service copy"),dpD("نسخة الخزينة المركزية","Central treasury copy")];
+ const COPIES=[dpD("نسخة العميل","Customer copy"),dpD("نسخة خدمة العملاء","Customer service copy"),dpD("نسخة الخزينة المركزية","Cash office copy")];
  const row=(k,v)=>`<tr><th>${k}</th><td>${v||"—"}</td></tr>`;
  const page=cp=>`<div class="pg">
 <div class="hd"><div class="tt"><h1>${esc(TL("resv"))} #${r.no||""}</h1><div class="sub">${esc(fdt(r.d))}</div></div><img src="${LOGO}" alt=""></div>
 <div class="cp">${esc(cp)}</div>
-<table>${row(esc(TL("cust")),esc(c.name))}${row(esc(L("phone")),esc(c.phone||""))}${row(esc(TL("branch")),esc(r.f.branch||""))}${row(esc(TL("due")),esc(dtf(r.f.due)))}${row(esc(L("status")),esc(SL(r.s)))}${last?row(esc(dpD("آخر تعديل","Last edit")),esc(nm(last.u)+" · "+fdt(last.d))):""}</table>
+<table>${row(esc(TL("cust")),esc(c.name))}${row(esc(L("phone")),esc(c.phone||""))}${row(esc(TL("branch")),esc(r.f.branch||""))}${row(esc(dpD("تاريخ الإنشاء","Creation Date")),esc(fdt(r.d)))}</table>
 <h3>${esc(dpD("المنتجات المحجوزة","Reserved items"))}</h3>
 <table class="it"><tr><th>#</th><th>${esc(TL("product"))}</th><th>${esc(dpD("الكمية","Qty"))}</th><th>${esc(dpD("القيمة","Value"))}</th></tr>${it.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.p)}</td><td>${dpFm(x.q)}</td><td>${dpFm(x.v)}</td></tr>`).join("")}</table>
 <table class="tot"><tr><th>${esc(TL("vtot"))}</th><td>${dpFm(tot)}</td></tr><tr><th>${esc(TL("vpaid"))}</th><td>${dpFm(paid)}</td></tr><tr><th>${esc(TL("vrem"))}</th><td>${dpFm(rem)}</td></tr></table>
@@ -923,11 +923,11 @@ ${r.notes&&r.notes.length?`<h3>${esc(L("addNote"))}</h3><ul>${r.notes.map(n=>`<l
 </div>`;
  const css=`#prn{display:none}
 @media print{
-@page{size:A4;margin:14mm}
+@page{size:A4;margin:0}
 html,body{background:#fff!important;height:auto!important;overflow:visible!important}
 body>*:not(#prn){display:none!important}
 #prn{display:block!important;position:static!important;direction:${rtl?"rtl":"ltr"};font-family:Tahoma,Arial,sans-serif;color:#111;font-size:13px}
-#prn .pg{page-break-after:always;break-after:page}#prn .pg:last-child{page-break-after:auto;break-after:auto}
+#prn .pg{padding:14mm;box-sizing:border-box;page-break-after:always;break-after:page}#prn .pg:last-child{page-break-after:auto;break-after:auto}
 #prn .hd{direction:ltr;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:10px}
 #prn .hd img{height:64px;max-width:200px;object-fit:contain}
 #prn .hd .tt{text-align:${rtl?"right":"left"};direction:${rtl?"rtl":"ltr"}}
