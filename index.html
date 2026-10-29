@@ -1298,7 +1298,7 @@ function mgExport(){if(!me)return;const fr=rf?new Date(rf).setHours(0,0,0,0):0,t
  if(!brs.length){mgToast("📭",mgT("مفيش شكاوي للتصدير","Nothing to export"),mgT("التقارير بتبدأ من 1 نوفمبر 2026.","Reports start from 1 Nov 2026."),[[mgT("تمام","OK"),()=>{}]]);return}
  brs.forEach((b,i)=>setTimeout(async()=>{try{mgDownload(mgFileName(b),await mgBuildXlsx(b,base.filter(t=>t.br==b).sort((x,y)=>x.d-y.d)))}catch(e){console.error(e);mgToast("⚠️",mgT("تعذر إنشاء الملف","Could not build the file"),String(e&&e.message||e),[[mgT("تمام","OK"),()=>{}]])}},i*700))}
 const _rhRep=rep;
-rep=function(a){_rhRep(a);if(rt!="tk")return;const ox=a.querySelector("#ex");if(ox)ox.remove();const r=a.querySelector(".row");if(!r)return;
+rep=function(a){_rhRep(a);if(rt!="tk")return;const r=a.querySelector(".row");if(!r)return;
  r.insertAdjacentHTML("beforeend",`<label style="font-size:12px;color:var(--mut)">${mgT("شهر","Month")}<input type="month" id="rm" value="${rf&&rto&&rf.slice(0,7)==rto.slice(0,7)&&rf.endsWith("-01")?rf.slice(0,7):""}"></label><button class="btn gr" id="exx">📊 ${mgT("Excel (تقرير لكل فرع)","Excel (one report per branch)")}</button>`);
  $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()};$("exx").onclick=mgExport};
 
