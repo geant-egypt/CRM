@@ -1284,7 +1284,7 @@ async function mgBuildXlsx(br,list){
 function mgShHdr(){const H=["Store","Date","Case Type","Customer Name","Mobile","Address","Channel","HD.Channel","DEP","Section","Reason","Customer Notes","Action taken","Feedback","Validation","Status with Customer","Action Taken By operation","Store Manager Action &amp; Feedback","Last Status with Customer","Month","CS Agent"];
  return `<row r="1" spans="1:21">${H.map((h,i)=>`<c r="${mgCl(i)}1" s="${i==4?3:1}" t="inlineStr"><is><t>${h}</t></is></c>`).join("")}</row>`}
 
-RH.start=new Date(2026,10,1).getTime();
+RH.start=new Date(2026,9,1).getTime();/* TEST: كان 1 نوفمبر 2026 */
 function mgMi(ts){const d=new Date(ts);return d.getFullYear()*12+d.getMonth()}
 function mgLocked(t){return !!t&&mgMi(t.d)<mgMi(Date.now())}
 function mgSc(t,r){r=r||t.rh||{};return mgLocked(t)&&!r.sco?"Closed":(r.sc||"")}
@@ -1295,7 +1295,7 @@ function mgFileName(br){const M=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG"
  return br+" - Complain "+lab+".xlsx"}
 function mgExport(){if(!me)return;const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,
  base=mine().filter(t=>t.d>=Math.max(fr,RH.start)&&t.d<=to),brs=(rbr?[rbr]:BR).filter(b=>base.some(t=>t.br==b));
- if(!brs.length){mgToast("📭",mgT("مفيش شكاوي للتصدير","Nothing to export"),mgT("التقارير بتبدأ من 1 نوفمبر 2026.","Reports start from 1 Nov 2026."),[[mgT("تمام","OK"),()=>{}]]);return}
+ if(!brs.length){mgToast("📭",mgT("مفيش شكاوي للتصدير","Nothing to export"),mgT("التقارير بتبدأ من 1 أكتوبر 2026.","Reports start from 1 Oct 2026."),[[mgT("تمام","OK"),()=>{}]]);return}
  brs.forEach((b,i)=>setTimeout(async()=>{try{mgDownload(mgFileName(b),await mgBuildXlsx(b,base.filter(t=>t.br==b).sort((x,y)=>x.d-y.d)))}catch(e){console.error(e);mgToast("⚠️",mgT("تعذر إنشاء الملف","Could not build the file"),String(e&&e.message||e),[[mgT("تمام","OK"),()=>{}]])}},i*700))}
 const _rhRep=rep;
 rep=function(a){_rhRep(a);if(rt!="tk")return;const r=a.querySelector(".row");if(!r)return;
