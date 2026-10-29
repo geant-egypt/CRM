@@ -266,6 +266,18 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 @keyframes spd{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-6px);opacity:1}}
 @media (prefers-reduced-motion:reduce){#spl img{animation:none}}
 .cbi{display:inline-flex;gap:4px;flex:none}.cbi .btn.s{padding:2px 8px;font-size:14px;line-height:1.3}
+/* iOS-style popup motion: only opening/closing, nothing else changed */
+.ov{display:flex;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .3s ease,visibility 0s linear .45s}
+.ov.on{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .3s ease,visibility 0s}
+.md{opacity:0;transform:translateY(18px) scale(.95);transition:transform .45s cubic-bezier(.32,.72,0,1),opacity .28s ease}
+.ov.on .md{opacity:1;transform:none}
+@media(max-width:640px){.md{opacity:1;transform:translateY(100%);animation:none}.ov.on .md{transform:none}}
+@keyframes pnIn{from{transform:translateY(-130%) scale(.96);opacity:0}}
+@keyframes pnOut{to{transform:translateY(-130%) scale(.96);opacity:0}}
+.pnc{animation:pnIn .5s cubic-bezier(.32,.72,0,1)}
+.pnc.alarm{animation:pnIn .5s cubic-bezier(.32,.72,0,1),pnr .9s ease-in-out infinite alternate}
+.pnc.out{animation:pnOut .3s cubic-bezier(.4,0,1,1) forwards}
+@media(prefers-reduced-motion:reduce){.ov,.md{transition:none!important}.pnc,.pnc.out{animation:none!important}}
 </style>
 </head>
 <body>
@@ -569,7 +581,7 @@ function pnFire(p,late){
  const box=pnBox(),el=document.createElement("div"),al=p.k=="alarm",ttl=al?TL("pnAlarm"):TL("pnRem"),at=p.at0||p.at;
  el.className="pnc "+p.k;
  el.innerHTML=`<div class="pni">${al?"⏰":"🔔"}</div><div class="pnx"><b>${ttl}${late?" • "+TL("pnMissed"):""}</b><div>${esc(p.t)}</div><small>${fdt(at)}</small><div class="row" style="margin:8px 0 0"><button class="btn s" data-a="ok">${TL("pnOk")}</button><button class="btn g s" data-a="sn">${TL("pnSnooze")}</button></div></div>`;
- const done=()=>{el.remove();if(!box.querySelector(".pnc.alarm"))pnStopRing()};
+ const done=()=>{el.classList.remove("alarm");el.classList.add("out");setTimeout(()=>el.remove(),320);if(!box.querySelector(".pnc.alarm"))pnStopRing()};
  el.querySelector('[data-a="ok"]').onclick=done;
  el.querySelector('[data-a="sn"]').onclick=()=>{const t=Date.now()+5*6e4;if(p.rp){S.pn.push({id:S.n++,u:p.u,k:p.k,t:p.t,at:t,f:false,rp:false,d:Date.now()})}else{p.at=t;p.f=false}save();done();if(view=="home"&&!ov.classList.contains("on"))_render()};
  box.appendChild(el);
@@ -1017,11 +1029,14 @@ const mgT=(a,e)=>lang=="ar"?a:e;
 const mgH=s=>esc(s).replace(/\n/g,"<br>");
 const MG={d:{},s:{},es:null,ready:false,shown:null,bt:0,lg:0,abs:0};
 (function(){const st=document.createElement("style");st.textContent=`
-#mgpop{position:fixed;inset:0;z-index:60;background:#000b;display:none;align-items:center;justify-content:center;padding:16px;overflow:auto}
-#mgpop.on{display:flex}
-#mgpop .mgc{background:var(--card);color:var(--ink);border-radius:22px;max-width:460px;width:100%;padding:20px;border-top:6px solid var(--red);box-shadow:0 12px 40px #0006;animation:mgp .25s ease-out}
+#mgpop{position:fixed;inset:0;z-index:60;background:#000b;display:flex;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .3s ease,visibility 0s linear .42s;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#mgpop.on{visibility:visible;opacity:1;pointer-events:auto;transition:opacity .3s ease,visibility 0s}
+#mgpop .mgc{background:var(--card);color:var(--ink);border-radius:22px;max-width:460px;width:100%;padding:20px;border-top:6px solid var(--red);box-shadow:0 12px 40px #0006}
+#mgpop:not(.on) .mgc{animation:mgpo .3s cubic-bezier(.4,0,1,1) both}
+@keyframes mgpo{to{transform:scale(.95) translateY(8px);opacity:0}}
+#mgpop.on .mgc{animation:mgp .45s cubic-bezier(.32,.72,0,1) both}
 #mgpop .mgb{margin:14px 0 4px;font-size:18px;line-height:1.6;word-break:break-word}
-@keyframes mgp{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+@keyframes mgp{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:none;opacity:1}}
 .mgm{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 10px}
 .mgm .mgx{margin:6px 0;word-break:break-word}
 .mgch{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -1030,7 +1045,7 @@ const MG={d:{},s:{},es:null,ready:false,shown:null,bt:0,lg:0,abs:0};
 .mgpk label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .mgtb{width:100%;border-collapse:collapse}.mgtb th,.mgtb td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
 .mgbad{color:var(--red);font-weight:700}.mgok{color:var(--grn);font-weight:700}
-@media(prefers-reduced-motion:reduce){#mgpop .mgc{animation:none}}`;document.head.appendChild(st)})();
+@media(prefers-reduced-motion:reduce){#mgpop,#mgpop .mgc{animation:none!important;transition:none!important}}`;document.head.appendChild(st)})();
 
 /* ---- live data: /d/mg (messages) ---- */
 function mgApply(p,v){if(p=="/"){MG.d=v||{};return}
@@ -1071,9 +1086,10 @@ function mgToast(ic,t,b,btns){const box=pnBox(),el=document.createElement("div")
 
 /* ---- employee side: blocking pop-up until "Read" ---- */
 function mgUnread(){return Object.values(MG.d||{}).filter(m=>m&&m.to&&m.to[me.u]&&!(m.r&&m.r[me.u])).sort((a,b)=>a.d-b.d)}
+function mgHide(e){e.classList.remove("on");clearTimeout(e._h);e._h=setTimeout(()=>{if(!e.classList.contains("on"))e.innerHTML=""},450)}
 function mgPop(){let el=$("mgpop");if(!el){el=document.createElement("div");el.id="mgpop";el.setAttribute("role","alertdialog");document.body.appendChild(el)}
  const l=me?mgUnread():[];
- if(!l.length){el.classList.remove("on");el.innerHTML="";MG.shown=null;return}
+ if(!l.length){mgHide(el);MG.shown=null;return}
  const m=l[0];
  if(MG.shown!=m.id){MG.shown=m.id;beep(3);try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
   try{if("Notification" in window&&Notification.permission=="granted")new Notification(nm(m.f)+(m.k=="t"?" • "+mgT("تاسك","Task"):""),{body:m.x,tag:"mg"+m.id})}catch(e){}}
@@ -1150,7 +1166,7 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
 const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
 function mgTick(){
- if(!me){if(MG.es){MG.es.close();MG.es=null}MG.d={};MG.ready=false;MG.shown=null;MG.lg=0;MG.abs=0;MG.bt=0;const p=$("mgpop");if(p){p.classList.remove("on");p.innerHTML=""}return}
+ if(!me){if(MG.es){MG.es.close();MG.es=null}MG.d={};MG.ready=false;MG.shown=null;MG.lg=0;MG.abs=0;MG.bt=0;const p=$("mgpop");if(p){mgHide(p)}return}
  if(DB.url&&DB.es&&!MG.es)mgStream();mgBeat();mgPop();mgTasks();
  if(me.r=="owner"&&!MG.abs){MG.abs=1;mgSeenLoad(mgAbs)}}
 setInterval(()=>{if(me){mgBeat();if(DB.es&&!MG.es)mgStream();if(me.r=="owner"&&$("mgrep"))mgSeenLoad(mgPaint)}},3e4);
