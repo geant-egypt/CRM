@@ -1303,7 +1303,7 @@ rep=function(a){_rhRep(a);if(rt!="tk")return;const r=a.querySelector(".row");if(
  $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()};$("exx").onclick=mgExport};
 
 /* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
-try{const MGV="v11";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
+try{const MGV="v12";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
  .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
 /* ===== v9: warn before closing the page while still signed in ===== */
