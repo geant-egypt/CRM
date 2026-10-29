@@ -1289,7 +1289,9 @@ function mgMi(ts){const d=new Date(ts);return d.getFullYear()*12+d.getMonth()}
 function mgLocked(t){return !!t&&mgMi(t.d)<mgMi(Date.now())}
 function mgSc(t,r){r=r||t.rh||{};return mgLocked(t)&&!r.sco?"Closed":(r.sc||"")}
 function mgLs(t,r){r=r||t.rh||{};return mgLocked(t)&&!r.sco?"Closed":(r.ls||"")}
-function mgDownload(name,u8){const u=URL.createObjectURL(new Blob([u8],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+async function mgDownload(name,u8){let dl=null;try{dl=window.claude?await window.claude.use("downloads"):null}catch(e){}
+ if(dl){try{await dl.save({filename:name,data:u8});return}catch(e){}}
+ const u=URL.createObjectURL(new Blob([u8],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 function mgFileName(br){const M=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];let lab="ALL";
  if(rf||rto){const a=new Date(rf||rto),z=new Date(rto||rf);lab=(a.getMonth()==z.getMonth()&&a.getFullYear()==z.getFullYear())?M[a.getMonth()]+" "+a.getFullYear():(rf||"…")+" to "+(rto||"…")}
  return br+" - Complain "+lab+".xlsx"}
