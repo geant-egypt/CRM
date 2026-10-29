@@ -342,9 +342,9 @@ function render(){
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
-  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
+  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
@@ -1189,6 +1189,29 @@ function rhRead(full){const g=i=>($(i)?$(i).value.trim():"");
  const r={ct:g("rh_ct"),ad:g("rh_ad"),dep:g("rh_dep"),sec:g("rh_sec"),hd:g("rh_dep")=="Home_Delivery"?g("rh_hd"):"",rs:g("rh_rs")};
  if(full)Object.assign(r,{cn:g("rh_cn"),at:g("rh_at"),fb:g("rh_fb"),sc:g("rh_sc"),ao:g("rh_ao"),sm:g("rh_sm"),ls:g("rh_ls")});return r}
 /* new complaint form: add the report fields (department → its own sections only) */
+/* Switch user: verify the other account first, keep the current one if the login fails */
+function swUser(){
+ open(`<h2>🔁 ${mgT("تبديل المستخدم","Switch user")}</h2><div class="f" style="margin-top:10px">
+ <label>${L("user")}<input id="su" autocomplete="off" autocapitalize="off"></label>
+ <label>${L("pass")}<input id="sp" type="password" autocomplete="off"></label>
+ <div class="err" id="ser"></div></div>
+ <div class="row" style="margin:12px 0 0"><button class="btn" id="sgo">${mgT("تبديل","Switch")}</button><button class="btn g" id="sx">${L("close")}</button></div>`);
+ $("sx").onclick=close;$("su").focus();
+ const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv,er=$("ser");
+  if(!id||!$("sp").value){er.textContent=L("bad");return}
+  er.textContent="...";const bak=Object.assign({},AUTH),fail=m=>{Object.assign(AUTH,bak);er.textContent=m||L("bad")};
+  try{await authIn(em(id),$("sp").value);
+   const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
+   reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
+   const bl=banLeft(x.u);if(bl>0){fail(mgT("المستخدم ده اتعمله خروج إجباري، استنى دقيقة","This user was force-logged out, wait a minute"));return}
+   if(me&&x.u==me.u){Object.assign(AUTH,bak);close();return}
+   presOff();alog("out","");save();
+   (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
+   close();try{mgClose()}catch(e){}
+   me=x;view="home";alog("in","");save();render();showSplash()
+  }catch(e){fail()}};
+ $("sgo").onclick=go;$("sp").onkeydown=e=>{if(e.key=="Enter")go()}}
+
 const _rhTkForm=tkForm;
 tkForm=function(){_rhTkForm();const ti=$("ti");if(!ti)return;
  ti.closest("label").insertAdjacentHTML("beforebegin",rhFields({ct:"Complain"},false));rhBind();
