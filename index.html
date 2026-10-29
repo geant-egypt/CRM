@@ -1168,6 +1168,128 @@ logV=function(a){_mgLogV(a);if(!me||me.r!="owner")return;
   S.al=S.al.filter(r=>!(r.d>=a1&&r.d<=b1));alog("clr",n+" • "+new Date(a1).toLocaleString("en-GB")+" → "+new Date(b1).toLocaleString("en-GB"));save();render()}};
 function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{if(!window.closed)location.replace("about:blank")},300)},1300)}
 
+/* ===== v10: report fields (department → section) + one Excel report per branch ===== */
+const RH=Object.assign({"deps": {"FMCG": ["BEVERAGE", "DAIRY PRO.", "DELICATESS", "DPH", "FROZEN FOO", "GROCERY", "ULT.FRESH"], "FRESH_FOOD": ["BAKERY", "BUTCHERY", "DAIRY COU.", "DELICA.COU", "FISHERY", "FRU&VEGETA", "PASTRY"], "GM": ["APPLIANCES", "HIFI SOUND", "HOUSE.H.G", "MOBILITY", "OFFICE AU.", "CAMP.GARDE", "CAR", "DIY", "HOUSE EQU.", "HOUSEWARE", "LIBRARY", "LUGGAGE", "STATIONERY", "TOYS", "ACCESSORIE", "BABY", "HOME LINEN"], "Home_Delivery": ["H.D Call Center", "Insta Shop", "Cashier", "Picker", "Driver", "HD Back Office", "General"], "Front_End": ["CCO"], "Customer_Service": ["Customer Service"], "General_Suggestion": ["General & Suggestion"], "Security": ["Security"], "Warehouse": ["Warehouse"]}, "types": ["Thanks", "Complain", "Suggestion"], "hd": ["Call Center", "Insta", "Shop & Drop"], "ch": ["Store Complaint", "Call Center", "Social Media"], "reasons": ["Bad attitude from staff", "Bad Quality", "Cashier Mistake", "items not found", "double paid", "Staff mistakes", "H.D Charge", "HD.Delay", "HD.Missing Items", "HD.No answer C.C", "HD.Orders mistakes", "HD.Other", "High Prices", "Payment Method", "Process", "Products Availability", "Promotion Availability", "Service Level", "System Down", "Thanks", "Wrong Prices", "Wrong Section Code", "Damage Items", "Expire", "Near Expire", "Wrong Product", "Customer Mistake", "Hygiene"], "st": ["Closed", "Pending"], "vl": ["Valid", "Not Valid"]},{store:{REH:"REHAB",TRI:"TRIUMPH"},chn:{branch:"Store Complaint",call:"Call Center",social:"Social Media"}});
+function rhFields(r,full){r=r||{};
+ const op=(a,v,ph)=>`<option value="">${ph}</option>`+a.map(x=>`<option ${v==x?"selected":""}>${esc(x)}</option>`).join("");
+ let h=`<div class="row" style="margin:0"><label>${mgT("نوع الحالة","Case type")}<select id="rh_ct">${RH.types.map(x=>`<option ${(r.ct||"Complain")==x?"selected":""}>${x}</option>`).join("")}</select></label><label>${mgT("العنوان","Address")}<input id="rh_ad" value="${esc(r.ad||"")}"></label></div>
+ <div class="row" style="margin:0"><label>${mgT("الإدارة","Department")}<select id="rh_dep">${op(Object.keys(RH.deps),r.dep,mgT("اختار الإدارة","Pick department"))}</select></label><label>${mgT("السكشن","Section")}<select id="rh_sec">${op(RH.deps[r.dep]||[],r.sec,mgT("اختار السكشن","Pick section"))}</select></label></div>
+ <div class="row" style="margin:0"><label>${mgT("السبب","Reason")}<select id="rh_rs">${op(RH.reasons,r.rs,mgT("اختار السبب","Pick reason"))}</select></label><label id="rh_hdw" style="display:${r.dep=="Home_Delivery"?"":"none"}">HD.Channel<select id="rh_hd">${op(RH.hd,r.hd,"—")}</select></label></div>`;
+ if(full)h+=`<label>Customer Notes<textarea id="rh_cn" rows="2">${esc(r.cn||"")}</textarea></label><label>Action taken<textarea id="rh_at" rows="2">${esc(r.at||"")}</textarea></label><label>Feedback<textarea id="rh_fb" rows="2">${esc(r.fb||"")}</textarea></label>
+ <div class="row" style="margin:0"><label>Status with Customer<select id="rh_sc">${op(RH.st,r.sc,"—")}</select></label><label>Last Status with Customer<select id="rh_ls">${op(RH.st,r.ls,"—")}</select></label></div>
+ <label>Action Taken By operation<textarea id="rh_ao" rows="2">${esc(r.ao||"")}</textarea></label><label>Store Manager Action &amp; Feedback<textarea id="rh_sm" rows="2">${esc(r.sm||"")}</textarea></label>`;
+ return h}
+function rhBind(){const d=$("rh_dep"),s=$("rh_sec"),h=$("rh_hdw");if(!d||!s)return;
+ const fill=()=>{const cur=s.value;s.innerHTML=`<option value="">${mgT("اختار السكشن","Pick section")}</option>`+(RH.deps[d.value]||[]).map(x=>`<option ${x==cur?"selected":""}>${esc(x)}</option>`).join("");if(h)h.style.display=d.value=="Home_Delivery"?"":"none"};
+ d.onchange=fill;fill()}
+function rhRead(full){const g=i=>($(i)?$(i).value.trim():"");
+ const r={ct:g("rh_ct"),ad:g("rh_ad"),dep:g("rh_dep"),sec:g("rh_sec"),hd:g("rh_dep")=="Home_Delivery"?g("rh_hd"):"",rs:g("rh_rs")};
+ if(full)Object.assign(r,{cn:g("rh_cn"),at:g("rh_at"),fb:g("rh_fb"),sc:g("rh_sc"),ao:g("rh_ao"),sm:g("rh_sm"),ls:g("rh_ls")});return r}
+/* new complaint form: add the report fields (department → its own sections only) */
+const _rhTkForm=tkForm;
+tkForm=function(){_rhTkForm();const ti=$("ti");if(!ti)return;
+ ti.closest("label").insertAdjacentHTML("beforebegin",rhFields({ct:"Complain"},false));rhBind();
+ const sv=$("sv"),old=sv.onclick;
+ sv.onclick=()=>{const bad=["rh_dep","rh_sec","rh_rs"].find(i=>!$(i).value);
+  if(bad){$(bad).focus();$(bad).style.borderColor="var(--red)";return}
+  const r=rhRead(false);r.cn=($("nt2")?$("nt2").value.trim():"");
+  S.t.push=function(o){o.rh=r;return Array.prototype.push.apply(this,arguments)};
+  try{old()}finally{delete S.t.push}}};
+/* ticket window: report fields for the assignee/supervisors (Validation stays supervisors-only, as before) */
+const _rhTkView=tkView;
+tkView=function(id){_rhTkView(id);const t=S.t.find(x=>x.id==id),tl=md.querySelector(".tl");if(!t||!tl)return;
+ const lk=mgLocked(t),ro=lk&&me.r!="owner",rr=Object.assign({},t.rh||{});if(lk&&!rr.sco){rr.sc=mgSc(t);rr.ls=mgLs(t)}
+ tl.insertAdjacentHTML("beforebegin",`<details class="mgrh" open><summary style="cursor:pointer;font-weight:700;color:var(--red);margin:8px 0">📋 ${mgT("بيانات الشكوى (للتقرير)","Complaint report data")}</summary>${rhFields(rr,true)}</details>`);
+ const h2=md.querySelector("h2");
+ if(lk&&h2)h2.insertAdjacentHTML("afterend",`<div class="tag" style="--c:var(--amb);margin:6px 0;display:inline-block">🔒 ${ro?mgT("الشهر اتقفل — للقراءة فقط","Month closed — read only"):mgT("الشهر اتقفل — التعديل ليك بس","Month closed — only you can edit")}</div>`);
+ rhBind();const sv=$("sv"),old=sv.onclick;
+ if(ro){md.querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);["sv","ccs","dl"].forEach(k=>{const e=$(k);if(e)e.remove()});md.querySelectorAll("[data-nd]").forEach(e=>e.remove());return}
+ sv.onclick=()=>{t.rh=Object.assign(t.rh||{},rhRead(true));if(lk)t.rh.sco=1;old()}};
+const _rhTkClose=tkClose;
+tkClose=function(id){const t=S.t.find(x=>x.id==id);if(t&&mgLocked(t)&&me.r!="owner")return;_rhTkClose(id)};
+const _rhTkDetails=tkDetails;
+tkDetails=function(id){_rhTkDetails(id);const t=S.t.find(x=>x.id==id),d=md.querySelector(".dtl");if(t&&mgLocked(t)&&me.r!="owner"){const e=$("dl");if(e)e.remove()}if(!t||!t.rh||!d)return;const r=t.rh,row=(l,v)=>v?`<b>${l}</b><span>${esc(v)}</span>`:"";
+ d.insertAdjacentHTML("beforeend",row("Case Type",r.ct)+row("DEP",r.dep)+row("Section",r.sec)+row("Reason",r.rs)+row("HD.Channel",r.hd)+row("Address",r.ad)+row("Action taken",r.at)+row("Feedback",r.fb)+row("Status with Customer",mgSc(t,r))+row("Action Taken By operation",r.ao)+row("Store Manager Action & Feedback",r.sm)+row("Last Status with Customer",mgLs(t,r)))};
+
+/* ---- minimal .xlsx writer (OOXML in a "stored" zip, no library) ---- */
+const mgCrcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function mgCrc(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=mgCrcT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function mgZip(files){const enc=new TextEncoder(),u16=v=>[v&255,(v>>8)&255],u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255],parts=[],cen=[];let off=0;
+ files.forEach(([n,s])=>{const nb=enc.encode(n),d=enc.encode(s),crc=mgCrc(d);
+  const lh=new Uint8Array([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0)]);
+  parts.push(lh,nb,d);
+  cen.push(new Uint8Array([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(crc),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);
+  off+=lh.length+nb.length+d.length});
+ const cs=cen.reduce((a,x)=>a+x.length,0),end=new Uint8Array([0x50,0x4b,5,6,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cs),...u32(off),...u16(0)]);
+ const all=[...parts,...cen,end],out=new Uint8Array(all.reduce((a,x)=>a+x.length,0));let p=0;all.forEach(x=>{out.set(x,p);p+=x.length});return out}
+const mgXe=s=>String(s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const mgCl=n=>{let s="";n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};
+const mgS=(r,c,v,s)=>v===""||v==null?`<c r="${mgCl(c)}${r}" s="${s}"/>`:`<c r="${mgCl(c)}${r}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${mgXe(v)}</t></is></c>`;
+const mgN=(r,c,v,s)=>`<c r="${mgCl(c)}${r}" s="${s}"><v>${v}</v></c>`;
+const mgF=(r,c,f,v,s)=>`<c r="${mgCl(c)}${r}" s="${s}"><f>${mgXe(f)}</f><v>${v}</v></c>`;
+const mgRow=(r,cells)=>`<row r="${r}">${cells.join("")}</row>`;
+const mgWS=(cols,rows,extra,sel)=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"${sel?' tabSelected="1"':""}/></sheetViews><sheetFormatPr defaultRowHeight="15.75"/><cols>${cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${rows.join("")}</sheetData>${extra||""}</worksheet>`;
+const mgSerial=ts=>{const d=new Date(ts);return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)+25569};
+const MG_STYLES=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="d\\-m\\-yyyy"/></numFmts><fonts count="6"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Oswald"/></font><font><b/><sz val="9"/><name val="Arial"/></font><font><b/><sz val="10"/><name val="Arial"/></font><font><sz val="10"/><color rgb="FF000000"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FF000000"/><name val="Arial"/></font></fonts><fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF990000"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF2F2F2"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FF000000"/></left><right style="thin"><color rgb="FF000000"/></right><top style="thin"><color rgb="FF000000"/></top><bottom style="thin"><color rgb="FF000000"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="9"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="2" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="49" fontId="2" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="5" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+function mgBuildXlsx(br,list){
+ const SH=br,Q="'"+SH+"'!",HD=["Store","Date","Case Type","Customer Name","Mobile","Address","Channel","HD.Channel","DEP","Section","Reason","Customer Notes","Action taken","Feedback","Validation","Status with Customer","Action Taken By operation","Store Manager Action & Feedback","Last Status with Customer","Month","CS Agent"],
+  W=[10.3,11,13.1,15.4,13.1,14,15.9,12,18.1,22.3,20.9,38.7,118.3,37.3,10.6,11.4,46.4,27.9,12.3,8.3,16.3];
+ const rows=list.map(t=>{const c=cu(t.cid),r=t.rh||{},ag=U.find(x=>x.u==t.ag);
+  return{d:t.d,v:[RH.store[br]||br,null,r.ct||"Complain",c.name||"",c.phone||"",r.ad||"",RH.chn[t.ch]||"",r.hd||"",r.dep||"",r.sec||"",r.rs||"",r.cn||((t.notes&&t.notes[0])?t.notes[0].t:""),r.at||"",r.fb||"",t.vd=="valid"?"Valid":t.vd=="invalid"?"Not Valid":"",mgSc(t,r),r.ao||"",r.sm||"",mgLs(t,r),null,ag?ag.n.en:(t.ag||"")]}});
+ const N=rows.length,last=N+1;
+ const sx=[mgRow(1,HD.map((h,i)=>mgS(1,i,h,1)))];
+ rows.forEach((x,i)=>{const rn=i+2,cells=[];x.v.forEach((v,c)=>{if(c==1)cells.push(mgN(rn,c,mgSerial(x.d),3));else if(c==19)cells.push(mgF(rn,c,`IF(B${rn}="","",MONTH(B${rn}))`,new Date(x.d).getMonth()+1,2));else cells.push(mgS(rn,c,v,c==4?4:2))});sx.push(mgRow(rn,cells))});
+ const dv=(sq,f)=>`<dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="${sq}"><formula1>${mgXe(f)}</formula1></dataValidation>`,MX=2000,
+  dvs=[dv(`A2:A${MX}`,"LIST!$A$2:$A$3"),dv(`C2:C${MX}`,"LIST!$B$2:$B$4"),dv(`G2:G${MX}`,"LIST!$D$2:$D$4"),dv(`H2:H${MX}`,"LIST!$C$2:$C$4"),dv(`I2:I${MX}`,"LIST!$I$1:$Q$1"),dv(`J2:J${MX}`,"INDIRECT($I2)"),dv(`K2:K${MX}`,"LIST!$E$2:$E$"+(RH.reasons.length+1)),dv(`O2:O${MX}`,"LIST!$G$2:$G$3"),dv(`P2:P${MX}`,"LIST!$F$2:$F$3"),dv(`S2:S${MX}`,"LIST!$F$2:$F$3")];
+ const reh=mgWS(W,sx,`<autoFilter ref="A1:U${last}"/><dataValidations count="${dvs.length}">${dvs.join("")}</dataValidations>`,true);
+ /* Pivot Table 1: DEP / Section / Reason / Validation / COUNT with live COUNTIFS + totals */
+ const B="(blank)",dn=v=>v||B,ord=(a,o)=>[...new Set(a)].sort((p,q)=>{const x=o.indexOf(p),y=o.indexOf(q);return(x<0?999:x)-(y<0?999:y)}),
+  crit=v=>v==B?'""':'"'+String(v).replace(/"/g,'""')+'"',px=[],pr=(rn,a,b,c,d,e,s)=>px.push(mgRow(rn,[mgS(rn,0,a,s),mgS(rn,1,b,s),mgS(rn,2,c,s),mgS(rn,3,d,s),e]));
+ px.push(mgRow(1,["DEP","Section","Reason","Validation","COUNT"].map((h,i)=>mgS(1,i,h,6))));
+ let rn=2;const dT=[];
+ ord(rows.map(x=>dn(x.v[8])),[...Object.keys(RH.deps),B]).forEach((dep,di)=>{const dr=rows.filter(x=>dn(x.v[8])==dep),sT=[];let fd=true;
+  ord(dr.map(x=>dn(x.v[9])),[...(RH.deps[dep]||[]),B]).forEach(sec=>{const sr=dr.filter(x=>dn(x.v[9])==sec),rT=[];let fs=true;
+   ord(sr.map(x=>dn(x.v[10])),[...RH.reasons,B]).forEach(rs=>{const rr=sr.filter(x=>dn(x.v[10])==rs),first=rn;let fr=true;
+    ord(rr.map(x=>dn(x.v[14])),["Valid","Not Valid",B]).forEach(vl=>{const n=rr.filter(x=>dn(x.v[14])==vl).length,
+     f=`COUNTIFS(${Q}$A$2:$A$5000,"<>",${Q}$I$2:$I$5000,${crit(dep)},${Q}$J$2:$J$5000,${crit(sec)},${Q}$K$2:$K$5000,${crit(rs)},${Q}$O$2:$O$5000,${crit(vl)})`;
+     pr(rn,fd?dep:"",fs?sec:"",fr?rs:"",vl,mgF(rn,4,f,n,5),5);fd=fs=fr=false;rn++});
+    pr(rn,"","",rs+" Total","",mgF(rn,4,`SUM(E${first}:E${rn-1})`,rr.length,6),6);rT.push([rn,rr.length]);rn++});
+   pr(rn,"",sec+" Total","","",mgF(rn,4,`SUM(${rT.map(x=>"E"+x[0]).join(",")})`,sr.length,6),6);sT.push([rn,sr.length]);rn++});
+  pr(rn,dep+" Total","","","",mgF(rn,4,`SUM(${sT.map(x=>"E"+x[0]).join(",")})`,dr.length,6),6);dT.push([rn,dr.length]);rn++});
+ pr(rn,"Grand Total","","","",dT.length?mgF(rn,4,`SUM(${dT.map(x=>"E"+x[0]).join(",")})`,N,6):mgN(rn,4,0,6),6);
+ const piv=mgWS([20.9,22.9,26.6,13.4,20.9],px,"");
+ /* LIST (hidden): dropdown sources, same layout as the original workbook */
+ const cols={A:["Store","TRIUMPH","REHAB"],B:["Case Type",...RH.types],C:["HD.Channel",...RH.hd],D:["Channel",...RH.ch],E:["Reason",...RH.reasons],F:["Status",...RH.st],G:["Validation",...RH.vl]},dk=Object.keys(RH.deps);
+ dk.forEach((k,i)=>{cols[mgCl(8+i)]=[k,...RH.deps[k]]});
+ const mx=Math.max(...Object.values(cols).map(a=>a.length)),lx=[];
+ for(let r=1;r<=mx;r++){const cs=[];Object.keys(cols).sort((a,b)=>a.length-b.length||a.localeCompare(b)).forEach(k=>{const v=cols[k][r-1];if(v!=null)cs.push(`<c r="${k}${r}" s="${r==1?7:8}" t="inlineStr"><is><t xml:space="preserve">${mgXe(v)}</t></is></c>`)});lx.push(`<row r="${r}">${cs.join("")}</row>`)}
+ const lst=mgWS([16,16,16,22,26,12,12,4,12,16,22,18,12,18,22,12,12],lx,"");
+ const names=dk.map((k,i)=>`<definedName name="${k}">LIST!$${mgCl(8+i)}$2:$${mgCl(8+i)}$${RH.deps[k].length+1}</definedName>`).join("");
+ const NS='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"',H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+ return mgZip([
+  ["[Content_Types].xml",H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+  ["_rels/.rels",H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+  ["xl/workbook.xml",H+`<workbook ${NS}><bookViews><workbookView activeTab="0"/></bookViews><sheets><sheet name="${SH}" sheetId="1" r:id="rId1"/><sheet name="Pivot Table 1" sheetId="2" r:id="rId2"/><sheet name="LIST" sheetId="3" state="hidden" r:id="rId3"/></sheets><definedNames>${names}</definedNames><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`],
+  ["xl/_rels/workbook.xml.rels",H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+  ["xl/styles.xml",MG_STYLES],["xl/worksheets/sheet1.xml",reh],["xl/worksheets/sheet2.xml",piv],["xl/worksheets/sheet3.xml",lst]])}
+RH.start=new Date(2026,10,1).getTime();
+function mgMi(ts){const d=new Date(ts);return d.getFullYear()*12+d.getMonth()}
+function mgLocked(t){return !!t&&mgMi(t.d)<mgMi(Date.now())}
+function mgSc(t,r){r=r||t.rh||{};return mgLocked(t)&&!r.sco?"Closed":(r.sc||"")}
+function mgLs(t,r){r=r||t.rh||{};return mgLocked(t)&&!r.sco?"Closed":(r.ls||"")}
+function mgDownload(name,u8){const u=URL.createObjectURL(new Blob([u8],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}
+function mgFileName(br){const M=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];let lab="ALL";
+ if(rf||rto){const a=new Date(rf||rto),z=new Date(rto||rf);lab=(a.getMonth()==z.getMonth()&&a.getFullYear()==z.getFullYear())?M[a.getMonth()]+" "+a.getFullYear():(rf||"…")+" to "+(rto||"…")}
+ return br+" - Complain "+lab+".xlsx"}
+function mgExport(){if(!me)return;const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,
+ base=mine().filter(t=>t.d>=Math.max(fr,RH.start)&&t.d<=to),brs=(rbr?[rbr]:BR).filter(b=>base.some(t=>t.br==b));
+ if(!brs.length){mgToast("📭",mgT("مفيش شكاوي للتصدير","Nothing to export"),mgT("التقارير بتبدأ من 1 نوفمبر 2026.","Reports start from 1 Nov 2026."),[[mgT("تمام","OK"),()=>{}]]);return}
+ brs.forEach((b,i)=>setTimeout(()=>mgDownload(mgFileName(b),mgBuildXlsx(b,base.filter(t=>t.br==b).sort((x,y)=>x.d-y.d))),i*700))}
+const _rhRep=rep;
+rep=function(a){_rhRep(a);if(rt!="tk")return;const r=a.querySelector(".row");if(!r)return;
+ r.insertAdjacentHTML("beforeend",`<label style="font-size:12px;color:var(--mut)">${mgT("شهر","Month")}<input type="month" id="rm" value="${rf&&rto&&rf.slice(0,7)==rto.slice(0,7)&&rf.endsWith("-01")?rf.slice(0,7):""}"></label><button class="btn gr" id="exx">📊 ${mgT("Excel (تقرير لكل فرع)","Excel (one report per branch)")}</button>`);
+ $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()};$("exx").onclick=mgExport};
+
 /* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
 try{const MGV="v8";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
