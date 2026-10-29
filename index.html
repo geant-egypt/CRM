@@ -265,6 +265,7 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 @keyframes spo{0%{transform:scale(1.4);opacity:0}20%{opacity:1}45%{transform:scale(1)}100%{transform:scale(.45);opacity:0}}
 @keyframes spd{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-6px);opacity:1}}
 @media (prefers-reduced-motion:reduce){#spl img{animation:none}}
+.cbi{display:inline-flex;gap:4px;flex:none}.cbi .btn.s{padding:2px 8px;font-size:14px;line-height:1.3}
 </style>
 </head>
 <body>
@@ -320,7 +321,7 @@ function setLang(){lang=lang=="ar"?"en":"ar";try{localStorage.setItem("g-lang",l
 const langBtn=`<button class="btn w s" id="lb">${lang=="ar"?"English":"عربي"}</button>`;
 const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const vdTag=t=>t.vd=="valid"?`<span class="tag vrd">${TL("vOk")}</span>`:t.vd=="invalid"?`<span class="tag vgn">${TL("vNo")}</span>`:"";
-const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vrd":t.vd=="invalid"?"vgn":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}${me&&sup()?`<button class="btn g s" data-dt="${t.id}">${TL("det")}</button>`:""}</div>`;
+const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vrd":t.vd=="invalid"?"vgn":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}${cb(cu(t.cid).phone,1)}${me&&sup()?`<button class="btn g s" data-dt="${t.id}">${TL("det")}</button>`:""}</div>`;
 function render(){
  document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
@@ -377,7 +378,7 @@ function tks(a){
  $("q").oninput=e=>{q=e.target.value;f()};$("fs").onchange=e=>{fs=e.target.value;f()};if($("fa"))$("fa").onchange=e=>{fa=e.target.value;f()};f();$("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{fc=b.dataset.ch;render()});$("nw").onclick=tkForm;
 }
 function cus(a){
- a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button></div><div class="box">${S.c.map(c=>{const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small></div><span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}).join("")||`<div class="empty">${L("noCu")}</div>`}</div>`;
+ a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button></div><div class="box">${S.c.map(c=>{const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small></div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}).join("")||`<div class="empty">${L("noCu")}</div>`}</div>`;
  $("nc").onclick=cuForm;
 }
 function perf(a){
@@ -417,7 +418,7 @@ function cuForm(){
 function cuView(id){
  const c=cu(id),k=mine().filter(t=>t.cid==id);
  open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${k.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ ${k.map(t=>tkRow(t)).join("").replace(/<span class="cbi">.*?<\/span>/g,"")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
  $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
 }
 </script>
@@ -468,7 +469,7 @@ resv:{f:[["cust","cust"],["product","text"],["qty","num"],["branch","br"],["due"
 ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"],["due","dt"]],st:["pend","rcv"],main:"subject",shared:1}};
 const dtf=v=>!v?"":String(v).length>10?fdt(new Date(v).getTime()):v;
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):x[1]=="dt"?dtf(v):v};
-const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div><span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
+const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div>${(()=>{const f=M.f.find(x=>x[1]=="cust");return f&&r.f[f[0]]?cb(cu(r.f[f[0]]).phone,1):""})()}<span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
 function mod(a){const M=MOD[view];if(view=="resv")dpNums();let fq="",fst="";
  a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button>${view=="resv"?`<button class="btn gr" id="dpd">⬇ ${TL("depDl")}</button>`:""}</div><div class="box" id="lst"></div>`;
  const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&(JSON.stringify(r.f)+" #"+(r.no||"")+" "+(r.f.cust?cu(r.f.cust).name+" "+(cu(r.f.cust).phone||""):"")).includes(fq)).sort((x,y)=>y.d-x.d);
@@ -481,7 +482,7 @@ function mForm0(){const M=MOD[view];
   const nd=[...(M.need||[M.main])];if(M.f.some(x=>x[0]=="cust"))nd.push("cust");if(M.f.some(x=>x[0]=="branch"))nd.push("branch");const bd=nd.find(i=>!f[i]);if(bd){$("f_"+bd).focus();$("f_"+bd).style.borderColor="var(--red)";return}if("cust" in f)f.cust=getCust(f.cust,$("f_cust_p").value);
   S.m[view].push({id:S.n++,ag:me.u,d:Date.now(),s:M.st[0],f,notes:[]});save();close();render()}}
 function mView0(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
- open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div></div>`).join("")}
+ open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div>${x[1]=="cust"&&cu(r.f[x[0]]).phone?`<div>${esc(cu(r.f[x[0]]).phone)} ${cb(cu(r.f[x[0]]).phone)}</div>`:""}</div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND(view,r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
  <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0">${view=="resv"?`<button class="btn" id="dd">⬇ ${TL("depDl")}</button>`:""}<button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{alog("edit",TL(view)+" "+r.f[M.main]);r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
@@ -532,7 +533,7 @@ function aprV(a){
  const chg=(l,o,n)=>`<div><span style="color:var(--mut)">${l}:</span> <s>${esc(o||"—")}</s><b>${esc(n||"—")}</b></div>`;
  a.innerHTML=`<div class="box"><h3>${TL("apr")}</h3>${S.ue.map(q=>{const x=U.find(y=>y.u==q.u),c=q.ch,R=L("role");
   return`<div style="border-bottom:1px solid var(--line);padding:8px 0"><b>${esc(nm(q.u))}</b> <small style="color:var(--mut)">@${esc(q.u)} • ${fd(q.d)}</small>
-  <div class="chg">${c.n&&c.n.ar!=x.n.ar?chg(TL("pNameAr"),x.n.ar,c.n.ar):""}${c.n&&c.n.en!=x.n.en?chg(TL("pNameEn"),x.n.en,c.n.en):""}${"ph"in c?chg(TL("pPhone"),x.ph,c.ph):""}${c.p?`<div><span style="color:var(--mut)">${TL("pPass")}:</span> <b>${TL("pPassCh")}</b></div>`:""}${c.r?chg(TL("pRole"),R[x.r],R[c.r]):""}</div>
+  <div class="chg">${c.n&&c.n.ar!=x.n.ar?chg(TL("pNameAr"),x.n.ar,c.n.ar):""}${c.n&&c.n.en!=x.n.en?chg(TL("pNameEn"),x.n.en,c.n.en):""}${"ph"in c?chg(TL("pPhone"),x.ph,c.ph)+cb(c.ph,1):""}${c.p?`<div><span style="color:var(--mut)">${TL("pPass")}:</span> <b>${TL("pPassCh")}</b></div>`:""}${c.r?chg(TL("pRole"),R[x.r],R[c.r]):""}</div>
   <div class="row" style="margin:0"><button class="btn gr s" data-ap="${q.id}">${TL("approve")}</button><button class="btn g s" data-rj="${q.id}">${TL("reject")}</button></div></div>`}).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`;
  a.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>{const q=S.ue.find(r=>r.id==b.dataset.ap);
   if(q.ch.r&&ownersAfter(q.u,q.ch.r)==0){msg(TL("pOwn"),TL("apr"));return}
@@ -808,7 +809,7 @@ function ownDel(fn){if(!can("del"))return;
  open(`<h2>${TL("del")}</h2><p>${TL("delAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="dy" style="background:var(--red2)">${TL("delYes")}</button></div>`);
  $("x").onclick=close;$("dy").onclick=()=>{const sn=binSnap();fn();binDiff(sn);save();close();render()}}
 function usrV(a){const RC={owner:"hi",sup:"mid",agent:"lo"};
- a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div><span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}${x.off?" ⏸":""}</span><button class="btn g s" data-ue="${esc(x.u)}">${TL("tkEdit")}</button>${x.u!=me.u?`<button class="btn g s" data-uo="${esc(x.u)}">${x.off?TL("uOn"):TL("uOff")}</button>`:""}${x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
+ a.innerHTML=`<div class="row"><button class="btn w" id="nu">+ ${TL("addU")}</button></div><div class="box"><h3>${TL("usr")} (${U.length})</h3>${U.map(x=>`<div class="tk"><div class="t">${esc(nm(x.u))}<small>${esc(x.ph||"—")} • @${esc(x.u)}</small></div>${cb(x.ph,1)}<span class="tag ${RC[x.r]||"lo"}">${L("role")[x.r]}${x.off?" ⏸":""}</span><button class="btn g s" data-ue="${esc(x.u)}">${TL("tkEdit")}</button>${x.u!=me.u?`<button class="btn g s" data-uo="${esc(x.u)}">${x.off?TL("uOn"):TL("uOff")}</button>`:""}${x.u!=me.u?`<button class="btn g s dl" data-ud="${esc(x.u)}">${TL("del")}</button>`:""}</div>`).join("")}</div>`;
  $("nu").onclick=usrForm;
  a.querySelectorAll("[data-ue]").forEach(b=>b.onclick=()=>usrEdit(b.dataset.ue));
  a.querySelectorAll("[data-uo]").forEach(b=>b.onclick=()=>usrOff(b.dataset.uo));
@@ -870,8 +871,10 @@ function binV(a){const o=S.bin.length;S.bin=S.bin.filter(b=>Date.now()-b.d<30*da
 function logV(a){a.innerHTML=`<div class="box"><h3>${TL("log")}</h3><div class="scroll"><table><tr><th>${TL("date")}</th><th>${TL("by")}</th><th></th><th></th></tr>${[...S.al].reverse().slice(0,200).map(r=>`<tr><td>${fdt(r.d)}</td><td>${esc(nm(r.u))}</td><td>${TL("la_"+r.a)}</td><td>${esc(r.x||"")}</td></tr>`).join("")||`<tr><td>${TL("empty")}</td></tr>`}</table></div></div>`}
 function lateBox(a){if(!me||!sup()||!a.firstElementChild)return;const n=Date.now(),l=S.t.filter(t=>t.s!="done"&&!t.closed&&n-t.d>2*day).sort((x,y)=>x.d-y.d);if(!l.length)return;
  a.firstElementChild.insertAdjacentHTML("afterend",`<div class="box"><h3>⚠ ${TL("lateT")} (${l.length})</h3>${l.slice(0,8).map(tkRow).join("")}${l.length>8?`<div class="empty">+${l.length-8}</div>`:""}</div>`)}
-const cb=p=>{const d=String(p||"").replace(/\D/g,"");if(d.length<6)return"";const w=d.startsWith("00")?d.slice(2):d.startsWith("0")?"20"+d.slice(1):d;
- return `<a class="btn gr s" href="tel:${d}" style="text-decoration:none;color:#fff">📞 ${TL("call")}</a> <a class="btn s" href="https://wa.me/${w}" target="_blank" rel="noopener" style="text-decoration:none;color:#fff;background:#25a244">💬 WhatsApp</a>`};
+const cb=(p,m)=>{const d=String(p||"").replace(/\D/g,"");if(d.length<6)return"";const w=d.startsWith("00")?d.slice(2):d.startsWith("0")?"20"+d.slice(1):d;
+ if(m)return `<span class="cbi"><a class="btn gr s cbk" href="tel:${d}" title="${TL("call")}" style="text-decoration:none;color:#fff">📞</a> <a class="btn s cbk" href="https://wa.me/${w}" target="_blank" rel="noopener" title="WhatsApp" style="text-decoration:none;color:#fff;background:#25a244">💬</a></span>`;
+ return `<a class="btn gr s cbk" href="tel:${d}" style="text-decoration:none;color:#fff">📞 ${TL("call")}</a> <a class="btn s cbk" href="https://wa.me/${w}" target="_blank" rel="noopener" style="text-decoration:none;color:#fff;background:#25a244">💬 WhatsApp</a>`};
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("a.cbk"))e.stopPropagation()},true);
 const dflt=t=>(!df||t.d>=new Date(df).setHours(0,0,0,0))&&(!dto||t.d<=new Date(dto).setHours(23,59,59,999))&&(!dbr||t.br==dbr);
 const _dash=dash;dash=function(a){_dash(a);const lb=t=>`<label style="font-size:12px;color:var(--mut)">${t}`;
  a.insertAdjacentHTML("afterbegin",`<div class="row">${lb(TL("fromD"))}<input type="date" id="df" value="${df}"></label>${lb(TL("toD"))}<input type="date" id="dto" value="${dto}"></label>${lb(TL("branch"))}<select id="dbr">${[["",TL("all")],...BR.map(b=>[b,b])].map(([k,t])=>`<option value="${k}" ${dbr==k?"selected":""}>${t}</option>`).join("")}</select></label></div>`);
@@ -987,7 +990,7 @@ function mView(id){
  const dr=(k,v)=>`<div><small style="color:var(--mut)">${k}</small><div>${v||"—"}</div></div>`,td="padding:5px 8px;border:1px solid var(--bd,#ddd)";
  open(`<h2>#${r.no||""} ${esc(c.name)}</h2><small style="color:var(--mut)">${nm(r.ag)} · ${fdt(r.d)}</small>
 <div class="f" style="margin-top:10px">
-${dr(L("phone"),esc(c.phone||""))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("due"),esc(dtf(r.f.due)))}
+${dr(L("phone"),esc(c.phone||"")+" "+cb(c.phone))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("due"),esc(dtf(r.f.due)))}
 <div><small style="color:var(--mut)">${dpD("المنتجات","Items")} (${it.length})</small><div class="scroll"><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr><th style="${td}">${TL("product")}</th><th style="${td}">${dpD("الكمية","Qty")}</th><th style="${td}">${dpD("القيمة","Value")}</th></tr>${it.map(x=>`<tr><td style="${td}">${esc(x.p)}</td><td style="${td}">${dpFm(x.q)}</td><td style="${td}">${dpFm(x.v)}</td></tr>`).join("")}</table></div></div>
 ${dr(TL("vtot"),dpFm(tot))}${dr(TL("vpaid"),dpFm(paid))}<div><small style="color:var(--mut)">${TL("vrem")}</small><div style="font-weight:700;color:${rem>0?"var(--red)":"var(--grn)"}">${dpFm(rem)}</div></div>
 ${r.cl?`<div><span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span></div>`:""}
