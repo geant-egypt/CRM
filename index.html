@@ -261,6 +261,11 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 @keyframes spz{0%{transform:scale(.45);opacity:0}30%{opacity:1}75%{transform:scale(1)}100%{transform:scale(1.4)}}
 #spl.zo img{animation:spo 1.6s cubic-bezier(.4,0,.6,1) forwards}
 @keyframes spo{0%{transform:scale(1.4);opacity:0}20%{opacity:1}45%{transform:scale(1)}100%{transform:scale(.45);opacity:0}}
+#spl.fl{display:block}
+#spl.fl img{position:fixed;max-height:none;max-width:none;animation:none;transform-origin:50% 50%;will-change:transform}
+#spl.fl .spt{position:fixed;left:0;right:0;justify-content:center;opacity:0}
+#spl.fl.bgo{background:transparent;pointer-events:none}
+#spl.fl{transition:background-color .45s ease,opacity .5s ease}
 @keyframes spd{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-6px);opacity:1}}
 @media (prefers-reduced-motion:reduce){#spl img{animation:none}}
 .cbi{display:inline-flex;gap:4px;flex:none}.cbi .btn.s{padding:2px 8px;font-size:14px;line-height:1.3}
@@ -350,7 +355,7 @@ function render(){
   reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
   const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
   (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
-  me=x;view="home";alog("in","");save();render();showSplash()}catch(e){er.textContent=L("bad")}};
+  me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){er.textContent=L("bad")}};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
@@ -1382,13 +1387,33 @@ addEventListener("beforeunload",e=>{if(!me)return;
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
-<script>function showSplash(mode){var o=document.getElementById("spl");if(o)o.remove();
-var out=mode=="out",p=document.createElement("div");p.id="spl";if(out)p.className="zo";
+<script>function lgRect(){var i=document.querySelector(".lg img");if(!i)return null;var r=i.getBoundingClientRect();return r.width>10&&r.height>10?{l:r.left,t:r.top,w:r.width,h:r.height}:null}
+function showSplash(mode,R){var o=document.getElementById("spl");if(o)o.remove();
+var out=mode=="out",p=document.createElement("div");p.id="spl";
+var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
 p.innerHTML='<img alt=""><div class="spt"><span></span><b></b><b></b><b></b></div>';
-p.querySelector("img").src=LOGO;
+var im=p.querySelector("img"),sp=p.querySelector(".spt");im.src=LOGO;
 p.querySelector("span").textContent=out?(lang=="ar"?"جاري تسجيل الخروج":"Signing out"):(lang=="ar"?"جاري التحميل":"Loading");
+if(out)R=lgRect();
+if(rm||!R||!im.animate){if(out)p.className="zo";document.body.appendChild(p);
+setTimeout(function(){p.classList.add("out")},out?1450:1900);setTimeout(function(){p.remove()},out?2050:2500);return}
+var real=out?document.querySelector(".lg img"):null;if(real)real.style.visibility="hidden";
+var vw=innerWidth,vh=innerHeight,cw=Math.min(vw*.62,300),ch=cw*R.h/R.w;if(ch>vh*.5){ch=vh*.5;cw=ch*R.w/R.h}
+var sc=cw/R.w,cy=vh/2-14,dx=vw/2-(R.l+R.w/2),dy=cy-(R.t+R.h/2);
+p.className="fl";im.style.left=R.l+"px";im.style.top=R.t+"px";im.style.width=R.w+"px";im.style.height=R.h+"px";
+sp.style.top=(cy+ch/2+18)+"px";
+var T0="translate(0px,0px) scale(1)",TC="translate("+dx+"px,"+dy+"px) scale("+sc+")",TB="translate("+dx+"px,"+dy+"px) scale("+(sc*1.12)+")";
 document.body.appendChild(p);
-setTimeout(function(){p.classList.add("out")},out?1450:1900);setTimeout(function(){p.remove()},out?2050:2500)}</script>
+if(!out){
+ im.animate([{transform:T0,opacity:1},{transform:TC,offset:.45,easing:"ease-out"},{transform:TB}],{duration:1900,easing:"cubic-bezier(.22,.8,.3,1)",fill:"forwards"});
+ sp.animate([{opacity:0},{opacity:1}],{duration:400,delay:750,fill:"forwards"});
+ setTimeout(function(){p.classList.add("out")},1900);setTimeout(function(){p.remove()},2500);
+}else{
+ im.animate([{transform:TC,offset:0,easing:"ease-in-out"},{transform:TC,offset:.38,easing:"cubic-bezier(.4,0,.2,1)"},{transform:T0}],{duration:1700,fill:"forwards"});
+ sp.animate([{opacity:1},{opacity:1,offset:.3},{opacity:0}],{duration:900,fill:"forwards"});
+ setTimeout(function(){p.classList.add("bgo")},1150);
+ setTimeout(function(){p.remove();if(real)real.style.visibility=""},1720);
+}}</script>
 <script>if("serviceWorker"in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(e){console.warn("SW",e)})})}</script>
 </body>
 </html>
