@@ -176,12 +176,10 @@ header .top.hb{justify-content:flex-end}
  .shell{padding:0 12px}
  .shell .nv{display:none}
  .shell main{padding:12px 0 calc(96px + env(safe-area-inset-bottom,0px))}
- .bn{display:flex;direction:ltr;position:fixed;left:0;right:0;bottom:0;z-index:15;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px #5a2a2418;padding:4px 6px calc(4px + env(safe-area-inset-bottom,0px))}
- .bn button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:var(--mut);font:600 11px Cairo,Tahoma,sans-serif;padding:4px 2px;border-radius:14px;min-height:54px;cursor:pointer}
- .bn button.on{color:var(--red)}
- .bn .bi{width:46px;height:28px;border-radius:99px;display:grid;place-items:center;transition:background .15s}
- .bn button.on .bi{background:#fdecee}
- .bn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ div.bn{display:flex;direction:ltr;position:fixed;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:15;justify-content:center;background:none;border:0;box-shadow:none;padding:0;pointer-events:none}
+ div.bn button{pointer-events:auto;flex:none;display:inline-flex;flex-direction:row;align-items:center;gap:10px;border:0;background:var(--red);color:#fff;font:700 16px Cairo,Tahoma,sans-serif;padding:0 28px;border-radius:99px;min-height:52px;cursor:pointer;box-shadow:0 8px 22px #0000004d,0 0 0 4px #ffffffd9}
+ div.bn button:active{transform:scale(.96)}
+ div.bn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
  .box,.st{border-radius:20px}
  .btn{min-height:40px;display:inline-flex;align-items:center;justify-content:center}
  .btn.s{min-height:32px}
@@ -562,12 +560,11 @@ if(!S.pn)S.pn=[];
 
 const BI={home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',tk:'<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',resv:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>',ho:'<path d="M7 7h11l-3-3M17 17H6l3 3"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
 const BMAIN=["home","tk","resv","ho"];
-function bnav(tabs){const k=BMAIN.filter(x=>tabs.some(t=>t[0]==x));
- const it=(x,on,ic,lb)=>`<button data-b="${x}" class="${on?"on":""}"><span class="bi"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg></span>${lb}</button>`;
- return `<div class="bn">${k.map(x=>it(x,view==x,BI[x],TL(x))).join("")}${it("more",!k.includes(view),BI.more,TL("more"))}</div>`}
-function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>{const v=b.dataset.b;if(v=="more"){moreMenu(tabs);return}view=v;window.scrollTo(0,0);render()})}
-function moreMenu(tabs){const l=tabs.filter(t=>!BMAIN.includes(t[0]));
- open(`<h2>${TL("more")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+function bnav(tabs){
+ return `<div class="bn"><button data-b="more" aria-label="${mgT("القائمة","Menu")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>${mgT("القائمة","Menu")}</button></div>`}
+function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>moreMenu(tabs))}
+function moreMenu(tabs){const l=tabs;
+ open(`<h2>${mgT("القائمة","Menu")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
  $("x").onclick=close;md.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;close();window.scrollTo(0,0);render()})}
 
 /* ---- personal notes / alarms / reminders ---- */
