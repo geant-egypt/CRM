@@ -397,7 +397,7 @@ function tks(a){
 }
 function cus(a){
  a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button></div><div class="box">${S.c.map(c=>{const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small></div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}).join("")||`<div class="empty">${L("noCu")}</div>`}</div>`;
- $("nc").onclick=cuForm;
+ $("nc").onclick=()=>cuForm();
 }
 function perf(a){
  const rows=AG.map(g=>{const l=S.t.filter(t=>t.ag==g),d=l.filter(t=>t.s=="done"),av=d.length?Math.round(d.reduce((s,t)=>s+(t.r-t.d),0)/d.length/hr):0;
@@ -427,17 +427,27 @@ function tkForm(){
  $("x").onclick=close;$("sv").onclick=()=>{if(!$("br").value){$("br").focus();$("br").style.borderColor="var(--red)";return}if(!$("ch").value){$("ch").focus();$("ch").style.borderColor="var(--red)";return}if(!$("c").value.trim()){$("c").focus();$("c").placeholder=L("fillN");$("c").style.borderColor="var(--red)";return}if(!$("ti").value.trim()){$("ti").focus();$("ti").placeholder=L("fill");$("ti").style.borderColor="var(--red)";return}
   const v=$("nt2").value.trim();alog("new",$("ti").value.trim());S.t.push({id:S.n++,no:++S.tn,br:$("br").value,ch:$("ch").value,cid:getCust($("c").value,$("cp").value),title:$("ti").value.trim(),pr:$("pr").value,s:"new",ag:$("ag").value,d:Date.now(),r:null,notes:v?[{t:v,d:Date.now()}]:[]});save();close();view="tk";render();tkView(S.t[S.t.length-1].id)};
 }
-function cuForm(){
- open(`<h2>${L("newCu")}</h2><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n"></label><label>${L("phone")}<input id="p" inputmode="tel"></label><label>${L("email")}<input id="e"></label><label>${L("co")}<input id="co"></label>
+function cuForm(id){
+ const c=id!=null?cu(id):null,ed=!!c,em0=ed&&!sup();
+ open(`<h2>${ed?mgT("تعديل بيانات العميل","Edit customer"):L("newCu")}</h2><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n" value="${ed?esc(c.name||""):""}"></label><label>${L("phone")}<input id="p" inputmode="tel" value="${ed?esc(c.phone||""):""}"></label>${em0?"":`<label>${L("email")}<input id="e" value="${ed?esc(c.email||""):""}"></label>`}<label>${L("co")}<input id="co" value="${ed?esc(c.co||""):""}"></label>
+ <div>E-Invoice<div id="eib" style="display:flex;direction:ltr;gap:5px;margin-top:4px">${[0,1,2,3,4,5,6,7,8].map(i=>`<input class="eid" inputmode="numeric" autocomplete="off" maxlength="1" value="${ed&&c.einv?esc(String(c.einv)[i]||""):""}" aria-label="E-Invoice ${i+1}" style="flex:1;min-width:0;width:auto;padding:9px 0;text-align:center;font-weight:700">`).join("")}</div></div>
  <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("saveCu")}</button></div></div>`);
+ const bx=[...md.querySelectorAll(".eid")],dg=t=>String(t||"").replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,"");
+ bx.forEach((b,i)=>{b.oninput=()=>{b.value=dg(b.value).slice(-1);b.style.borderColor="";if(b.value&&bx[i+1])bx[i+1].focus()};
+  b.onkeydown=e=>{if(e.key=="Backspace"&&!b.value&&bx[i-1]){e.preventDefault();bx[i-1].value="";bx[i-1].focus()}};
+  b.onpaste=e=>{e.preventDefault();const d=dg((e.clipboardData||window.clipboardData).getData("text")).slice(0,9);d.split("").forEach((ch,j)=>{if(bx[i+j])bx[i+j].value=ch});bx[Math.min(i+d.length,8)].focus()};
+  b.onfocus=()=>b.select()});
  $("x").onclick=close;$("sv").onclick=()=>{if(!$("n").value.trim()){$("n").focus();$("n").placeholder=L("fillN");$("n").style.borderColor="var(--red)";return}
-  S.c.push({id:S.n++,name:$("n").value.trim(),phone:$("p").value.trim(),email:$("e").value.trim(),co:$("co").value.trim()});save();close();view="cu";render()};
+  const ei=bx.map(b=>b.value).join("");if(ei&&ei.length!=9){bx.forEach(b=>{if(!b.value)b.style.borderColor="var(--red)"});(bx.find(b=>!b.value)||bx[0]).focus();return}
+  const v={name:$("n").value.trim(),phone:$("p").value.trim(),co:$("co").value.trim(),einv:ei};if($("e"))v.email=$("e").value.trim();
+  if(ed){Object.assign(c,v);alog("edit",mgT("عميل ","Customer ")+v.name)}else S.c.push(Object.assign({id:S.n++,email:""},v));
+  save();close();view="cu";render()};
 }
 function cuView(id){
  const c=cu(id),k=mine().filter(t=>t.cid==id);
- open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${k.map(t=>tkRow(t)).join("").replace(/<span class="cbi">.*?<\/span>/g,"")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
- $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:4px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:1;max-width:34px;text-align:center;border:1.5px solid var(--line);border-radius:8px;padding:5px 0;font-weight:700">${esc(d)}</span>`).join("")}</div>`:""}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ ${k.map(t=>tkRow(t)).join("").replace(/<span class="cbi">.*?<\/span>/g,"")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
 }
 </script>
 <script>
