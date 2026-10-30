@@ -1168,10 +1168,29 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
 /* ---- wiring ---- */
 const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
+/* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
+let _bkExit=false;
+function bkAsk(){open(`<h2>${mgT("خروج من التطبيق","Close the app")}</h2><p style="margin:10px 0 0">${mgT("هل تريد إغلاق التطبيق؟","Do you want to close the app?")}</p><div class="row" style="margin:14px 0 0"><button class="btn" id="bky">${mgT("نعم","Yes")}</button><button class="btn g" id="bkn">${mgT("لا","No")}</button></div>`);
+ $("bkn").onclick=close;$("bky").onclick=bkQuit}
+function bkQuit(){close();_bkExit=true;try{window.close()}catch(e){}
+ setTimeout(()=>{try{history.back()}catch(e){}
+  const h=document.createElement("div");h.textContent=mgT("اضغط زر الرجوع مرة تانية للخروج","Press Back once more to exit");
+  h.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:22px;z-index:99;font-size:14px;text-align:center";
+  document.body.appendChild(h);setTimeout(()=>h.remove(),3500)},350)}
+window.addEventListener("popstate",e=>{
+ if(_bkExit||!me||(e.state&&e.state.g))return;
+ try{history.pushState({g:1},"")}catch(x){}
+ const o=$("ov");
+ if(o&&o.classList.contains("on")){close();return}
+ if(view!="home"){view="home";render();return}
+ bkAsk()});
+document.addEventListener("pointerdown",()=>{if(_bkExit){_bkExit=false;try{history.pushState({g:1},"")}catch(e){}}},true);
+
 /* tab-switch motion: only when the page (view) actually changes, never on background refreshes */
 let _anV=null;const _anRender=render;
 render=function(){_anRender.apply(this,arguments);
  if(!me){_anV=null;return}
+ if(!(history.state&&history.state.g))try{history.pushState({g:1},"")}catch(e){}
  const ch=_anV!==null&&_anV!==view;_anV=view;
  if(!ch)return;
  const a=$("app"),t=$("pgt");if(!a)return;
