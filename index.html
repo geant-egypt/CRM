@@ -278,8 +278,8 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .pnc.alarm{animation:pnIn .5s cubic-bezier(.32,.72,0,1),pnr .9s ease-in-out infinite alternate}
 .pnc.out{animation:pnOut .3s cubic-bezier(.4,0,1,1) forwards}
 @media(prefers-reduced-motion:reduce){.ov,.md{transition:none!important}.pnc,.pnc.out{animation:none!important}}
-@keyframes pgIn{from{opacity:0;transform:translateY(22px)}}
-.pgan{animation:pgIn .8s cubic-bezier(.25,.8,.25,1) both}
+@keyframes pgIn{from{opacity:0;transform:translateY(28px)}}
+.pgan{animation:pgIn 1.3s cubic-bezier(.22,.7,.2,1) both}
 @media(prefers-reduced-motion:reduce){.pgan{animation:none}}
 </style>
 </head>
@@ -1175,7 +1175,7 @@ render=function(){_anRender.apply(this,arguments);
  const ch=_anV!==null&&_anV!==view;_anV=view;
  if(!ch)return;
  const a=$("app"),t=$("pgt");if(!a)return;
- [a,t].forEach(e=>{if(!e)return;e.classList.add("pgan");setTimeout(()=>e.classList.remove("pgan"),900)})};
+ [a,t].forEach(e=>{if(!e)return;e.classList.add("pgan");setTimeout(()=>e.classList.remove("pgan"),1450)})};
 function mgTick(){
  if(!me){if(MG.es){MG.es.close();MG.es=null}MG.d={};MG.ready=false;MG.shown=null;MG.lg=0;MG.abs=0;MG.bt=0;const p=$("mgpop");if(p){mgHide(p)}return}
  if(DB.url&&DB.es&&!MG.es)mgStream();mgBeat();mgPop();mgTasks();
