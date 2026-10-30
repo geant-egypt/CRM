@@ -1169,28 +1169,27 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
 const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
 /* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
-let _bkExit=false;
+let _bkExit=false;const _bkTouch=matchMedia("(pointer:coarse)").matches;
+function bkHint(t){const h=document.createElement("div");h.textContent=t;h.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:22px;z-index:99;font-size:14px;text-align:center";document.body.appendChild(h);setTimeout(()=>h.remove(),3500)}
+function bkArm(){_bkExit=true;try{history.back()}catch(e){}bkHint(mgT("اضغط زر الرجوع للخروج","Press Back to exit"))}
 function bkAsk(){open(`<h2>${mgT("خروج من التطبيق","Close the app")}</h2><p style="margin:10px 0 0">${mgT("هل تريد إغلاق التطبيق؟","Do you want to close the app?")}</p><div class="row" style="margin:14px 0 0"><button class="btn" id="bky">${mgT("نعم","Yes")}</button><button class="btn g" id="bkn">${mgT("لا","No")}</button></div>`);
  $("bkn").onclick=close;$("bky").onclick=bkQuit}
 function bkQuit(){close();_bkExit=true;try{window.close()}catch(e){}
- setTimeout(()=>{try{history.back()}catch(e){}
-  const h=document.createElement("div");h.textContent=mgT("اضغط زر الرجوع مرة تانية للخروج","Press Back once more to exit");
-  h.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:22px;z-index:99;font-size:14px;text-align:center";
-  document.body.appendChild(h);setTimeout(()=>h.remove(),3500)},350)}
+ setTimeout(()=>{try{history.back()}catch(e){}bkHint(mgT("اضغط زر الرجوع مرة تانية للخروج","Press Back once more to exit"))},350)}
 window.addEventListener("popstate",e=>{
- if(_bkExit||!me||(e.state&&e.state.g))return;
+ if(!_bkTouch||_bkExit||!me||(e.state&&e.state.g))return;
  try{history.pushState({g:1},"")}catch(x){}
  const o=$("ov");
  if(o&&o.classList.contains("on")){close();return}
  if(view!="home"){view="home";render();return}
  bkAsk()});
-document.addEventListener("pointerdown",()=>{if(_bkExit){_bkExit=false;try{history.pushState({g:1},"")}catch(e){}}},true);
+document.addEventListener("pointerdown",()=>{if(_bkTouch&&_bkExit&&me){_bkExit=false;try{history.pushState({g:1},"")}catch(e){}}},true);
 
 /* tab-switch motion: only when the page (view) actually changes, never on background refreshes */
 let _anV=null;const _anRender=render;
 render=function(){_anRender.apply(this,arguments);
  if(!me){_anV=null;return}
- if(!(history.state&&history.state.g))try{history.pushState({g:1},"")}catch(e){}
+ if(_bkTouch&&!(history.state&&history.state.g))try{history.pushState({g:1},"");_bkExit=false}catch(e){}
  const ch=_anV!==null&&_anV!==view;_anV=view;
  if(!ch)return;
  const a=$("app"),t=$("pgt");if(!a)return;
@@ -1215,7 +1214,7 @@ logV=function(a){_mgLogV(a);if(!me||me.r!="owner")return;
   if(!n){er.textContent=mgT("مفيش سجلات في الفترة دي","No entries in this range");return}
   if(!confirm(mgT("هتمسح "+n+" سجل من "+new Date(a1).toLocaleString("ar-EG")+" إلى "+new Date(b1).toLocaleString("ar-EG")+"؟ مفيش رجوع.","Delete "+n+" entries from "+new Date(a1).toLocaleString("en-GB")+" to "+new Date(b1).toLocaleString("en-GB")+"? This cannot be undone.")))return;
   S.al=S.al.filter(r=>!(r.d>=a1&&r.d<=b1));alog("clr",n+" • "+new Date(a1).toLocaleString("en-GB")+" → "+new Date(b1).toLocaleString("en-GB"));save();render()}};
-function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{if(!window.closed)location.replace("about:blank")},300)},1300)}
+function mgClose(){setTimeout(()=>{try{window.close()}catch(e){}setTimeout(()=>{if(window.closed)return;if(_bkTouch)bkArm();else location.replace("about:blank")},300)},1300)}
 
 /* ===== v10: report fields (department → section) + one Excel report per branch ===== */
 const RH=Object.assign({"deps": {"FMCG": ["BEVERAGE", "DAIRY PRO.", "DELICATESS", "DPH", "FROZEN FOO", "GROCERY", "ULT.FRESH"], "FRESH_FOOD": ["BAKERY", "BUTCHERY", "DAIRY COU.", "DELICA.COU", "FISHERY", "FRU&VEGETA", "PASTRY"], "GM": ["APPLIANCES", "HIFI SOUND", "HOUSE.H.G", "MOBILITY", "OFFICE AU.", "CAMP.GARDE", "CAR", "DIY", "HOUSE EQU.", "HOUSEWARE", "LIBRARY", "LUGGAGE", "STATIONERY", "TOYS", "ACCESSORIE", "BABY", "HOME LINEN"], "Home_Delivery": ["H.D Call Center", "Insta Shop", "Cashier", "Picker", "Driver", "HD Back Office", "General"], "Front_End": ["CCO"], "Customer_Service": ["Customer Service"], "General_Suggestion": ["General & Suggestion"], "Security": ["Security"], "Warehouse": ["Warehouse"]}, "types": ["Thanks", "Complain", "Suggestion"], "hd": ["Call Center", "Insta", "Shop & Drop"], "ch": ["Store Complaint", "Call Center", "Social Media"], "reasons": ["Bad attitude from staff", "Bad Quality", "Cashier Mistake", "items not found", "double paid", "Staff mistakes", "H.D Charge", "HD.Delay", "HD.Missing Items", "HD.No answer C.C", "HD.Orders mistakes", "HD.Other", "High Prices", "Payment Method", "Process", "Products Availability", "Promotion Availability", "Service Level", "System Down", "Thanks", "Wrong Prices", "Wrong Section Code", "Damage Items", "Expire", "Near Expire", "Wrong Product", "Customer Mistake", "Hygiene"], "st": ["Closed", "Pending"], "vl": ["Valid", "Not Valid"]},{store:{REH:"REHAB",TRI:"TRIUMPH"},chn:{branch:"Store Complaint",call:"Call Center",social:"Social Media"}});
