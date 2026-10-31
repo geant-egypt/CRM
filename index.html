@@ -284,6 +284,17 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 @keyframes pgIn{from{opacity:0;transform:translateY(28px)}}
 .pgan{animation:pgIn 1.3s cubic-bezier(.22,.7,.2,1) both}
 @media(prefers-reduced-motion:reduce){.pgan{animation:none}}
+
+/* Home hub: one card per sidebar tab */
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.hc{display:flex;flex-direction:column;gap:2px;min-height:132px;cursor:pointer;text-decoration:none;color:inherit;transition:transform .15s}
+.hc:hover,.hc:focus-visible{transform:translateY(-2px)}
+.hc .hh{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--ink);margin-bottom:6px}
+.hc .hh i{font-style:normal;font-size:20px;line-height:1}
+.hc b{margin-top:auto}
+.hc .hx{color:var(--amb);font-size:12px;font-weight:600}
+.hc .btn{align-self:flex-start;margin-top:8px}
+@media (prefers-reduced-motion:reduce){.hc{transition:none}.hc:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -464,12 +475,38 @@ function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
 function clk(){return new Date().toLocaleTimeString(typeof lang!=="undefined"&&lang=="ar"?"ar-EG":"en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",hour12:true})}
 setInterval(function(){var e=document.getElementById("hclk");if(e)e.textContent=clk()},1000);
+
+const HUBI={dash:"📊",tk:"💬",short:"📦",svy:"📝",resv:"💰",ho:"🔁",sch:"📅",tpl:"📄",cu:"👥",rep:"📈",mgv:"✉️",perf:"🏆",apr:"✅",usr:"🔑",bin:"🗑️",log:"🧾"};
+function hubTabs(){const t=["dash","tk","short","svy","resv","ho","sch","tpl","cu"].filter(k=>k!="dash"||me.r=="owner");if(can("rep"))t.push("rep");if(me.r!="agent")t.push("mgv");if(me.r=="owner")t.push("perf","apr","usr","bin","log");return t}
+function hubInfo(k){
+ const ms=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
+ if(k=="dash"){const l=mine().filter(dflt),dn=l.filter(t=>t.s=="done").length;return{n:(l.length?Math.round(dn/l.length*100):0)+"%",s:mgT("نسبة الإغلاق","Resolution rate"),x:l.filter(late).length?"⚠ "+l.filter(late).length+" "+mgT("متأخرة","late"):"",c:"grn"}}
+ if(k=="tk"){const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,all=opn(S.t.filter(t=>!t.closed)).length,lt=mine().filter(late).length;return{n:my,s:TL("myOpen"),x:(sup()?mgT("إجمالي المفتوحة: ","All open: ")+all:"")+(lt?(sup()?" • ":"")+"⚠ "+lt+" "+mgT("متأخرة","late"):""),c:"red",act:1}}
+ if(k=="short"){const n=S.m.short.filter(r=>r.s!="av").length;return{n,s:mgT("نواقص مفتوحة","Open shortages"),c:"amb"}}
+ if(k=="resv"){return{n:S.m.resv.filter(r=>r.s!="del").length,s:mgT("إيداعات جارية","Active deposits"),c:"grn"}}
+ if(k=="ho"){return{n:S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length,s:TL("myHo"),c:"red"}}
+ if(k=="tpl"){return{n:TPLS.length,s:mgT("نموذج جاهز","Ready templates"),c:"mut"}}
+ if(k=="cu"){return{n:S.c.length,s:mgT("عميل مسجل","Saved customers"),c:"grn"}}
+ if(k=="rep"){return{n:S.t.filter(t=>t.d>=ms).length,s:mgT("شكوى هذا الشهر","Complaints this month"),c:"grn"}}
+ if(k=="mgv"){const n=+((mgBadge().match(/\d+/)||[0])[0]);return{n,s:mgT("رسائل / مهام جديدة","New messages / tasks"),c:n?"amb":"red"}}
+ if(k=="perf"){return{n:U.filter(x=>x.r=="agent"&&!x.off).length,s:mgT("موظف نشط","Active agents"),c:"amb"}}
+ if(k=="apr"){const n=S.ue.length+S.cl.length+tcN();return{n,s:mgT("طلبات موافقة","Pending approvals"),c:n?"amb":"grn"}}
+ if(k=="usr"){return{n:U.filter(x=>!x.off).length,s:mgT("مستخدم","Users"),c:"red"}}
+ if(k=="bin"){return{n:S.bin.length,s:mgT("عنصر محذوف","Deleted items"),c:"mut"}}
+ if(k=="log"){return{n:S.al.length,s:mgT("عملية مسجلة","Logged actions"),c:"mut"}}
+ return{n:"",s:"",c:"red"}}
+function hubHtml(){return`<div class="hub">${hubTabs().map(k=>{
+ if(LK[k])return`<a class="st hc" style="--c:var(--grn)" href="${LK[k]}" target="_blank" rel="noopener"><div class="hh"><i>${HUBI[k]}</i>${TL(k)} ↗</div><b>↗</b><span>${mgT("فتح الرابط","Open link")}</span></a>`;
+ const o=hubInfo(k);
+ return`<div class="st hc" style="--c:var(--${o.c})" data-hv="${k}" role="button" tabindex="0"><div class="hh"><i>${HUBI[k]}</i>${TL(k)}</div><b>${o.n}</b><span>${o.s}</span>${o.x?`<small class="hx">${o.x}</small>`:""}${o.act?`<button class="btn s" id="gn">+ ${L("newTk")}</button>`:""}</div>`}).join("")}</div>`}
+function hubBind(a){
+ a.querySelectorAll("[data-hv]").forEach(e=>{const go=()=>{view=e.dataset.hv;render()};e.onclick=go;e.onkeydown=ev=>{if(ev.key=="Enter"||ev.key==" "){ev.preventDefault();go()}}});
+ const g=$("gn");if(g)g.onclick=ev=>{ev.stopPropagation();tkForm()}}
 function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح الخير":"مساء الخير"):(h<12?"Good morning":h<18?"Good afternoon":"Good evening");
  const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.resv.filter(r=>r.s!="del").length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
  a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><img src="${LOGO}" alt="Géant" style="height:124px"><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p><div class="hclk" id="hclk">${clk()}</div></div>
- <div class="stats"><div class="st"><b>${my}</b><span>${TL("myOpen")}</span></div><div class="st" style="--c:var(--grn)"><b>${fu}</b><span>${TL("resv")}</span></div><div class="st"><b>${ho}</b><span>${TL("myHo")}</span></div></div>
- <div class="row"><button class="btn" id="gt">${TL("tk")}</button><button class="btn gr" id="gn">+ ${L("newTk")}</button></div>`;
- $("gt").onclick=()=>{view="tk";render()};$("gn").onclick=tkForm;pnHome(a);caseFeed(a);lateBox(a)}
+ ${hubHtml()}`;
+ hubBind(a);pnHome(a);caseFeed(a);lateBox(a)}
 let rt="tk",rf="",rto="";
 const dt=d=>new Date(d).toLocaleDateString("en-GB");
 function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(rto).setHours(23,59,59,999):Infinity,ok=r=>r.d>=fr&&r.d<=to&&(!rbr||(r.f?r.f.branch:r.br)==rbr);
