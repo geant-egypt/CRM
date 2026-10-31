@@ -369,8 +369,8 @@ function render(){
   me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){er.textContent=L("bad")}};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf"&&me.r!="owner")view="tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["perf","perf"],["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
+ const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu"].map(k=>[k,k]).filter(t=>t[0]!="dash"||me.r=="owner");if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
@@ -397,6 +397,7 @@ function dash(a){
  <div class="box"><h3>${L("dist")}</h3><div class="bar" style="margin-bottom:12px">${["new","prog","done"].map(k=>`<i style="width:${tot?n(k)/tot*100:0}%;--c:var(--${k=="new"?"red":k=="prog"?"amb":"grn"})"></i>`).join("")}</div>
  <h3>${L("prio")}</h3>${["hi","mid","lo"].map(p=>{const c=opn(l).filter(t=>t.pr==p).length;return`<div class="row" style="margin:3px 0"><span style="flex:0 0 70px">${L(p)}</span><div class="bar" style="flex:1"><i style="width:${tot?c/tot*100:0}%;--c:var(--${p=="hi"?"red":p=="mid"?"amb":"mut"})"></i></div><span style="flex:0 0 24px">${c}</span></div>`}).join("")}</div></div>
  ${extra(l)}${sup()?`<div class="box"><h3>${L("work")}</h3>${load.map(([g,c])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 80px">${nm(g)}</span><div class="bar" style="flex:1"><i style="width:${c/Math.max(1,load[0][1])*100}%"></i></div><span style="flex:0 0 24px">${c}</span></div>`).join("")}</div>`:""}
+ ${me.r=="owner"?perfBox():""}
  <div class="box"><h3>${L("recent")}</h3>${[...l].sort((x,y)=>y.d-x.d).slice(0,5).map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`}</div>`;
 }
 function tks(a){
@@ -410,13 +411,14 @@ function cus(a){
  a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button></div><div class="box">${S.c.map(c=>{const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small></div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}).join("")||`<div class="empty">${L("noCu")}</div>`}</div>`;
  $("nc").onclick=()=>cuForm();
 }
-function perf(a){
+function perfBox(){
  const rows=AG.map(g=>{const l=S.t.filter(t=>t.ag==g),d=l.filter(t=>t.s=="done"),av=d.length?Math.round(d.reduce((s,t)=>s+(t.r-t.d),0)/d.length/hr):0;
   return{g,tot:l.length,d:d.length,o:opn(l).length,lt:l.filter(late).length,rt:l.length?Math.round(d.length/l.length*100):0,av}}).sort((x,y)=>y.d-x.d);
- a.innerHTML=`<div class="box"><h3>${L("perf")}</h3><div class="scroll"><table><tr><th></th><th>${L("total")}</th><th>${L("resolved")}</th><th>${L("open")}</th><th>${L("late")}</th><th>${L("rate")}</th><th>${L("avg")}</th></tr>
+ return`<div class="box"><h3>${L("perf")}</h3><div class="scroll"><table><tr><th></th><th>${L("total")}</th><th>${L("resolved")}</th><th>${L("open")}</th><th>${L("late")}</th><th>${L("rate")}</th><th>${L("avg")}</th></tr>
  ${rows.map(x=>`<tr><td><b>${nm(x.g)}</b> <small style="color:var(--mut)">${L("role")[U.find(u=>u.u==x.g).r]}</small></td><td>${x.tot}</td><td style="color:var(--grn);font-weight:600">${x.d}</td><td>${x.o}</td><td style="color:${x.lt?"var(--red)":"inherit"}">${x.lt}</td>
  <td><div class="bar" style="width:80px;display:inline-flex"><i style="width:${x.rt}%;--c:var(--grn)"></i></div> ${x.rt}%</td><td>${x.av}</td></tr>`).join("")}</table></div></div>`;
 }
+function perf(a){a.innerHTML=perfBox()}
 const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>{ov.classList.remove("on");if(dpBack){const v=dpBack;dpBack=null;view=v;render()}};
 ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{if(e.key=="Escape")close()});
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
@@ -477,7 +479,7 @@ function clk(){return new Date().toLocaleTimeString(typeof lang!=="undefined"&&l
 setInterval(function(){var e=document.getElementById("hclk");if(e)e.textContent=clk()},1000);
 
 const HUBI={dash:"📊",tk:"💬",short:"📦",svy:"📝",resv:"💰",ho:"🔁",sch:"📅",tpl:"📄",cu:"👥",rep:"📈",mgv:"✉️",perf:"🏆",apr:"✅",usr:"🔑",bin:"🗑️",log:"🧾"};
-function hubTabs(){const t=["dash","tk","short","svy","resv","ho","sch","tpl","cu"].filter(k=>k!="dash"||me.r=="owner");if(can("rep"))t.push("rep");if(me.r!="agent")t.push("mgv");if(me.r=="owner")t.push("perf","apr","usr","bin","log");return t}
+function hubTabs(){const t=["dash","tk","short","svy","resv","ho","sch","tpl","cu"].filter(k=>k!="dash"||me.r=="owner");if(can("rep"))t.push("rep");if(me.r!="agent")t.push("mgv");if(me.r=="owner")t.push("apr","usr","bin","log");return t}
 function hubInfo(k){
  const ms=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
  if(k=="dash"){const l=mine().filter(dflt),dn=l.filter(t=>t.s=="done").length;return{n:(l.length?Math.round(dn/l.length*100):0)+"%",s:mgT("نسبة الإغلاق","Resolution rate"),x:l.filter(late).length?"⚠ "+l.filter(late).length+" "+mgT("متأخرة","late"):"",c:"grn"}}
