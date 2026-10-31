@@ -1220,7 +1220,7 @@ render=function(){_mgRender.apply(this,arguments);mgTick()};
 /* Desktop: Esc goes back to Home (modals still close first) */
 document.addEventListener("keydown",e=>{
  if(e.key!="Escape"||e.defaultPrevented||!me||view=="home")return;
- if(ov.classList.contains("on")||document.getElementById("mgpop"))return;
+ if(ov.classList.contains("on")||document.querySelector("#mgpop.on"))return;
  view="home";render()},true);
 /* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
 let _bkExit=false;const _bkTouch=matchMedia("(pointer:coarse)").matches;
