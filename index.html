@@ -299,9 +299,10 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 @media(min-width:641px){
 .shell .nv.nv2{display:grid;grid-template-columns:1fr 1fr;width:clamp(130px,11vw,160px);gap:3px;padding-right:2px;align-content:start}
 .shell .nv.nv2 button,.shell .nv.nv2 a{min-width:0;padding:2px 3px;font-size:11px;text-align:center;white-space:normal;line-height:1.2;display:flex;align-items:center;justify-content:center;min-height:30px;border-radius:10px;overflow-wrap:anywhere}
-.shell:has(.nv2){gap:8px;padding:0 8px;max-width:none;width:100%;margin:0}
-body:has(.nv2) .hw,body:has(.nv2) .pgt,body:has(.nv2) .onl{max-width:none}
-.shell:has(.nv2) .cols{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+body.wide .shell{gap:8px;padding:0 8px;max-width:none;width:100%;margin:0}
+body.wide .hw,body.wide .pgt,body.wide .onl,body.wide .top,body.wide .lt{max-width:none}
+body.wide .shell main{width:100%;max-width:none}
+body.wide .shell .cols{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
 }
 </style>
 </head>
@@ -360,7 +361,7 @@ const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const vdTag=t=>t.vd=="valid"?`<span class="tag vrd">${TL("vOk")}</span>`:t.vd=="invalid"?`<span class="tag vgn">${TL("vNo")}</span>`:"";
 const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vrd":t.vd=="invalid"?"vgn":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}${cb(cu(t.cid).phone,1)}${me&&sup()?`<button class="btn g s" data-dt="${t.id}">${TL("det")}</button>`:""}</div>`;
 function render(){
- document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
+ document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
   r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
