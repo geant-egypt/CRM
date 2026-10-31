@@ -1217,6 +1217,11 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
 /* ---- wiring ---- */
 const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
+/* Desktop: Esc goes back to Home (modals still close first) */
+document.addEventListener("keydown",e=>{
+ if(e.key!="Escape"||e.defaultPrevented||!me||view=="home")return;
+ if(ov.classList.contains("on")||document.getElementById("mgpop"))return;
+ view="home";render()},true);
 /* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
 let _bkExit=false;const _bkTouch=matchMedia("(pointer:coarse)").matches;
 function bkHint(t){const h=document.createElement("div");h.textContent=t;h.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:22px;z-index:99;font-size:14px;text-align:center";document.body.appendChild(h);setTimeout(()=>h.remove(),3500)}
