@@ -331,7 +331,8 @@ i_rate:(r,t)=>`${r}% of tickets are resolved (${t} total).`,i_late:n=>n?`${n} ti
 fill:"Enter the issue title",fillN:"Enter the name"}};
 const U=[{u:"owner",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",r:"sup",n:{ar:"تامر",en:"Tamer"}},
 {u:"abdullah",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
-const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u),day=864e5,hr=36e5,now=Date.now();
+let SBX=false;const TEST_IDS=["test","000000","0123456789"],isTU=u=>TEST_IDS.includes(String(u).toLowerCase());
+const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
 try{lang=localStorage.getItem("g-lang")||"en"}catch(e){}
 const L=k=>D[lang][k],nm=u=>(U.find(x=>x.u==u)||{n:{ar:"—",en:"—"}}).n[lang];
@@ -343,11 +344,11 @@ const seedM=()=>({short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أر�
 function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];if(!S.bin)S.bin=[];if(!S.al)S.al=[];let ch=false;for(let i=U.length-1;i>=0;i--){if(!U[i]._nu&&S.ud.includes(U[i].u)){U.splice(i,1);ch=true}}
  for(let i=U.length-1;i>=0;i--){const x=U[i];if(x._nu&&!S.nu.some(e=>e.u==x.u)){U.splice(i,1);ch=true}}
  S.nu.forEach(e=>{if(!U.some(x=>x.u==e.u)){U.push(Object.assign({},e,{n:Object.assign({},e.n),_nu:1},(S.uo&&S.uo[e.u])||{}));ch=true}});
- if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u));
+ if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX));
  if(me&&!U.some(x=>x.u==me.u)){me=null;try{sessionStorage.removeItem("g-me")}catch(e){}}}
 let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
-const save=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
+const save=()=>{if(SBX)return;try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
 try{const s=sessionStorage.getItem("g-me");if(s)me=null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
@@ -360,7 +361,7 @@ const langBtn=`<button class="btn w s" id="lb">${lang=="ar"?"English":"عربي"
 const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const vdTag=t=>t.vd=="valid"?`<span class="tag vrd">${TL("vOk")}</span>`:t.vd=="invalid"?`<span class="tag vgn">${TL("vNo")}</span>`:"";
 const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vrd":t.vd=="invalid"?"vgn":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}${cb(cu(t.cid).phone,1)}${me&&sup()?`<button class="btn g s" data-dt="${t.id}">${TL("det")}</button>`:""}</div>`;
-function render(){
+function render(){if(SBX&&!me){location.reload();return}
  document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
@@ -370,12 +371,12 @@ function render(){
   $("lb").onclick=langMenu;
   const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv,er=$("er");er.textContent="...";
  try{await authIn(em(id),$("p").value);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
-  if(!DB.es){DB.url=DBU;dbStream();kickStream()}
-  for(let i=0;i<40&&DB.first;i++)await new Promise(r=>setTimeout(r,150));
+  if(isTU(ro.u))sbxEnter(ro.u);else if(!DB.es){DB.url=DBU;dbStream();kickStream()}
+  for(let i=0;i<40&&DB.first&&!SBX;i++)await new Promise(r=>setTimeout(r,150));
   reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
   const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
   (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
-  me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){er.textContent=L("bad")}};
+  me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){if(SBX){location.reload();return}er.textContent=L("bad")}};
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
@@ -500,7 +501,7 @@ function hubInfo(k){
  if(k=="cu"){return{n:S.c.length,s:mgT("عميل مسجل","Saved customers"),c:"grn"}}
  if(k=="rep"){return{n:S.t.filter(t=>t.d>=ms).length,s:mgT("شكوى هذا الشهر","Complaints this month"),c:"grn"}}
  if(k=="mgv"){const n=+((mgBadge().match(/\d+/)||[0])[0]);return{n,s:mgT("رسائل / مهام جديدة","New messages / tasks"),c:n?"amb":"red"}}
- if(k=="perf"){return{n:U.filter(x=>x.r=="agent"&&!x.off).length,s:mgT("موظف نشط","Active agents"),c:"amb"}}
+ if(k=="perf"){return{n:U.filter(x=>x.r=="agent"&&!x.off&&!isTU(x.u)).length,s:mgT("موظف نشط","Active agents"),c:"amb"}}
  if(k=="apr"){const n=S.ue.length+S.cl.length+tcN();return{n,s:mgT("طلبات موافقة","Pending approvals"),c:n?"amb":"grn"}}
  if(k=="usr"){return{n:U.filter(x=>!x.off).length,s:mgT("مستخدم","Users"),c:"red"}}
  if(k=="bin"){return{n:S.bin.length,s:mgT("عنصر محذوف","Deleted items"),c:"mut"}}
@@ -812,10 +813,10 @@ const persist=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch
 const reU=()=>{nuApply();Object.entries(S.uo||{}).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)})};
 function setSt(s){if(DB.st!=s){DB.st=s;onlineUpd()}}
 function setLocal(p,rs){let v;try{v=JSON.parse(rs)}catch(e){return}if(v==null)return;if(p=="n"||p=="tn")v=Math.max(+v||0,+sget(p)||0);sset(p,v)}
-function syncPush(){if(!DB.url||DB.first)return;
+function syncPush(){if(SBX||!DB.url||DB.first)return;
  SP.forEach(p=>{const cur=sstr(p);if(cur===DB.last[p]||DB.fl[p])return;DB.fl[p]=1;DB.wt[p]=Date.now();
   fetch(DB.url+"/d/"+skey(p)+".json",{method:"PUT",body:JSON.stringify(cur)}).then(r=>{if(!r.ok)throw r.status;DB.last[p]=cur;DB.fl[p]=0;setSt("ok");if(sstr(p)!==cur)syncPush()}).catch(()=>{DB.fl[p]=0;setSt("err")})})}
-function applyRemote(){if(!DB.url)return;
+function applyRemote(){if(SBX||!DB.url)return;
  if(ov.classList.contains("on")){DB.pend=true;return}
  const R=DB.R;let ch=false;
  if(DB.first){const has=SP.some(p=>R[skey(p)]!=null),mine=hasData();
@@ -829,7 +830,7 @@ function applyRemote(){if(!DB.url)return;
   if(sstr(p)!==DB.last[p]||DB.fl[p]||Date.now()-(DB.wt[p]||0)<2000)return;
   setLocal(p,rs);DB.last[p]=rs;ch=true});
  if(ch){persist();reU();DB.ren=true}}
-function dbStream(){if(DB.es)DB.es.close();const es=new EventSource(DB.url+"/d.json");DB.es=es;
+function dbStream(){if(SBX)return;if(DB.es)DB.es.close();const es=new EventSource(DB.url+"/d.json");DB.es=es;
  es.onopen=()=>setSt("ok");
  es.addEventListener("put",e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
   if(m.path=="/"){DB.R=m.data||{}}else{const k=m.path.slice(1);if(m.data==null)delete DB.R[k];else DB.R[k]=m.data}applyRemote()});
@@ -956,13 +957,23 @@ const _dash=dash;dash=function(a){_dash(a);const lb=t=>`<label style="font-size:
  $("df").onchange=e=>{df=e.target.value;render()};$("dto").onchange=e=>{dto=e.target.value;render()};$("dbr").onchange=e=>{dbr=e.target.value;render()}};
 ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now()},{passive:true,capture:true}));
 setInterval(()=>{if(me&&Date.now()-lastAct>IDLE){alog("auto","");save();presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}close();pnClear();render();const e=$("er");if(e)e.textContent=TL("idleMsg")}},15000);
+function sbxEnter(tu){SBX=true;if(DB.es){try{DB.es.close()}catch(e){}DB.es=null}
+ S={n:1,tn:0,c:[],t:[],m:{short:[],resv:[],ho:[]},cl:[],ue:[],uo:{},un:{},ud:[],bin:[],al:[],nu:[{u:tu,r:"agent",n:{ar:"تجربة",en:"Test"},ph:tu}]};
+ nuApply();
+ const d=seed();d.t.forEach((t,i)=>{if(i%3==0)t.ag=tu;t.ch=["branch","call","social"][t.id%3]});
+ S.n=d.n;S.c=d.c;S.t=d.t;S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{t.no=++S.tn});
+ S.m=seedM();S.m.short[0].ag=tu;S.m.resv[0].ag=tu;S.m.ho[0].f.to=tu;
+ try{dpNums()}catch(e){}
+ const b=document.createElement("div");b.id="sbx";b.textContent=lang=="ar"?"وضع التجربة — لا يتم حفظ أي بيانات":"Test mode — nothing is saved";
+ b.style.cssText="position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:99999;background:#b45309;color:#fff;padding:5px 14px;border-radius:999px;font:600 12px system-ui,sans-serif;pointer-events:none;opacity:.92";
+ document.body.appendChild(b)}
 const FBK="AIzaSyDXFZjntvRJdZ9ppDlLO1a-1UQ70gbLyvA",DBU="https://geant-cs-crm-default-rtdb.europe-west1.firebasedatabase.app",AUTH={t:"",rt:"",uid:"",exp:0},_fetch=window.fetch.bind(window),_ES=window.EventSource;
 const em=v=>v+"@geant-cs.app";
 async function authCall(p,b){const r=await _fetch("https://identitytoolkit.googleapis.com/v1/accounts:"+p+"?key="+FBK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),j=await r.json();if(!r.ok)throw j;return j}
 async function authIn(e,p){const j=await authCall("signInWithPassword",{email:e,password:p,returnSecureToken:true});AUTH.t=j.idToken;AUTH.rt=j.refreshToken;AUTH.uid=j.localId;AUTH.exp=Date.now()+j.expiresIn*1e3}
 async function authTok(){if(AUTH.rt&&Date.now()>AUTH.exp-6e4){try{const r=await _fetch("https://securetoken.googleapis.com/v1/token?key="+FBK,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+AUTH.rt}),j=await r.json();if(r.ok){AUTH.t=j.id_token;AUTH.rt=j.refresh_token;AUTH.exp=Date.now()+j.expires_in*1e3}}catch(e){}}return AUTH.t}
-window.fetch=async(u,o)=>{if(typeof u=="string"&&u.startsWith(DBU)){const t=await authTok();if(t)u+=(u.includes("?")?"&":"?")+"auth="+t}return _fetch(u,o)};
-window.EventSource=function(u){return new _ES(AUTH.t&&u.startsWith(DBU)?u+(u.includes("?")?"&":"?")+"auth="+AUTH.t:u)};
+window.fetch=async(u,o)=>{if(SBX&&typeof u=="string"&&u.startsWith(DBU)&&((o&&o.method)||"GET").toUpperCase()!="GET")return new Response("null",{status:200});if(typeof u=="string"&&u.startsWith(DBU)){const t=await authTok();if(t)u+=(u.includes("?")?"&":"?")+"auth="+t}return _fetch(u,o)};
+window.EventSource=function(u){if(SBX&&typeof u=="string"&&u.startsWith(DBU))return{close(){},addEventListener(){}};return new _ES(AUTH.t&&u.startsWith(DBU)?u+(u.includes("?")?"&":"?")+"auth="+AUTH.t:u)};
 setInterval(()=>{if(AUTH.t&&DB.es)authTok().then(()=>{dbStream();kickStream()})},45*6e4);
 const ADMIN_URL="https://geant-admin.mbahaa1-mb.workers.dev";/* ضع هنا رابط الـ Cloudflare Worker بعد النشر */
 async function adminCall(action,u,password){if(!ADMIN_URL)throw new Error(lang=="ar"?"الوسيط لسه مش متفعّل (ADMIN_URL فاضي)":"Admin worker is not configured");
@@ -1136,7 +1147,7 @@ function mgDur(ms){const m=Math.floor(ms/6e4);if(m<1)return mgT("أقل من د�
  const h=Math.floor(m/60);if(h<24)return h+mgT(" ساعة"," h")+(m%60?" "+(m%60)+mgT(" د"," m"):"");
  const d=Math.floor(h/24);return d+mgT(" يوم"," d")+(h%24?" "+(h%24)+mgT(" س"," h"):"")}
 function mgAbs(){if(!me||me.r!="owner")return;const n=Date.now();
- const l=U.filter(x=>x.u!=me.u&&!x.off&&(!(MG.s[x.u]&&MG.s[x.u].t)||n-MG.s[x.u].t>=864e5));
+ const l=U.filter(x=>x.u!=me.u&&!x.off&&!isTU(x.u)&&(!(MG.s[x.u]&&MG.s[x.u].t)||n-MG.s[x.u].t>=864e5));
  if(!l.length)return;const day=new Date().toISOString().slice(0,10);if(!nfNew("mgabs:"+day+":"+me.u))return;
  mgToast("🚫",mgT("موظفين مفتحوش التطبيق","Employees who did not open the app"),
   l.slice(0,6).map(x=>nm(x.u)).join("، ")+(l.length>6?" +"+(l.length-6):""),
@@ -1195,13 +1206,13 @@ function mgSend(){const x=$("mgx").value.trim(),k=(document.querySelector('input
  document.querySelectorAll("#mgto input[data-u]:checked").forEach(c=>to[c.dataset.u]=1);
  if(!Object.keys(to).length){er.textContent=mgT("اختار حد تبعتله","Choose who to send to");return}
  if(!x){er.textContent=mgT("اكتب الرسالة","Write the message");$("mgx").focus();return}
- const tot=U.filter(a=>a.u!=me.u&&!a.off).length,id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+ const tot=U.filter(a=>a.u!=me.u&&!a.off&&!isTU(a.u)).length,id=Date.now().toString(36)+Math.random().toString(36).slice(2,6),
   m={id,f:me.u,k,x,d:Date.now(),to};if(Object.keys(to).length==tot)m.all=1;
  er.textContent="...";MG.d[id]=m;
  fetch(DB.url+"/d/mg/"+id+".json",{method:"PUT",body:JSON.stringify(m)}).then(r=>{if(!r.ok)throw 0;er.textContent="";$("mgx").value="";
    document.querySelectorAll("#mgto input").forEach(c=>c.checked=false);mgPaint()})
   .catch(()=>{delete MG.d[id];er.textContent=mgT("ماتبعتتش — اتأكد من الاتصال","Not sent — check your connection");mgPaint()})}
-function mgV(a){const us=U.filter(x=>x.u!=me.u&&!x.off);
+function mgV(a){const us=U.filter(x=>x.u!=me.u&&!x.off&&!isTU(x.u));
  a.innerHTML=`<div class="box"><h3>${mgT("رسالة / تاسك جديد","New message / task")}</h3>
  <div class="mgpk" id="mgto"><label><input type="checkbox" id="mgall"> <b>${mgT("كل الفريق","All team")}</b></label>${us.map(x=>`<label><input type="checkbox" data-u="${esc(x.u)}"> ${esc(nm(x.u))} <small style="color:var(--mut)">(${L("role")[x.r]})</small></label>`).join("")}</div>
  <div class="mgpk"><label><input type="radio" name="mgk" value="m" checked> 💬 ${mgT("رسالة (قراءة بس)","Message (read only)")}</label><label><input type="radio" name="mgk" value="t"> 📌 ${mgT("تاسك (لازم يرد بـ تم)","Task (must reply Done)")}</label></div>
@@ -1220,7 +1231,7 @@ function mgPaint(){const A=$("mglist");if(!A||!me)return;const n=Date.now();
  A.querySelectorAll("[data-mgo]").forEach(b=>b.onclick=()=>{const[i,u]=b.dataset.mgo.split("|");mgReopen(i,u)});
  A.querySelectorAll("[data-mgx]").forEach(b=>b.onclick=()=>mgDel(b.dataset.mgx));
  const R=$("mgrep");if(R&&me.r=="owner"){
-  const rows=U.filter(x=>x.u!=me.u&&!x.off).map(x=>{const s=MG.s&&MG.s[x.u],t=s&&s.t;return{x,t,l:s&&s.l,un:all.filter(m=>m.to[x.u]&&!(m.r&&m.r[x.u])).length,gap:t?n-t:9e15}}).sort((a,b)=>b.gap-a.gap);
+  const rows=U.filter(x=>x.u!=me.u&&!x.off&&!isTU(x.u)).map(x=>{const s=MG.s&&MG.s[x.u],t=s&&s.t;return{x,t,l:s&&s.l,un:all.filter(m=>m.to[x.u]&&!(m.r&&m.r[x.u])).length,gap:t?n-t:9e15}}).sort((a,b)=>b.gap-a.gap);
   R.innerHTML=`<div class="box"><h3>📊 ${mgT("تقرير الفتح — مين فتح ومين لأ","Who opened the app")}</h3><div style="overflow-x:auto"><table class="mgtb"><tr><th>${mgT("الموظف","Employee")}</th><th>${mgT("الحالة","Status")}</th><th>${mgT("آخر ظهور","Last seen")}</th><th>${mgT("آخر دخول","Last login")}</th><th>${mgT("رسائل لم تُقرأ","Unread")}</th></tr>${rows.map(r=>{
    const on=r.gap<9e4,never=!r.t,st=on?`<span class="mgok">● ${mgT("أونلاين الآن","Online now")}</span>`:never?`<span class="mgbad">${mgT("لم يفتح التطبيق بعد","Never opened")}</span>`:`<span class="${r.gap>=864e5?"mgbad":""}">${mgT("مفتحش من","Away for")} ${mgDur(r.gap)}</span>`;
    return `<tr><td><b>${esc(nm(r.x.u))}</b><br><small style="color:var(--mut)">${L("role")[r.x.r]}</small></td><td>${st}</td><td>${r.t?fdt(r.t):"—"}</td><td>${r.l?fdt(r.l):"—"}</td><td>${r.un?`<span class="mgbad">${r.un}</span>`:"0"}</td></tr>`}).join("")}</table></div><div class="hint">${mgT("بيتحدث تلقائيًا كل نص دقيقة تقريبًا.","Refreshes automatically about every 30 seconds.")}</div></div>`}}
