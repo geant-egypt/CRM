@@ -958,7 +958,7 @@ const _dash=dash;dash=function(a){_dash(a);const lb=t=>`<label style="font-size:
 ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now()},{passive:true,capture:true}));
 setInterval(()=>{if(me&&Date.now()-lastAct>IDLE){alog("auto","");save();presOff();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}close();pnClear();render();const e=$("er");if(e)e.textContent=TL("idleMsg")}},15000);
 function sbxEnter(tu){SBX=true;if(DB.es){try{DB.es.close()}catch(e){}DB.es=null}
- S={n:1,tn:0,c:[],t:[],m:{short:[],resv:[],ho:[]},cl:[],ue:[],uo:{},un:{},ud:[],bin:[],al:[],nu:[{u:tu,r:"agent",n:{ar:"تجربة",en:"Test"},ph:tu}]};
+ S={n:1,tn:0,c:[],t:[],m:{short:[],resv:[],ho:[]},cl:[],ue:[],uo:{},un:{},ud:[],bin:[],al:[],pn:[],nu:[{u:tu,r:"agent",n:{ar:"تجربة",en:"Test"},ph:tu}]};
  nuApply();
  const d=seed();d.t.forEach((t,i)=>{if(i%3==0)t.ag=tu;t.ch=["branch","call","social"][t.id%3]});
  S.n=d.n;S.c=d.c;S.t=d.t;S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{t.no=++S.tn});
