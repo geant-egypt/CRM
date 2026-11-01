@@ -421,11 +421,12 @@ let cuQ="";
 function cuRow(c){const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small>${cuSum(c.id)}</div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}
 function cus(a){
  a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم","Search by name or phone")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
- const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),l=S.c.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(qd.length>2&&phNorm(c.phone).includes(qd))),sh=l.slice(0,150);
+ {const m=S.c.filter(c=>c.miss).length;if(m)$("cusr").textContent=mgT("⚠ "+m+" عميل بياناتهم ناقصة (متعلمين بعلامة ⚠). افتح العميل واضغط تعديل واكتب الاسم والرقم.","⚠ "+m+" customers have missing details. Open one and tap Edit to add name and phone.")}
+ const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),l=S.c.filter(c=>!q||(c.name||"").toLowerCase().includes(q)||(qd.length>2&&phNorm(c.phone).includes(qd))),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
   $("cul").innerHTML=sh.map(cuRow).join("")+(l.length>sh.length?`<div class="empty">${mgT("معروض","Showing")} ${sh.length} ${mgT("من","of")} ${l.length} — ${mgT("استخدم البحث","use search")}</div>`:"")||`<div class="empty">${L("noCu")}</div>`;
   $("cul").querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c))};
  $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();f();
- if($("cusy"))$("cusy").onclick=async()=>{const r=$("cusr");r.textContent="...";const x=await sheetSync(true);
+ if($("cusy"))$("cusy").onclick=async()=>{const r=$("cusr");r.textContent="...";cuHeal();const x=await sheetSync(true);
   r.textContent=x==null?mgT("مقدرتش أقرا الشيت. اتأكد إنه متشارك Anyone with the link: Viewer","Could not read the sheet. Make sure it is shared as Anyone with the link: Viewer"):x.add?mgT("تمت إضافة "+x.add+" عميل جديد من الشيت","Added "+x.add+" new customers from the sheet"):mgT("مفيش عملاء جدد في الشيت","No new customers in the sheet");f()}
 }
 function perfBox(){
@@ -470,14 +471,14 @@ function cuForm(id){
  $("x").onclick=close;$("sv").onclick=()=>{if(!$("n").value.trim()){$("n").focus();$("n").placeholder=L("fillN");$("n").style.borderColor="var(--red)";return}
   const ei=bx.map(b=>b.value).join("");if(ei&&ei.length!=9){bx.forEach(b=>{if(!b.value)b.style.borderColor="var(--red)"});(bx.find(b=>!b.value)||bx[0]).focus();return}
   const v={name:$("n").value.trim(),phone:$("p").value.trim(),co:$("co").value.trim(),einv:ei};if($("e"))v.email=$("e").value.trim();
-  if(ed){Object.assign(c,v);alog("edit",mgT("عميل ","Customer ")+v.name)}else S.c.push(Object.assign({id:S.n++,email:""},v));
+  if(ed){Object.assign(c,v);delete c.miss;alog("edit",mgT("عميل ","Customer ")+v.name)}else S.c.push(Object.assign({id:S.n++,email:""},v));
   save();close();view="cu";render()};
 }
 function cuView(id){
  const c=cu(id),k=mine().filter(t=>t.cid==id);
  open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}</div>`:""}${cuSum(id)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
  ${k.map(t=>tkRow(t)).join("").replace(/<span class="cbi">.*?<\/span>/g,"")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
- $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)});md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
 }
 </script>
 <script>
@@ -501,6 +502,16 @@ function getCust(n,p){n=(n||"").trim();p=(p||"").trim();const pd=phNorm(p);
 function cuSum(id){const k=mine().filter(t=>t.cid==id),op=k.filter(t=>t.s!="done").length,dp=S.m.resv.filter(r=>r.f&&r.f.cust==id),
  ch=(t,c)=>`<span class="tag" style="--c:var(--${c});display:inline-block;margin:4px 0 0;margin-inline-end:4px">${t}</span>`;
  return`<div class="csum">${ch("💬 "+mgT("شكاوي","Complaints")+": "+k.length,"red")}${k.length?ch(mgT("مفتوحة","Open")+": "+op,op?"amb":"mut")+ch(mgT("مقفولة","Closed")+": "+(k.length-op),"grn"):""}${ch("💰 "+TL("resv")+": "+dp.length,"grn")}</div>`}
+/* ===== keep every complaint / deposit linked to a customer in Customers ===== */
+function cuHeal(){if(SBX||!me||!sup()||(DB.url&&DB.first))return 0;
+ const ids=new Set(S.c.map(c=>String(c.id))),need=new Set();
+ S.t.forEach(t=>{if(t.cid!=null&&t.cid!==""&&!ids.has(String(t.cid)))need.add(String(t.cid))});
+ S.m.resv.forEach(r=>{if(r.f&&r.f.cust!=null&&r.f.cust!==""&&!ids.has(String(r.f.cust)))need.add(String(r.f.cust))});
+ if(!need.size)return 0;let n=0;
+ need.forEach(id=>{const b=(S.bin||[]).find(x=>x.k=="c"&&x.it&&String(x.it.id)==id);
+  if(b){S.c.push(b.it);S.bin=S.bin.filter(x=>x!=b)}
+  else S.c.push({id:isNaN(+id)?id:+id,name:"⚠ بيانات ناقصة - Missing details",phone:"",email:"",co:"",miss:1});n++});
+ save();DB.ren=true;return n}
 /* ===== auto-import customers from the Survey Respond Google Sheet: J = name, K = phone ===== */
 const SH={id:"1gNSysdrShGFEYcT-wDxmnMNjgeFfIIQgbFaL0oTLhGk",gid:"0",t:0,busy:false};
 function shTable(){return new Promise((res,rej)=>{
@@ -523,7 +534,7 @@ async function sheetSync(manual){
   return{add}}
  catch(e){return null}
  finally{SH.busy=false}}
-setInterval(()=>{if(me&&sup()&&!SBX&&!(DB.url&&DB.first)&&Date.now()-SH.t>18e4)sheetSync(false)},15000);
+setInterval(()=>{if(me&&sup()&&!SBX&&!(DB.url&&DB.first)){cuHeal();if(Date.now()-SH.t>18e4)sheetSync(false)}},15000);
 function setL(){try{localStorage.setItem("g-lang",lang)}catch(e){}close();render()}
 function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div class="row" style="margin:10px 0 0"><button class="btn${lang=="ar"?"":" g"}" id="la">عربي</button><button class="btn${lang=="en"?"":" g"}" id="le">English</button></div>`);$("la").onclick=()=>{lang="ar";setL()};$("le").onclick=()=>{lang="en";setL()}}
 function clk(){return new Date().toLocaleTimeString(typeof lang!=="undefined"&&lang=="ar"?"ar-EG":"en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",hour12:true})}
