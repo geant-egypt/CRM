@@ -1381,7 +1381,7 @@ function swUser(){
    if(me&&x.u==me.u){Object.assign(AUTH,bak);close();return}
    presOff();alog("out","");save();
    (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
-   close();try{mgClose()}catch(e){}
+   close();
    me=x;view="home";alog("in","");save();render();showSplash()
   }catch(e){fail()}};
  $("sgo").onclick=go;$("sp").onkeydown=e=>{if(e.key=="Enter")go()}}
