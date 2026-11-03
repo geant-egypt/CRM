@@ -1518,8 +1518,9 @@ const cmDay=()=>lcl(Date.now()).slice(0,10);
 const cmStore=b=>(RH.store&&RH.store[b])||b||"";
 function cmList(){if(!S.m.cm)S.m.cm=[];const q=cmq.trim().toLowerCase();
  return S.m.cm.filter(r=>(!cmb||r.f.branch==cmb)&&(!cmf||r.f.date>=cmf)&&(!cmt||r.f.date<=cmt)&&(!q||JSON.stringify(r.f).toLowerCase().includes(q))).sort((x,y)=>(y.f.date||"").localeCompare(x.f.date||"")||y.d-x.d)}
+const cmLb=t=>`<label style="font-size:12px;color:var(--mut)">${t}`;
 function cmV(a){
- a.innerHTML=`<div class="row"><input id="cq" placeholder="${L("search")}" value="${esc(cmq)}"><select id="cb"><option value="">${mgT("كل الفروع","All branches")}</option>${BR.map(b=>`<option value="${b}" ${cmb==b?"selected":""}>${b}</option>`).join("")}</select>${lb(TL("fromD"))}<input type="date" id="cf" value="${cmf}"></label>${lb(TL("toD"))}<input type="date" id="ct" value="${cmt}"></label></div>
+ a.innerHTML=`<div class="row"><input id="cq" placeholder="${L("search")}" value="${esc(cmq)}"><select id="cb"><option value="">${mgT("كل الفروع","All branches")}</option>${BR.map(b=>`<option value="${b}" ${cmb==b?"selected":""}>${b}</option>`).join("")}</select>${cmLb(TL("fromD"))}<input type="date" id="cf" value="${cmf}"></label>${cmLb(TL("toD"))}<input type="date" id="ct" value="${cmt}"></label></div>
  <div class="row"><button class="btn w" id="cn">+ ${mgT("تسجيل خطأ كاشير","Add cashier mistake")}</button><button class="btn gr" id="cx">📊 ${mgT("تحميل تقرير Excel","Download Excel report")}</button></div>
  <div class="stats" id="cs"></div><div class="box" id="cl"></div>`;
  const f=()=>{const l=cmList(),tot=l.reduce((s,r)=>s+(+r.f.amt||0),0);
@@ -1528,15 +1529,21 @@ function cmV(a){
   $("cl").querySelectorAll("[data-cm]").forEach(e=>e.onclick=()=>cmForm(e.dataset.cm))};
  $("cq").oninput=e=>{cmq=e.target.value;f()};$("cb").onchange=e=>{cmb=e.target.value;f()};$("cf").onchange=e=>{cmf=e.target.value;f()};$("ct").onchange=e=>{cmt=e.target.value;f()};
  $("cn").onclick=()=>cmForm();$("cx").onclick=cmExport;f()}
+const CM_REA=["Bad Attitude","Double Scan","Wrong Code Entire","Wrong Count","Wrong Tender"],
+CM_LISTS={REH:{terminal:["T201","T202","T203","T204","T205","T206","T251","T271","T281"],reason:CM_REA,sv:["Emad","Rania Reda","Omar"]},
+TRI:{terminal:["HD101","HD102","HD103","S1C1","T101","T102","T103","T104","T105","T106","T107","T108","T151","T161","T162","T171","T176","T180","T181","T182","T183","T184"],reason:CM_REA,sv:["Nader Abd El Fatah","Waled","Ayman","Ahmed Saleh"]}};
 function cmOpts(k){return[...new Set(S.m.cm.map(r=>r.f[k]).filter(Boolean))].sort()}
 function cmForm(id){const r=id?S.m.cm.find(x=>x.id==id):null,f=r?r.f:{date:cmDay()};if(id&&!r)return;
  const dl=k=>`<datalist id="dl_${k}">${cmOpts(k).map(v=>`<option value="${esc(v)}">`).join("")}</datalist>`,
  inp=(k,l,t,li)=>`<label>${l}<input id="cm_${k}" type="${t||"text"}" value="${esc(f[k]??"")}" ${li?`list="dl_${k}" autocomplete="off"`:""}></label>${li?dl(k):""}`;
  open(`<h2>${r?mgT("تعديل خطأ كاشير","Edit cashier mistake"):mgT("تسجيل خطأ كاشير","New cashier mistake")}</h2><div class="f" style="margin-top:10px">
  <label>${TL("branch")}${sel("cm_branch",[["",TL("pickB")],...BR.map(b=>[b,b])],f.branch||"")}</label>
- ${inp("date","Date","date")}${inp("cashier","Cashier ID")}${inp("sale","Sale Transaction No.")}${inp("terminal","Terminal No.","text",1)}${inp("reason","Reason","text",1)}${inp("otype","Order Type","text",1)}
- <label>Details<textarea id="cm_det" rows="3">${esc(f.det||"")}</textarea></label>${inp("sv","Cashier Shift S.V","text",1)}${inp("amt","Total Mistake Amount","number")}${inp("cmt","Comment")}
+ ${inp("date","Date","date")}${inp("cashier","Cashier ID")}${inp("sale","Sale Transaction No.")}<label>Terminal No.<select id="cm_terminal"></select></label><label>Reason<select id="cm_reason"></select></label>${inp("otype","Order Type","text",1)}
+ <label>Details<textarea id="cm_det" rows="3">${esc(f.det||"")}</textarea></label><label>Cashier Shift S.V<select id="cm_sv"></select></label>${inp("amt","Total Mistake Amount","number")}${inp("cmt","Comment")}
  <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button>${r&&can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ const fill=()=>{const b=$("cm_branch").value;["terminal","reason","sv"].forEach(k=>{const e=$("cm_"+k),cur=e.value||f[k]||"",o=(CM_LISTS[b]||{})[k]||[];
+  e.innerHTML='<option value="">—</option>'+(cur&&!o.includes(cur)&&(CM_LISTS[b]||!cur)?"":"")+o.map(v=>`<option ${v==cur?"selected":""}>${esc(v)}</option>`).join("")+(cur&&!o.includes(cur)&&r&&b==f.branch?`<option selected>${esc(cur)}</option>`:"")})};
+ $("cm_branch").onchange=()=>{["terminal","reason","sv"].forEach(k=>{f[k]=""});fill()};fill();
  $("x").onclick=close;
  if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.cm=S.m.cm.filter(x=>x.id!=r.id)});
  $("sv").onclick=()=>{const g=k=>$("cm_"+k).value.trim(),v={branch:g("branch"),date:g("date"),cashier:g("cashier"),sale:g("sale"),terminal:g("terminal"),reason:g("reason"),otype:g("otype"),det:g("det"),sv:g("sv"),amt:g("amt"),cmt:g("cmt")};
@@ -1552,7 +1559,7 @@ function cmXlsx(list){const NS=Math.max(list.length,25),LAST=NS+2,rows=[];
  for(let i=0;i<NS;i++){const rn=i+3,p=i%2,x=list[i],f=x?x.f:{},t=3+p,dS=5+p,nS=7+p,pd=String(f.date||"").split("-").map(Number),
   ser=pd.length==3&&pd[0]?mgSerial(new Date(pd[0],pd[1]-1,pd[2]).getTime()):"",am=f.amt!==undefined&&f.amt!==""&&!isNaN(+f.amt)?+f.amt:f.amt;
   rows.push(`<row r="${rn}" ht="20" customHeight="1">${[mgS(rn,0,x?cmStore(f.branch):"",t),ser===""?mgS(rn,1,"",dS):mgN(rn,1,ser,dS),mgS(rn,2,f.cashier,t),mgS(rn,3,f.sale,t),mgS(rn,4,f.terminal,t),mgS(rn,5,f.reason,t),mgS(rn,6,f.otype,t),mgS(rn,7,f.det,t),mgS(rn,8,f.sv,t),typeof am=="number"?mgN(rn,9,am,nS):mgS(rn,9,am,nS),mgS(rn,10,f.cmt,t)].join("")}</row>`)}
- const dv=(col,k)=>{const v=[...new Set(list.map(x=>x.f[k]).filter(s=>s&&!/[",]/.test(s)))],s=v.join(",");return v.length&&s.length<=250?`<dataValidation type="list" allowBlank="1" sqref="${col}3:${col}${LAST}"><formula1>${mgXe('"'+s+'"')}</formula1></dataValidation>`:""},
+ const bl=cmb?[cmb]:BR,dv=(col,k)=>{const v=[...new Set(["terminal","reason","sv"].includes(k)?bl.flatMap(b=>(CM_LISTS[b]||{})[k]||[]):list.map(x=>x.f[k]))].filter(s=>s&&!/[",]/.test(s)),s=v.join(",");return v.length&&s.length<=250?`<dataValidation type="list" allowBlank="1" sqref="${col}3:${col}${LAST}"><formula1>${mgXe('"'+s+'"')}</formula1></dataValidation>`:""},
  dvs=[dv("E","terminal"),dv("F","reason"),dv("G","otype"),dv("I","sv")].filter(Boolean);
  const ws=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="2" topLeftCell="A3" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${CM_W.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${rows.join("")}</sheetData><autoFilter ref="A2:K${LAST}"/><mergeCells count="1"><mergeCell ref="A1:K1"/></mergeCells>${dvs.length?`<dataValidations count="${dvs.length}">${dvs.join("")}</dataValidations>`:""}</worksheet>`;
  const R='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n',P="http://schemas.openxmlformats.org/";
