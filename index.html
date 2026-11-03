@@ -1529,7 +1529,7 @@ function cmV(a){
   $("cl").querySelectorAll("[data-cm]").forEach(e=>e.onclick=()=>cmForm(e.dataset.cm))};
  $("cq").oninput=e=>{cmq=e.target.value;f()};$("cb").onchange=e=>{cmb=e.target.value;f()};$("cf").onchange=e=>{cmf=e.target.value;f()};$("ct").onchange=e=>{cmt=e.target.value;f()};
  $("cn").onclick=()=>cmForm();$("cx").onclick=cmExport;f()}
-const CM_REA=["Bad Attitude","Double Scan","Wrong Code Entire","Wrong Count","Wrong Tender"],
+const CM_OT=["InStore","Home Delivery","Insta Shop","Talabat"],CM_REA=["Bad Attitude","Double Scan","Wrong Code Entire","Wrong Count","Wrong Tender"],
 CM_LISTS={REH:{terminal:["T201","T202","T203","T204","T205","T206","T251","T271","T281"],reason:CM_REA,sv:["Emad","Rania Reda","Omar"]},
 TRI:{terminal:["HD101","HD102","HD103","S1C1","T101","T102","T103","T104","T105","T106","T107","T108","T151","T161","T162","T171","T176","T180","T181","T182","T183","T184"],reason:CM_REA,sv:["Nader Abd El Fatah","Waled","Ayman","Ahmed Saleh"]}};
 function cmOpts(k){return[...new Set(S.m.cm.map(r=>r.f[k]).filter(Boolean))].sort()}
@@ -1538,7 +1538,7 @@ function cmForm(id){const r=id?S.m.cm.find(x=>x.id==id):null,f=r?r.f:{date:cmDay
  inp=(k,l,t,li)=>`<label>${l}<input id="cm_${k}" type="${t||"text"}" value="${esc(f[k]??"")}" ${li?`list="dl_${k}" autocomplete="off"`:""}></label>${li?dl(k):""}`;
  open(`<h2>${r?mgT("تعديل خطأ كاشير","Edit cashier mistake"):mgT("تسجيل خطأ كاشير","New cashier mistake")}</h2><div class="f" style="margin-top:10px">
  <label>${TL("branch")}${sel("cm_branch",[["",TL("pickB")],...BR.map(b=>[b,b])],f.branch||"")}</label>
- ${inp("date","Date","date")}${inp("cashier","Cashier ID")}${inp("sale","Sale Transaction No.")}<label>Terminal No.<select id="cm_terminal"></select></label><label>Reason<select id="cm_reason"></select></label>${inp("otype","Order Type","text",1)}
+ ${inp("date","Date","date")}${inp("cashier","Cashier ID")}${inp("sale","Sale Transaction No.")}<label>Terminal No.<select id="cm_terminal"></select></label><label>Reason<select id="cm_reason"></select></label><label>Order Type${sel("cm_otype",[["","—"],...[...CM_OT,...(f.otype&&!CM_OT.includes(f.otype)?[f.otype]:[])].map(v=>[v,esc(v)])],f.otype||"")}</label>
  <label>Details<textarea id="cm_det" rows="3">${esc(f.det||"")}</textarea></label><label>Cashier Shift S.V<select id="cm_sv"></select></label>${inp("amt","Total Mistake Amount","number")}${inp("cmt","Comment")}
  <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button>${r&&can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  const fill=()=>{const b=$("cm_branch").value;["terminal","reason","sv"].forEach(k=>{const e=$("cm_"+k),cur=e.value||f[k]||"",o=(CM_LISTS[b]||{})[k]||[];
@@ -1559,7 +1559,7 @@ function cmXlsx(list){const NS=Math.max(list.length,25),LAST=NS+2,rows=[];
  for(let i=0;i<NS;i++){const rn=i+3,p=i%2,x=list[i],f=x?x.f:{},t=3+p,dS=5+p,nS=7+p,pd=String(f.date||"").split("-").map(Number),
   ser=pd.length==3&&pd[0]?mgSerial(new Date(pd[0],pd[1]-1,pd[2]).getTime()):"",am=f.amt!==undefined&&f.amt!==""&&!isNaN(+f.amt)?+f.amt:f.amt;
   rows.push(`<row r="${rn}" ht="20" customHeight="1">${[mgS(rn,0,x?cmStore(f.branch):"",t),ser===""?mgS(rn,1,"",dS):mgN(rn,1,ser,dS),mgS(rn,2,f.cashier,t),mgS(rn,3,f.sale,t),mgS(rn,4,f.terminal,t),mgS(rn,5,f.reason,t),mgS(rn,6,f.otype,t),mgS(rn,7,f.det,t),mgS(rn,8,f.sv,t),typeof am=="number"?mgN(rn,9,am,nS):mgS(rn,9,am,nS),mgS(rn,10,f.cmt,t)].join("")}</row>`)}
- const bl=cmb?[cmb]:BR,dv=(col,k)=>{const v=[...new Set(["terminal","reason","sv"].includes(k)?bl.flatMap(b=>(CM_LISTS[b]||{})[k]||[]):list.map(x=>x.f[k]))].filter(s=>s&&!/[",]/.test(s)),s=v.join(",");return v.length&&s.length<=250?`<dataValidation type="list" allowBlank="1" sqref="${col}3:${col}${LAST}"><formula1>${mgXe('"'+s+'"')}</formula1></dataValidation>`:""},
+ const bl=cmb?[cmb]:BR,dv=(col,k)=>{const v=[...new Set(k=="otype"?CM_OT:["terminal","reason","sv"].includes(k)?bl.flatMap(b=>(CM_LISTS[b]||{})[k]||[]):list.map(x=>x.f[k]))].filter(s=>s&&!/[",]/.test(s)),s=v.join(",");return v.length&&s.length<=250?`<dataValidation type="list" allowBlank="1" sqref="${col}3:${col}${LAST}"><formula1>${mgXe('"'+s+'"')}</formula1></dataValidation>`:""},
  dvs=[dv("E","terminal"),dv("F","reason"),dv("G","otype"),dv("I","sv")].filter(Boolean);
  const ws=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="2" topLeftCell="A3" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${CM_W.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${rows.join("")}</sheetData><autoFilter ref="A2:K${LAST}"/><mergeCells count="1"><mergeCell ref="A1:K1"/></mergeCells>${dvs.length?`<dataValidations count="${dvs.length}">${dvs.join("")}</dataValidations>`:""}</worksheet>`;
  const R='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n',P="http://schemas.openxmlformats.org/";
