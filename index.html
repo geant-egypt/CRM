@@ -339,6 +339,13 @@ header .pgt.pgan{animation:none}
 @media(max-width:640px){
  header .pgt{top:auto;bottom:4px;transform:translateX(-50%);font-size:13px;line-height:1.2;padding:1px 14px}
 }
+
+/* pinned menu indicator (double-click the menu button on desktop) */
+@media(min-width:641px){
+.nvt.pin{background:var(--grn);color:#fff}
+.nvt.pin::after{content:"";position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--grn)}
+.nvt{position:relative}
+}
 </style>
 </head>
 <body>
@@ -370,8 +377,12 @@ let SBX=false;const TEST_IDS=["test","000000","0123456789"],isTU=u=>TEST_IDS.inc
 const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
 /* left side menu: closed by default, toggled with the icon button in the header */
-let navOpen=false,navAnim=false;
-function navToggle(){navOpen=!navOpen;const sh=document.querySelector(".shell"),bt=document.getElementById("nvt");if(sh)sh.classList.toggle("nvc",!navOpen);if(bt)bt.setAttribute("aria-expanded",String(navOpen))}
+let navPinned=false;try{navPinned=localStorage.getItem("g-navpin")=="1"&&innerWidth>640}catch(e){}
+let navOpen=navPinned,navAnim=false;
+function navSetPin(v){navPinned=v;try{localStorage.setItem("g-navpin",v?"1":"0")}catch(e){}}
+function navApply(){const sh=document.querySelector(".shell"),bt=document.getElementById("nvt");if(sh)sh.classList.toggle("nvc",!navOpen);if(bt){bt.setAttribute("aria-expanded",String(navOpen));bt.classList.toggle("pin",navPinned)}}
+function navToggle(){if(navPinned){navSetPin(false);navOpen=false}else navOpen=!navOpen;navApply()}
+function navDbl(){navSetPin(true);navOpen=true;navApply()}
 try{lang=localStorage.getItem("g-lang")||"en"}catch(e){}
 const L=k=>D[lang][k],nm=u=>(U.find(x=>x.u==u)||{n:{ar:"—",en:"—"}}).n[lang];
 const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّلة","استفسار عن الضمان","منتج وصل تالف","استرجاع مبلغ","تعديل عنوان الشحن","مشكلة في الدفع","طلب كتالوج الأسعار","شكوى من معاملة","تفعيل الحساب"];
@@ -420,11 +431,11 @@ function render(){if(SBX&&!me){location.reload();return}
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","cm","svy","resv","ho","sch","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent"));if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><button type="button" class="nvt" id="nvt" aria-label="${mgT("القائمة","Menu")}" aria-controls="snav" aria-expanded="${navOpen||navAnim}"><span class="nvb" aria-hidden="true"><i></i><i></i><i></i></span></button><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div><h1 class="pgt" id="pgt">${TL(view)}</h1></header><div class="shell${navOpen||navAnim?"":" nvc"}"><nav id="snav" class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ r.innerHTML=`<header><div class="hw"><div class="br"><button type="button" class="nvt${navPinned?" pin":""}" id="nvt" aria-label="${mgT("القائمة","Menu")}" aria-controls="snav" aria-expanded="${navOpen||navAnim}"><span class="nvb" aria-hidden="true"><i></i><i></i><i></i></span></button><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div><h1 class="pgt" id="pgt">${TL(view)}</h1></header><div class="shell${navOpen||navAnim?"":" nvc"}"><nav id="snav" class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
-  {const sh=r.querySelector(".shell"),bt=$("nvt");if(bt)bt.onclick=navToggle;if(sh&&navAnim){navAnim=false;void sh.offsetWidth;sh.classList.add("nvc");if(bt)bt.setAttribute("aria-expanded","false")}}
+  {const sh=r.querySelector(".shell"),bt=$("nvt");if(bt){bt.onclick=navToggle;bt.ondblclick=navDbl}if(sh&&navAnim){navAnim=false;void sh.offsetWidth;sh.classList.add("nvc");if(bt)bt.setAttribute("aria-expanded","false")}}
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
- r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;if(navOpen){navOpen=false;navAnim=true}render()});bindBN(tabs);
+ r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;if(navOpen&&!navPinned){navOpen=false;navAnim=true}render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(view=="cm")cmV(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
