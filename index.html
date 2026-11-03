@@ -346,7 +346,7 @@ function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];if(!S.bin)S.bin=[];if(!S.al
  S.nu.forEach(e=>{if(!U.some(x=>x.u==e.u)){U.push(Object.assign({},e,{n:Object.assign({},e.n),_nu:1},(S.uo&&S.uo[e.u])||{}));ch=true}});
  if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX));
  if(me&&!U.some(x=>x.u==me.u)){me=null;try{sessionStorage.removeItem("g-me")}catch(e){}}}
-let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
+let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};if(!S.m.cm)S.m.cm=[];S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
 const save=()=>{if(SBX)return;try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}if(typeof syncPush=="function")syncPush()};
 try{const s=sessionStorage.getItem("g-me");if(s)me=null}catch(e){}
@@ -380,13 +380,13 @@ function render(){if(SBX&&!me){location.reload();return}
   $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","svy","resv","ho","sch","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent"));if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
+ const tabs=["home","dash","tk","short","cm","svy","resv","ho","sch","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent"));if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
  r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
  const a=$("app");
- if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
+ if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(view=="cm")cmV(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
  if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
@@ -540,13 +540,14 @@ function langMenu(){open(`<h2>${lang=="ar"?"اللغة":"Language"}</h2><div cla
 function clk(){return new Date().toLocaleTimeString(typeof lang!=="undefined"&&lang=="ar"?"ar-EG":"en-US",{hour:"numeric",minute:"2-digit",second:"2-digit",hour12:true})}
 setInterval(function(){var e=document.getElementById("hclk");if(e)e.textContent=clk()},1000);
 
-const HUBI={dash:"📊",tk:"💬",short:"📦",svy:"📝",svr:"📋",resv:"💰",ho:"🔁",sch:"📅",tpl:"📄",cu:"👥",rep:"📈",mgv:"✉️",perf:"🏆",apr:"✅",usr:"🔑",bin:"🗑️",log:"🧾"};
-function hubTabs(){const t=["dash","tk","short","svy","resv","ho","sch","tpl","svr"].filter(k=>(k!="dash"||me.r=="owner")&&(k!="svr"||me.r!="agent"));if(can("rep"))t.push("rep");if(me.r!="agent")t.push("mgv");if(me.r=="owner")t.push("apr","usr","bin","log");return t}
+const HUBI={cm:"💵",dash:"📊",tk:"💬",short:"📦",svy:"📝",svr:"📋",resv:"💰",ho:"🔁",sch:"📅",tpl:"📄",cu:"👥",rep:"📈",mgv:"✉️",perf:"🏆",apr:"✅",usr:"🔑",bin:"🗑️",log:"🧾"};
+function hubTabs(){const t=["dash","tk","short","cm","svy","resv","ho","sch","tpl","svr"].filter(k=>(k!="dash"||me.r=="owner")&&(k!="svr"||me.r!="agent"));if(can("rep"))t.push("rep");if(me.r!="agent")t.push("mgv");if(me.r=="owner")t.push("apr","usr","bin","log");return t}
 function hubInfo(k){
  const ms=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
  if(k=="dash"){const l=mine().filter(dflt),dn=l.filter(t=>t.s=="done").length;return{n:(l.length?Math.round(dn/l.length*100):0)+"%",s:mgT("نسبة الإغلاق","Resolution rate"),x:l.filter(late).length?"⚠ "+l.filter(late).length+" "+mgT("متأخرة","late"):"",c:"grn"}}
  if(k=="tk"){const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,all=opn(S.t.filter(t=>!t.closed)).length,lt=mine().filter(late).length;return{n:my,s:TL("myOpen"),x:(sup()?mgT("إجمالي المفتوحة: ","All open: ")+all:"")+(lt?(sup()?" • ":"")+"⚠ "+lt+" "+mgT("متأخرة","late"):""),c:"red",act:1}}
  if(k=="short"){const n=S.m.short.filter(r=>r.s!="av").length;return{n,s:mgT("نواقص مفتوحة","Open shortages"),c:"amb"}}
+ if(k=="cm"){const l=(S.m.cm||[]).filter(r=>r.f.date>=lcl(ms).slice(0,10));return{n:l.length,s:mgT("خطأ كاشير هذا الشهر","Cashier mistakes this month"),x:l.length?mgT("الإجمالي: ","Total: ")+l.reduce((s,r)=>s+(+r.f.amt||0),0).toLocaleString("en-US",{maximumFractionDigits:2}):"",c:"red"}}
  if(k=="resv"){return{n:S.m.resv.filter(r=>r.s!="del").length,s:mgT("إيداعات جارية","Active deposits"),c:"grn"}}
  if(k=="ho"){return{n:S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length,s:TL("myHo"),c:"red"}}
  if(k=="tpl"){return{n:TPLS.length,s:mgT("نموذج جاهز","Ready templates"),c:"mut"}}
@@ -855,12 +856,12 @@ Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
-const SP=["c","t","m.short","m.resv","m.ho","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al"];
+const SP=["c","t","m.short","m.resv","m.ho","m.cm","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al"];
 const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
 const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
 const skey=p=>p.replace(".","_");
 const sstr=p=>{const v=sget(p);return JSON.stringify(v===undefined?null:v)};
-const hasData=()=>S.c.length||S.t.length||S.m.short.length||S.m.resv.length||S.m.ho.length;
+const hasData=()=>S.c.length||S.t.length||S.m.short.length||S.m.resv.length||S.m.ho.length||(S.m.cm||[]).length;
 const persist=()=>{try{localStorage.setItem("gian-crm3",JSON.stringify(S))}catch(e){}};
 const reU=()=>{nuApply();Object.entries(S.uo||{}).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)})};
 function setSt(s){if(DB.st!=s){DB.st=s;onlineUpd()}}
@@ -987,9 +988,9 @@ const pmBox=x=>`<div class="box" style="margin:0;padding:10px"><b>${TL("pmT")}</
 const pmRead=()=>({del:$("pm_del").checked,rep:$("pm_rep").checked,cls:$("pm_cls").checked});
 const pmSync=id=>{const r=$(id).value;$("pm_del").checked=$("pm_cls").checked=r=="owner";$("pm_rep").checked=r!="agent"};
 function alog(a,x){if(!S.al)S.al=[];S.al.push({d:Date.now(),u:me?me.u:"",a,x:x||""});if(S.al.length>500)S.al.splice(0,S.al.length-500)}
-const binSnap=()=>({t:[...S.t],c:[...S.c],short:[...S.m.short],resv:[...S.m.resv],ho:[...S.m.ho]});
+const binSnap=()=>({t:[...S.t],c:[...S.c],short:[...S.m.short],resv:[...S.m.resv],ho:[...S.m.ho],cm:[...(S.m.cm||[])]});
 function binDiff(sn){const add=(k,m,old,cur,lb)=>old.filter(x=>!cur.includes(x)).forEach(x=>{const l=lb(x);S.bin.push({id:S.n++,d:Date.now(),by:me.u,k,m,it:JSON.parse(JSON.stringify(x)),lb:l});alog("del",l)});
- add("t","",sn.t,S.t,x=>tkn(x)+" "+x.title);add("c","",sn.c,S.c,x=>x.name);["short","resv","ho"].forEach(m=>add("m",m,sn[m],S.m[m],x=>String(x.f[MOD[m].main]||"")))}
+ add("t","",sn.t,S.t,x=>tkn(x)+" "+x.title);add("c","",sn.c,S.c,x=>x.name);["short","resv","ho","cm"].forEach(m=>add("m",m,sn[m]||[],S.m[m]||[],x=>String(x.f[(MOD[m]||{main:"cashier"}).main]||"")))}
 function binV(a){const o=S.bin.length;S.bin=S.bin.filter(b=>Date.now()-b.d<30*day);if(S.bin.length!=o)save();
  a.innerHTML=`<div class="box"><h3>${TL("bin")} (${S.bin.length})</h3><p style="margin:0 0 8px;color:var(--mut);font-size:13px">${TL("binH")}</p>${[...S.bin].sort((x,y)=>y.d-x.d).map(b=>`<div class="tk cs"><span style="font-size:20px">${{t:"📋",c:"👤",m:"📁"}[b.k]}</span><div class="t">${esc(b.lb)}<small>${b.k=="m"?TL(b.m):b.k=="t"?TL("tk"):TL("cu")} • ${TL("by")}: ${esc(nm(b.by))} • ${fdt(b.d)} • ${Math.max(0,30-Math.floor((Date.now()-b.d)/day))} ${TL("binD")}</small></div><button class="btn gr s" data-br="${b.id}">${TL("restore")}</button><button class="btn g s dl" data-bp="${b.id}">${TL("del")}</button></div>`).join("")||`<div class="empty">${TL("empty")}</div>`}</div>`;
  a.querySelectorAll("[data-br]").forEach(b=>b.onclick=()=>{const i=S.bin.find(x=>x.id==b.dataset.br);if(!i)return;const it=i.it;
@@ -1501,7 +1502,7 @@ rep=function(a){_rhRep(a);if(rt!="tk")return;const r=a.querySelector(".row");if(
  $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()}};
 
 /* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
-try{const MGV="v12";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
+try{const MGV="v13";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
  .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
 /* ===== v9: warn before closing the page while still signed in ===== */
@@ -1510,6 +1511,60 @@ let mgWt=0;
 /* keep the screen awake while the app is open (Screen Wake Lock) */
 (function(){let wl=null;const req=async()=>{try{if(!wl&&navigator.wakeLock&&document.visibilityState=="visible"){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null})}}catch(e){wl=null}};
 document.addEventListener("visibilitychange",req);["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,req,{passive:true,capture:true}));setInterval(req,60000);req()})();
+/* ===== v13: Cashier Mistakes tab + Excel report (Branch column first) ===== */
+Object.assign(X.ar,{cm:"أخطاء الكاشير"});Object.assign(X.en,{cm:"Cashier Mistakes"});
+let cmq="",cmb="",cmf="",cmt="";
+const cmDay=()=>lcl(Date.now()).slice(0,10);
+const cmStore=b=>(RH.store&&RH.store[b])||b||"";
+function cmList(){if(!S.m.cm)S.m.cm=[];const q=cmq.trim().toLowerCase();
+ return S.m.cm.filter(r=>(!cmb||r.f.branch==cmb)&&(!cmf||r.f.date>=cmf)&&(!cmt||r.f.date<=cmt)&&(!q||JSON.stringify(r.f).toLowerCase().includes(q))).sort((x,y)=>(y.f.date||"").localeCompare(x.f.date||"")||y.d-x.d)}
+function cmV(a){
+ a.innerHTML=`<div class="row"><input id="cq" placeholder="${L("search")}" value="${esc(cmq)}"><select id="cb"><option value="">${mgT("كل الفروع","All branches")}</option>${BR.map(b=>`<option value="${b}" ${cmb==b?"selected":""}>${b}</option>`).join("")}</select>${lb(TL("fromD"))}<input type="date" id="cf" value="${cmf}"></label>${lb(TL("toD"))}<input type="date" id="ct" value="${cmt}"></label></div>
+ <div class="row"><button class="btn w" id="cn">+ ${mgT("تسجيل خطأ كاشير","Add cashier mistake")}</button><button class="btn gr" id="cx">📊 ${mgT("تحميل تقرير Excel","Download Excel report")}</button></div>
+ <div class="stats" id="cs"></div><div class="box" id="cl"></div>`;
+ const f=()=>{const l=cmList(),tot=l.reduce((s,r)=>s+(+r.f.amt||0),0);
+  $("cs").innerHTML=`<div class="st" style="--c:var(--red)"><b>${l.length}</b><span>${mgT("عدد الأخطاء","Mistakes")}</span></div><div class="st" style="--c:var(--amb)"><b>${tot.toLocaleString("en-US",{maximumFractionDigits:2})}</b><span>${mgT("إجمالي المبلغ","Total amount")}</span></div>`;
+  $("cl").innerHTML=l.map(r=>`<div class="tk" data-cm="${r.id}"><div class="t"><b>${esc(r.f.branch)}</b> • ${esc(r.f.cashier)}${r.f.reason?" • "+esc(r.f.reason):""}<small>${esc(r.f.date)}${r.f.sale?" • "+esc(r.f.sale):""}${r.f.terminal?" • "+esc(r.f.terminal):""}${r.f.otype?" • "+esc(r.f.otype):""} • ${TL("by")}: ${nm(r.ag)}</small></div><span class="tag prog">${esc(r.f.amt)}</span></div>`).join("")||`<div class="empty">${TL("empty")}</div>`;
+  $("cl").querySelectorAll("[data-cm]").forEach(e=>e.onclick=()=>cmForm(e.dataset.cm))};
+ $("cq").oninput=e=>{cmq=e.target.value;f()};$("cb").onchange=e=>{cmb=e.target.value;f()};$("cf").onchange=e=>{cmf=e.target.value;f()};$("ct").onchange=e=>{cmt=e.target.value;f()};
+ $("cn").onclick=()=>cmForm();$("cx").onclick=cmExport;f()}
+function cmOpts(k){return[...new Set(S.m.cm.map(r=>r.f[k]).filter(Boolean))].sort()}
+function cmForm(id){const r=id?S.m.cm.find(x=>x.id==id):null,f=r?r.f:{date:cmDay()};if(id&&!r)return;
+ const dl=k=>`<datalist id="dl_${k}">${cmOpts(k).map(v=>`<option value="${esc(v)}">`).join("")}</datalist>`,
+ inp=(k,l,t,li)=>`<label>${l}<input id="cm_${k}" type="${t||"text"}" value="${esc(f[k]??"")}" ${li?`list="dl_${k}" autocomplete="off"`:""}></label>${li?dl(k):""}`;
+ open(`<h2>${r?mgT("تعديل خطأ كاشير","Edit cashier mistake"):mgT("تسجيل خطأ كاشير","New cashier mistake")}</h2><div class="f" style="margin-top:10px">
+ <label>${TL("branch")}${sel("cm_branch",[["",TL("pickB")],...BR.map(b=>[b,b])],f.branch||"")}</label>
+ ${inp("date","Date","date")}${inp("cashier","Cashier ID")}${inp("sale","Sale Transaction No.")}${inp("terminal","Terminal No.","text",1)}${inp("reason","Reason","text",1)}${inp("otype","Order Type","text",1)}
+ <label>Details<textarea id="cm_det" rows="3">${esc(f.det||"")}</textarea></label>${inp("sv","Cashier Shift S.V","text",1)}${inp("amt","Total Mistake Amount","number")}${inp("cmt","Comment")}
+ <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button>${r&&can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+ $("x").onclick=close;
+ if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.cm=S.m.cm.filter(x=>x.id!=r.id)});
+ $("sv").onclick=()=>{const g=k=>$("cm_"+k).value.trim(),v={branch:g("branch"),date:g("date"),cashier:g("cashier"),sale:g("sale"),terminal:g("terminal"),reason:g("reason"),otype:g("otype"),det:g("det"),sv:g("sv"),amt:g("amt"),cmt:g("cmt")};
+  const bad=["branch","date","cashier","amt"].find(k=>!v[k]);if(bad){$("cm_"+bad).focus();$("cm_"+bad).style.borderColor="var(--red)";return}
+  alog("edit",TL("cm")+" "+v.cashier);
+  if(r)r.f=v;else S.m.cm.push({id:S.n++,ag:me.u,d:Date.now(),s:"new",f:v,notes:[]});
+  save();close();render()}}
+const CM_H=["Branch","Date","Cashier ID","Sale Transaction No.","Terminal No.","Reason","Order Type","Details","Cashier Shift S.V","Total Mistake Amount","Comment"],CM_W=[16,12,14,22,14,24,16,42,20,20,28];
+const CM_STY=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="d\\-m\\-yyyy"/></numFmts><fonts count="4"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><sz val="10"/><color rgb="FF000000"/><name val="Arial"/></font></fonts><fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFF0000"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFCE5CD"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF4CCCC"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FF000000"/></left><right style="thin"><color rgb="FF000000"/></right><top style="thin"><color rgb="FF000000"/></top><bottom style="thin"><color rgb="FF000000"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="9"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="164" fontId="3" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="4" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="4" fontId="3" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+function cmXlsx(list){const NS=Math.max(list.length,25),LAST=NS+2,rows=[];
+ rows.push(`<row r="1" ht="30" customHeight="1">${CM_H.map((h,i)=>mgS(1,i,i?"":"Cashier Mistakes",1)).join("")}</row>`);
+ rows.push(`<row r="2" ht="34" customHeight="1">${CM_H.map((h,i)=>mgS(2,i,h,2)).join("")}</row>`);
+ for(let i=0;i<NS;i++){const rn=i+3,p=i%2,x=list[i],f=x?x.f:{},t=3+p,dS=5+p,nS=7+p,pd=String(f.date||"").split("-").map(Number),
+  ser=pd.length==3&&pd[0]?mgSerial(new Date(pd[0],pd[1]-1,pd[2]).getTime()):"",am=f.amt!==undefined&&f.amt!==""&&!isNaN(+f.amt)?+f.amt:f.amt;
+  rows.push(`<row r="${rn}" ht="20" customHeight="1">${[mgS(rn,0,x?cmStore(f.branch):"",t),ser===""?mgS(rn,1,"",dS):mgN(rn,1,ser,dS),mgS(rn,2,f.cashier,t),mgS(rn,3,f.sale,t),mgS(rn,4,f.terminal,t),mgS(rn,5,f.reason,t),mgS(rn,6,f.otype,t),mgS(rn,7,f.det,t),mgS(rn,8,f.sv,t),typeof am=="number"?mgN(rn,9,am,nS):mgS(rn,9,am,nS),mgS(rn,10,f.cmt,t)].join("")}</row>`)}
+ const dv=(col,k)=>{const v=[...new Set(list.map(x=>x.f[k]).filter(s=>s&&!/[",]/.test(s)))],s=v.join(",");return v.length&&s.length<=250?`<dataValidation type="list" allowBlank="1" sqref="${col}3:${col}${LAST}"><formula1>${mgXe('"'+s+'"')}</formula1></dataValidation>`:""},
+ dvs=[dv("E","terminal"),dv("F","reason"),dv("G","otype"),dv("I","sv")].filter(Boolean);
+ const ws=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="2" topLeftCell="A3" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>${CM_W.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join("")}</cols><sheetData>${rows.join("")}</sheetData><autoFilter ref="A2:K${LAST}"/><mergeCells count="1"><mergeCell ref="A1:K1"/></mergeCells>${dvs.length?`<dataValidations count="${dvs.length}">${dvs.join("")}</dataValidations>`:""}</worksheet>`;
+ const R='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n',P="http://schemas.openxmlformats.org/";
+ return mgZip([["[Content_Types].xml",R+`<Types xmlns="${P}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`],
+ ["_rels/.rels",R+`<Relationships xmlns="${P}package/2006/relationships"><Relationship Id="rId1" Type="${P}officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ["xl/workbook.xml",R+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${P}officeDocument/2006/relationships"><sheets><sheet name="Cashier Mistakes" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">'Cashier Mistakes'!$A$2:$K$${LAST}</definedName></definedNames></workbook>`],
+ ["xl/_rels/workbook.xml.rels",R+`<Relationships xmlns="${P}package/2006/relationships"><Relationship Id="rId1" Type="${P}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="${P}officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+ ["xl/styles.xml",CM_STY],["xl/worksheets/sheet1.xml",ws]])}
+function cmExport(){const l=cmList().slice().sort((x,y)=>(x.f.date||"").localeCompare(y.f.date||"")||x.d-y.d);
+ if(!l.length){mgToast("📭",mgT("مفيش أخطاء للتصدير","Nothing to export"),"",[[mgT("تمام","OK"),()=>{}]]);return}
+ const lab=(cmb?cmStore(cmb):"ALL")+((cmf||cmt)?" "+(cmf||"…")+" to "+(cmt||"…"):"");
+ try{mgDownload("Cashier Mistakes - "+lab+".xlsx",cmXlsx(l))}catch(e){console.error(e);mgToast("⚠️",mgT("تعذر إنشاء الملف","Could not build the file"),String(e&&e.message||e),[[mgT("تمام","OK"),()=>{}]])}}
 render();dbInit();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
