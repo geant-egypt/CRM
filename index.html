@@ -304,6 +304,29 @@ body.wide .hw,body.wide .pgt,body.wide .onl,body.wide .top,body.wide .lt{max-wid
 body.wide .shell main{width:100%;max-width:none}
 body.wide .shell .cols{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
 }
+
+/* ===== Left menu toggle: icon-only button, slide + push animation ===== */
+.nvt{display:none}
+@media(min-width:641px){
+.nvt{display:inline-flex;align-items:center;justify-content:center;flex:none;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:#fff;color:var(--red);cursor:pointer;box-shadow:0 4px 12px #0004;transition:background-color .3s ease,color .3s ease,transform .15s ease}
+.nvt:hover{transform:scale(1.06)}
+.nvt:active{transform:scale(.94)}
+.nvt[aria-expanded=true]{background:var(--grn);color:#fff}
+.nvt .nvb{position:relative;display:block;width:22px;height:16px}
+.nvt .nvb i{position:absolute;left:0;top:0;width:100%;height:2.5px;border-radius:2px;background:currentColor;transition:transform .4s cubic-bezier(.32,.72,0,1),top .4s cubic-bezier(.32,.72,0,1),opacity .2s ease}
+.nvt .nvb i:nth-child(1){top:0}
+.nvt .nvb i:nth-child(2){top:6.75px}
+.nvt .nvb i:nth-child(3){top:13.5px}
+.nvt[aria-expanded=true] .nvb i:nth-child(1){top:6.75px;transform:rotate(45deg)}
+.nvt[aria-expanded=true] .nvb i:nth-child(2){opacity:0}
+.nvt[aria-expanded=true] .nvb i:nth-child(3){top:6.75px;transform:rotate(-45deg)}
+.shell{--gap:14px;overflow-x:clip}
+body.wide .shell{--gap:8px}
+.shell .nv{--nvw:176px;transition:margin-left .5s cubic-bezier(.32,.72,0,1),opacity .35s ease}
+.shell .nv.nv2{--nvw:clamp(260px,20vw,380px)}
+.shell.nvc .nv{margin-left:calc(-1*(var(--nvw) + var(--gap)));opacity:0;visibility:hidden;pointer-events:none;transition:margin-left .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,visibility 0s linear .5s}
+}
+@media (prefers-reduced-motion:reduce){.shell .nv,.shell.nvc .nv,.nvt,.nvt .nvb i{transition:none!important}}
 </style>
 </head>
 <body>
@@ -334,6 +357,9 @@ const U=[{u:"owner",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",r:"sup",
 let SBX=false;const TEST_IDS=["test","000000","0123456789"],isTU=u=>TEST_IDS.includes(String(u).toLowerCase());
 const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
+/* left side menu: closed by default, toggled with the icon button in the header */
+let navOpen=false,navAnim=false;
+function navToggle(){navOpen=!navOpen;const sh=document.querySelector(".shell"),bt=document.getElementById("nvt");if(sh)sh.classList.toggle("nvc",!navOpen);if(bt)bt.setAttribute("aria-expanded",String(navOpen))}
 try{lang=localStorage.getItem("g-lang")||"en"}catch(e){}
 const L=k=>D[lang][k],nm=u=>(U.find(x=>x.u==u)||{n:{ar:"—",en:"—"}}).n[lang];
 const seed=()=>{const T=["تأخر توصيل الطلب","فاتورة معدّلة","استفسار عن الضمان","منتج وصل تالف","استرجاع مبلغ","تعديل عنوان الشحن","مشكلة في الدفع","طلب كتالوج الأسعار","شكوى من معاملة","تفعيل الحساب"];
@@ -365,6 +391,7 @@ function render(){if(SBX&&!me){location.reload();return}
  document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
+  navOpen=navAnim=false;
   r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
@@ -381,10 +408,11 @@ function render(){if(SBX&&!me){location.reload();return}
  }
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="usr"&&me.r!="owner")view="tk";
  const tabs=["home","dash","tk","short","cm","svy","resv","ho","sch","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent"));if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell"><nav class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ r.innerHTML=`<header><div class="hw"><div class="br"><button type="button" class="nvt" id="nvt" aria-label="${mgT("القائمة","Menu")}" aria-controls="snav" aria-expanded="${navOpen||navAnim}"><span class="nvb" aria-hidden="true"><i></i><i></i><i></i></span></button><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div></header><h1 class="pgt" id="pgt">${TL(view)}</h1><div class="shell${navOpen||navAnim?"":" nvc"}"><nav id="snav" class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()?" ("+(S.ue.length+S.cl.length+tcN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
+  {const sh=r.querySelector(".shell"),bt=$("nvt");if(bt)bt.onclick=navToggle;if(sh&&navAnim){navAnim=false;void sh.offsetWidth;sh.classList.add("nvc");if(bt)bt.setAttribute("aria-expanded","false")}}
   $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
- r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});bindBN(tabs);
+ r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;if(navOpen){navOpen=false;navAnim=true}render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(view=="cm")cmV(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
  a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
