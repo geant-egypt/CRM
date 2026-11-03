@@ -629,7 +629,7 @@ function repRows(){const fr=rf?new Date(rf).setHours(0,0,0,0):0,to=rto?new Date(
  if(rt=="tk")return{H:[lang=="ar"?"رقم التكت":"Ticket #",TL("date"),L("cust"),L("phone"),TL("channel"),TL("branch"),L("title"),L("priority"),L("status"),TL("by"),TL("resAt")],R:S.t.filter(ok).map(t=>{const c=cu(t.cid);return{o:t,c:[tkn(t),dt(t.d),c.name,c.phone||"",CHL(t.ch),t.br||"",t.title,L(t.pr),L(t.s),nm(t.ag),t.r?dt(t.r):""]}})};
  if(rt=="short"){const z=n=>String(n).padStart(2,"0"),ts=d=>{const t=new Date(d);return (t.getMonth()+1)+"/"+t.getDate()+"/"+t.getFullYear()+" "+t.getHours()+":"+z(t.getMinutes())+":"+z(t.getSeconds())};
   return{H:["Branch","Timestamp","Name & Phone No.","What is the item Not Available?","Employee In charge","CS Employee"],R:S.m.short.filter(ok).map(r=>({o:r,c:[r.f.branch||"",ts(r.d),r.f.cnp||"",r.f.item||"",r.f.emp||"",nm(r.ag)]}))}}
- const M=MOD[rt];return{H:[TL("date"),TL("by"),L("status"),...M.f.map(x=>TL(x[0]))],R:S.m[rt].filter(ok).map(r=>({o:r,c:[dt(r.d),nm(r.ag),SL(r.s),...M.f.map(x=>String(fv(r,x)??""))]}))}}
+ const M=MOD[rt];return{H:[TL("date"),TL("by"),L("status"),...M.f.map(x=>fld(M,x[0]))],R:S.m[rt].filter(ok).map(r=>({o:r,c:[dt(r.d),nm(r.ag),SL(r.s),...M.f.map(x=>String(fv(r,x)??""))]}))}}
 function rep0(a){const{H,R}=repRows(),fin=rt=="tk"?"done":MOD[rt].st.slice(-1)[0],sts=rt=="tk"?["new","prog","done"]:MOD[rt].st,n=R.length,d=R.filter(x=>x.o.s==fin).length;
  const rs=rt=="tk"?R.filter(x=>x.o.r):[],av=rs.length?Math.round(rs.reduce((s,x)=>s+(x.o.r-x.o.d),0)/rs.length/hr):0;
  const grp=f=>{const m={};R.forEach(x=>{const k=f(x.o);m[k]=(m[k]||0)+1});return Object.entries(m).sort((p,q)=>q[1]-p[1])};
@@ -658,11 +658,11 @@ ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"],["due","
 Object.assign(X.ar,{cnp:"Name & Phone No. — اسم ورقم العميل",item:"What is the item Not Available? — ما هو المنتج الغير متوفر؟",emp:"Employee In charge — الموظف المسئول"});Object.assign(X.en,{cnp:"Name & Phone No. — اسم ورقم العميل",item:"What is the item Not Available? — ما هو المنتج الغير متوفر؟",emp:"Employee In charge — الموظف المسئول"});
 const dtf=v=>!v?"":String(v).length>10?fdt(new Date(v).getTime()):v;
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):x[1]=="dt"?dtf(v):v};
-const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div>${(()=>{const f=M.f.find(x=>x[1]=="cust");return f&&r.f[f[0]]?cb(cu(r.f[f[0]]).phone,1):""})()}<span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
+const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(fld(M,x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div>${(()=>{const f=M.f.find(x=>x[1]=="cust");return f&&r.f[f[0]]?cb(cu(r.f[f[0]]).phone,1):""})()}${M===MOD.resv?`<button class="btn" data-dpp="${r.id}" style="padding:4px 10px;margin-inline-end:6px">🖨 ${dpD("طباعة","Print")}</button>`:""}<span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
 function mod(a){const M=MOD[view];if(view=="resv")dpNums();let fq="",fst="";
  a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button></div><div class="box" id="lst"></div>`;
  const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&(JSON.stringify(r.f)+" #"+(r.no||"")+" "+(r.f.cust?cu(r.f.cust).name+" "+(cu(r.f.cust).phone||""):"")).includes(fq)).sort((x,y)=>y.d-x.d);
-  $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m))};
+  $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m));$("lst").querySelectorAll("[data-dpp]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const r=S.m.resv.find(x=>x.id==b.dataset.dpp);if(r)dpPrint(r)})};
  $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;if($("dpd"))$("dpd").onclick=()=>dlT("dep");f()}
 function mForm0(){const M=MOD[view];
  const inp=([i,t])=>`<label>${TL(i)}${t=="cust"?`<input id="f_${i}" placeholder="${L("name")}"></label><label>${L("phone")}<input id="f_${i}_p" inputmode="tel">`:t=="br"?sel("f_"+i,[["",TL("pickB")],...BR.map(b=>[b,b])],""):t=="agent"?sel("f_"+i,AG.map(g=>[g,nm(g)]),""):t=="area"?`<textarea id="f_${i}" rows="3"></textarea>`:`<input id="f_${i}" type="${t=="num"?"number":t=="date"?"date":t=="dt"?"datetime-local":"text"}">`}</label>`;
@@ -671,7 +671,7 @@ function mForm0(){const M=MOD[view];
   const nd=[...(M.need||[M.main])];if(M.f.some(x=>x[0]=="cust"))nd.push("cust");if(M.f.some(x=>x[0]=="branch"))nd.push("branch");const bd=nd.find(i=>!f[i]);if(bd){$("f_"+bd).focus();$("f_"+bd).style.borderColor="var(--red)";return}if("cust" in f)f.cust=getCust(f.cust,$("f_cust_p").value);
   S.m[view].push({id:S.n++,ag:me.u,d:Date.now(),s:M.st[0],f,notes:[]});save();close();render()}}
 function mView0(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
- open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${TL(x[0])}</small><div>${esc(fv(r,x))||"—"}</div>${x[1]=="cust"&&cu(r.f[x[0]]).phone?`<div>${esc(cu(r.f[x[0]]).phone)} ${cb(cu(r.f[x[0]]).phone)}</div>`:""}</div>`).join("")}
+ open(`<h2>${esc(r.f[M.main])}</h2><small style="color:var(--mut)">${nm(r.ag)} • ${fd(r.d)}</small><div class="f" style="margin-top:10px">${M.f.filter(x=>x[0]!=M.main).map(x=>`<div><small style="color:var(--mut)">${fld(M,x[0])}</small><div>${esc(fv(r,x))||"—"}</div>${x[1]=="cust"&&cu(r.f[x[0]]).phone?`<div>${esc(cu(r.f[x[0]]).phone)} ${cb(cu(r.f[x[0]]).phone)}</div>`:""}</div>`).join("")}
  <label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label><div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND(view,r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
  <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{alog("edit",TL(view)+" "+r.f[M.main]);r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
@@ -810,7 +810,7 @@ function caseFeed(a){const w=a.firstElementChild;if(!w)return;
  const o=[];["ho","resv"].forEach(k=>S.m[k].forEach(r=>o.push({k,r,at:caseAt(r)})));
  o.sort((x,y)=>(x.at||9e15)-(y.at||9e15)||y.r.d-x.r.d);const n=Date.now();
  w.insertAdjacentHTML("afterend",`<div class="box" id="csf"><h3>${TL("feed")}${o.length?" ("+o.length+")":""}</h3>${o.map(({k,r,at})=>{const M=MOD[k],late=at&&at<=n,
-  dl=M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&x[0]!="due"&&r.f[x[0]]).map(x=>esc(TL(x[0]))+": "+esc(fv(r,x))).join(" • ");
+  dl=M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&x[0]!="due"&&r.f[x[0]]).map(x=>esc(fld(M,x[0]))+": "+esc(fv(r,x))).join(" • ");
   return `<div class="tk cs" data-ov="${k}:${r.id}" style="cursor:pointer"><span style="font-size:20px">${caseIc[k]}</span><div class="t">${esc(r.f[M.main])}<small>${TL(k)} • ${dl} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small>${r.f.det?`<small>${esc(r.f.det)}</small>`:""}${at?`<small class="${late?"late":""}">⏰ ${fdt(at)}${late?" • "+TL("overdue"):""}</small>`:""}</div>${r.cl?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span>`:`<button class="btn gr s" data-cc="${k}:${r.id}">${TL("clCase")}</button>`}</div>`}).join("")||`<div class="empty">${TL("feedE")}</div>`}</div>`);
  a.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>caseClose(b.dataset.cc));a.querySelectorAll("#csf [data-ov]").forEach(e=>e.onclick=ev=>{if(ev.target.closest("[data-cc]"))return;const[k,id]=e.dataset.ov.split(":");dpOpen(k,id,view)})}
 function caseClose(key){const[k,id]=key.split(":"),r=S.m[k].find(x=>x.id==id);if(!r||r.cl)return;const ow=can("cls");
@@ -1159,7 +1159,7 @@ function mForm(ed){
 <label>${TL("cust")}<input id="d_c" value="${esc(r?c.name:"")}"></label>
 <label>${L("phone")}<input id="d_p" inputmode="tel" value="${esc(r?c.phone||"":"")}"></label>
 <label>${TL("branch")}${sel("d_br",[["",TL("pickB")],...BR.map(b=>[b,b])],r?r.f.branch:"")}</label>
-<label>${TL("due")}<input id="d_due" type="datetime-local" value="${esc(r&&r.f.due||"")}"></label>
+<label>${TL("dlvD")}<input id="d_due" type="datetime-local" value="${esc(r&&r.f.due||"")}"></label>
 <div><small style="color:var(--mut)">${dpD("المنتجات المحجوزة (الاسم / الكمية / القيمة)","Reserved items (name / qty / value)")}</small><div id="dpl" style="margin-top:6px"></div><button class="btn g s" type="button" id="d_add">+ ${dpD("إضافة منتج","Add item")}</button></div>
 <label>${TL("vpaid")}<input id="d_paid" type="number" min="0" value="${esc(r&&r.f.vpaid||"")}"></label>
 <div id="d_sum" style="font-size:15px"></div>
@@ -1188,7 +1188,7 @@ function mView(id){
  const dr=(k,v)=>`<div><small style="color:var(--mut)">${k}</small><div>${v||"—"}</div></div>`,td="padding:5px 8px;border:1px solid var(--bd,#ddd)";
  open(`<h2>#${r.no||""} ${esc(c.name)}</h2><small style="color:var(--mut)">${nm(r.ag)} · ${fdt(r.d)}</small>
 <div class="f" style="margin-top:10px">
-${dr(L("phone"),esc(c.phone||"")+" "+cb(c.phone))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("due"),esc(dtf(r.f.due)))}
+${dr(L("phone"),esc(c.phone||"")+" "+cb(c.phone))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("dlvD"),esc(dtf(r.f.due)))}
 <div><small style="color:var(--mut)">${dpD("المنتجات","Items")} (${it.length})</small><div class="scroll"><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr><th style="${td}">${TL("product")}</th><th style="${td}">${dpD("الكمية","Qty")}</th><th style="${td}">${dpD("القيمة","Value")}</th></tr>${it.map(x=>`<tr><td style="${td}">${esc(x.p)}</td><td style="${td}">${dpFm(x.q)}</td><td style="${td}">${dpFm(x.v)}</td></tr>`).join("")}</table></div></div>
 ${dr(TL("vtot"),dpFm(tot))}${dr(TL("vpaid"),dpFm(paid))}<div><small style="color:var(--mut)">${TL("vrem")}</small><div style="font-weight:700;color:${rem>0?"var(--red)":"var(--grn)"}">${dpFm(rem)}</div></div>
 ${r.cl?`<div><span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span></div>`:""}
@@ -1561,6 +1561,9 @@ rep=function(a){if(rt=="cm"){cmRepV(a);return}_rhRep(a);if(rt=="tk")tkRepDetails
  $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()}};
 
 
+/* ===== v16: Deposit "Due date" -> "Deliver date" (customer pickup / hand-over of the reserved product); Hand Over keeps "Due date" ===== */
+Object.assign(X.ar,{dlvD:"ميعاد الاستلام"});Object.assign(X.en,{dlvD:"Deliver date"});
+const fld=(M,k)=>k=="due"&&M===MOD.resv?TL("dlvD"):TL(k);
 /* ===== v15: Reports tab — Details button on each complaint + Cashier Mistakes report ===== */
 function tkRepDetails(a){const{R}=repRows(),tb=a.querySelector("table");if(!tb)return;const rows=[...tb.querySelectorAll("tr")];if(rows.length<2||!R.length)return;
  const dtl=mgT("تفاصيل","Details");
@@ -1584,7 +1587,7 @@ function cmRepV(a){if(!S.m.cm)S.m.cm=[];
  if($("cmx"))$("cmx").onclick=()=>{cmq="";cmb=rbr;cmf=rf;cmt=rto;cmExport()}}
 
 /* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
-try{const MGV="v15";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
+try{const MGV="v17";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
  .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
 /* ===== v9: warn before closing the page while still signed in ===== */
