@@ -601,7 +601,7 @@ function hubInfo(k){
  if(k=="cm"){const l=(S.m.cm||[]).filter(r=>r.f.date>=lcl(ms).slice(0,10));return{n:l.length,s:mgT("خطأ كاشير هذا الشهر","Cashier mistakes this month"),x:l.length?mgT("الإجمالي: ","Total: ")+l.reduce((s,r)=>s+(+r.f.amt||0),0).toLocaleString("en-US",{maximumFractionDigits:2}):"",c:"red"}}
  if(k=="resv"){return{n:S.m.resv.filter(r=>r.s!="del").length,s:mgT("إيداعات جارية","Active deposits"),c:"grn"}}
  if(k=="ho"){return{n:S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length,s:TL("myHo"),c:"red"}}
- if(k=="tpl"){return{n:TPLS.length,s:mgT("نموذج جاهز","Ready templates"),c:"mut"}}
+ if(k=="tpl"){return{n:tplAll().length,s:mgT("نموذج جاهز","Ready templates"),c:"mut"}}
  if(k=="cu"){return{n:S.c.length,s:mgT("عميل مسجل","Saved customers"),c:"grn"}}
  if(k=="rep"){return{n:S.t.filter(t=>t.d>=ms).length,s:mgT("شكوى هذا الشهر","Complaints this month"),c:"grn"}}
  if(k=="mgv"){const n=+((mgBadge().match(/\d+/)||[0])[0]);return{n,s:mgT("رسائل / مهام جديدة","New messages / tasks"),c:n?"amb":"red"}}
@@ -682,14 +682,14 @@ function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.ma
  <div class="box"><h3>${TL("pending")}</h3><div class="stats" style="grid-template-columns:repeat(2,1fr);margin:0">${[["short",["rep","ord"]],["resv",["res","rdy"]],["ho",["pend"]]].map(([k,s])=>`<div class="st" style="--c:var(--grn)"><b>${cnt(k,s)}</b><span>${TL(k)}</span></div>`).join("")}</div></div></div>`}
 let tq="";
 function b2u(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
-async function dlT(k){const t=TPLS.find(x=>x.k==k),u=b2u(TF[k]);let dl=null;try{dl=window.claude?await window.claude.use("downloads"):null}catch(e){}
+async function dlT(k){const t=tplAll().find(x=>x.k==k);if(!t)return;const u=b2u(tplData(k));let dl=null;try{dl=window.claude?await window.claude.use("downloads"):null}catch(e){}
  if(dl){try{await dl.save({filename:t.f,data:u})}catch(e){}return}
- const url=URL.createObjectURL(new Blob([u],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})),l=document.createElement("a");l.href=url;l.download=t.f;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function tplV(a){a.innerHTML=`<div class="box"><h3>${TL("tpl")}</h3><p style="margin:0 0 10px;color:var(--mut)">${TL("tplD")}</p><div class="row" style="margin:0"><input id="tq" placeholder="${TL("tsr")}" value="${esc(tq)}"></div></div><div class="cols" id="tg"></div>`;
- const f=()=>{const l=TPLS.filter(t=>(t.ar+" "+t.en).toLowerCase().includes(tq.toLowerCase()));
-  $("tg").innerHTML=l.map(t=>`<div class="box" style="display:flex;flex-direction:column;gap:10px;margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="tag done" style="flex:none">DOCX</span><b style="flex:1">${esc(lang=="ar"?t.ar:t.en)}</b></div><small style="color:var(--mut);direction:ltr;text-align:start">${esc(t.f)}</small><button class="btn gr" data-k="${t.k}" style="align-self:flex-start">⬇ ${TL("dl")}</button></div>`).join("")||`<div class="empty">${TL("empty")}</div>`;
-  $("tg").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>dlT(b.dataset.k))};
- $("tq").oninput=e=>{tq=e.target.value;f()};f()}
+ const url=URL.createObjectURL(new Blob([u],{type:t.m||"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})),l=document.createElement("a");l.href=url;l.download=t.f;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function tplV(a){a.innerHTML=`<div class="box"><h3>${TL("tpl")}</h3><p style="margin:0 0 10px;color:var(--mut)">${TL("tplD")}</p><div class="row" style="margin:0"><input id="tq" placeholder="${TL("tsr")}" value="${esc(tq)}">${me.r=="owner"?`<button class="btn gr" id="tup">⬆ ${mgT("رفع نموذج","Upload template")}</button><input type="file" id="tfile" accept=".docx,.doc,.pdf,.xlsx,.xls" style="display:none">`:""}</div></div><div class="cols" id="tg"></div>`;
+ const f=()=>{const l=tplAll().filter(t=>(t.ar+" "+t.en).toLowerCase().includes(tq.toLowerCase()));
+  $("tg").innerHTML=l.map(t=>`<div class="box" style="display:flex;flex-direction:column;gap:10px;margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="tag done" style="flex:none">${esc((t.f.split(".").pop()||"").toUpperCase())}</span><b style="flex:1">${esc(lang=="ar"?t.ar:t.en)}</b></div><small style="color:var(--mut);direction:ltr;text-align:start">${esc(t.f)}</small><div class="row" style="margin:0"><button class="btn gr" data-k="${t.k}">⬇ ${TL("dl")}</button>${me.r=="owner"?`<button class="btn g dl" data-tdel="${t.k}">🗑 ${TL("del")}</button>`:""}</div></div>`).join("")||`<div class="empty">${TL("empty")}</div>`;
+  $("tg").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>dlT(b.dataset.k));$("tg").querySelectorAll("[data-tdel]").forEach(b=>b.onclick=()=>tplDel(b.dataset.tdel))};
+ $("tq").oninput=e=>{tq=e.target.value;f()};f();tplUpBind()}
 const ownersAfter=(u,r)=>U.filter(x=>(x.u==u?r:x.r)=="owner").length;
 function applyU(u,ch){const x=U.find(a=>a.u==u);S.uo[u]=Object.assign(S.uo[u]||{},ch);Object.assign(x,ch)}
 function msg(t,h){open(`<h2>${h||""}</h2><p>${t}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("close")}</button></div>`);$("x").onclick=close}
@@ -915,7 +915,7 @@ Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
-const SP=["c","t","m.short","m.resv","m.ho","m.cm","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al"];
+const SP=["c","t","m.short","m.resv","m.ho","m.cm","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al","tp"];
 const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
 const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
 const skey=p=>p.replace(".","_");
@@ -1561,6 +1561,23 @@ rep=function(a){if(rt=="cm"){cmRepV(a);return}_rhRep(a);if(rt=="tk")tkRepDetails
  $("rm").onchange=e=>{const v=e.target.value;if(!v){rf="";rto=""}else{const[y,m]=v.split("-").map(Number);rf=v+"-01";rto=v+"-"+String(new Date(y,m,0).getDate()).padStart(2,"0")}render()}};
 
 
+/* ===== v18: Templates — owner can delete and upload templates (shared across devices) ===== */
+const tpS=()=>{const t=S.tp;if(!t||!Array.isArray(t.add)||!Array.isArray(t.del))S.tp={add:(t&&Array.isArray(t.add))?t.add:[],del:(t&&Array.isArray(t.del))?t.del:[]};return S.tp};
+const tplAll=()=>{const p=tpS();return[...TPLS.filter(t=>!p.del.includes(t.k)),...p.add]};
+const tplData=k=>{const u=tpS().add.find(x=>x.k==k);return u?u.b:TF[k]};
+function tplDel(k){if(!me||me.r!="owner")return;const t=tplAll().find(x=>x.k==k);if(!t)return;
+ open(`<h2>${TL("del")}</h2><p><b>${esc(lang=="ar"?t.ar:t.en)}</b></p><p>${mgT("هتمسح النموذج ده من عند كل المستخدمين؟","Delete this template for all users?")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="dy" style="background:var(--red2)">${TL("delYes")}</button></div>`);
+ $("x").onclick=close;$("dy").onclick=()=>{const p=tpS();if(p.add.some(x=>x.k==k))p.add=p.add.filter(x=>x.k!=k);else if(!p.del.includes(k))p.del.push(k);alog("del",TL("tpl")+" "+t.en);save();close();render()}}
+function tplUpBind(){const b=$("tup"),f=$("tfile");if(!b||!f)return;b.onclick=()=>f.click();
+ f.onchange=()=>{const file=f.files&&f.files[0];f.value="";if(!file)return;
+  if(file.size>1024*1024){msg(mgT("حجم الملف أكبر من 1 ميجا. صغّره وجرب تاني.","The file is larger than 1 MB. Make it smaller and try again."),mgT("الملف كبير","File too large"));return}
+  const rd=new FileReader();rd.onerror=()=>msg(mgT("تعذر قراءة الملف","Could not read the file"),"");
+  rd.onload=()=>{const b64=String(rd.result).split(",")[1]||"",base=file.name.replace(/\.[^.]+$/,"").replace(/[_]+/g," ");
+   open(`<h2>${mgT("رفع نموذج","Upload template")}</h2><small style="color:var(--mut);direction:ltr;display:block;margin-bottom:8px">${esc(file.name)}</small><div class="f"><label>${mgT("الاسم بالعربي","Name (Arabic)")}<input id="tp_ar" value="${esc(base)}"></label><label>${mgT("الاسم بالإنجليزي","Name (English)")}<input id="tp_en" value="${esc(base)}"></label><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${L("save")}</button></div></div>`);
+   $("x").onclick=close;$("sv").onclick=()=>{const ar=$("tp_ar").value.trim(),en=$("tp_en").value.trim();if(!ar&&!en){$("tp_ar").focus();return}
+    tpS().add.push({k:"u"+Date.now(),f:file.name,ar:ar||en,en:en||ar,b:b64,m:file.type||"",by:me.u,d:Date.now()});alog("new",TL("tpl")+" "+(en||ar));save();close();render()}};
+  rd.readAsDataURL(file)}}
+
 /* ===== v16: Deposit "Due date" -> "Deliver date" (customer pickup / hand-over of the reserved product); Hand Over keeps "Due date" ===== */
 Object.assign(X.ar,{dlvD:"ميعاد الاستلام"});Object.assign(X.en,{dlvD:"Deliver date"});
 const fld=(M,k)=>k=="due"&&M===MOD.resv?TL("dlvD"):TL(k);
@@ -1587,7 +1604,7 @@ function cmRepV(a){if(!S.m.cm)S.m.cm=[];
  if($("cmx"))$("cmx").onclick=()=>{cmq="";cmb=rbr;cmf=rf;cmt=rto;cmExport()}}
 
 /* one-time refresh of cached copies (old service worker / cache) when a new version is loaded */
-try{const MGV="v17";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
+try{const MGV="v18";if(localStorage.getItem("g-ver")!=MGV){localStorage.setItem("g-ver",MGV);
  Promise.resolve().then(()=>"serviceWorker" in navigator?navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))):0)
  .then(()=>window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))):0).then(()=>location.reload()).catch(()=>{})}}catch(e){}
 /* ===== v9: warn before closing the page while still signed in ===== */
