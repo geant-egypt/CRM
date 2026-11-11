@@ -1702,12 +1702,13 @@ function cmExport(){if(!me||me.r!="owner")return;const l=cmList().slice().sort((
  const lab=(cmb?cmStore(cmb):"ALL")+((cmf||cmt)?" "+(cmf||"…")+" to "+(cmt||"…"):"");
  try{mgDownload("Cashier Mistakes - "+lab+".xlsx",cmXlsx(l))}catch(e){console.error(e);mgToast("⚠️",mgT("تعذر إنشاء الملف","Could not build the file"),String(e&&e.message||e),[[mgT("تمام","OK"),()=>{}]])}}
 /* keep the login across refresh (per tab, cleared on logout / idle / tab close) */
-function sesSave(){try{if(me&&!SBX&&AUTH.rt)sessionStorage.setItem("g-me",JSON.stringify({rt:AUTH.rt,uid:AUTH.uid,la:lastAct,v:view}))}catch(e){}}
+function sesSave(){try{if(me&&!SBX&&AUTH.rt)sessionStorage.setItem("g-me",JSON.stringify({rt:AUTH.rt,uid:AUTH.uid,ts:Date.now(),v:view}))}catch(e){}}
 setInterval(sesSave,5000);addEventListener("pagehide",sesSave);
+const SES_MAX=60000;/* refresh within 1 minute keeps you logged in */
 async function sesRestore(){
  let d=null;try{d=JSON.parse(sessionStorage.getItem("g-me")||"null")}catch(e){}
  if(!d||!d.rt||!d.uid||me||SBX)return;
- if(Date.now()-(d.la||0)>IDLE){try{sessionStorage.removeItem("g-me")}catch(e){}return}
+ if(Date.now()-(d.ts||0)>SES_MAX){try{sessionStorage.removeItem("g-me")}catch(e){}return}
  const rt=$("root");if(rt)rt.style.visibility="hidden";
  try{
   AUTH.rt=d.rt;AUTH.uid=d.uid;AUTH.exp=0;AUTH.t="";
