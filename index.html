@@ -1377,27 +1377,33 @@ document.addEventListener("keydown",e=>{
  if(ov.classList.contains("on")||document.querySelector("#mgpop.on"))return;
  view="home";render()},true);
 /* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
-let _bkExit=false;const _bkTouch=matchMedia("(pointer:coarse)").matches;
+let _bkExit=false,_bkN=0,_bkT=0;const _bkTouch=matchMedia("(pointer:coarse)").matches;
 function bkHint(t){const h=document.createElement("div");h.textContent=t;h.style.cssText="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 18px;border-radius:22px;z-index:99;font-size:14px;text-align:center";document.body.appendChild(h);setTimeout(()=>h.remove(),3500)}
 function bkArm(){_bkExit=true;try{history.back()}catch(e){}bkHint(mgT("اضغط زر الرجوع للخروج","Press Back to exit"))}
 function bkAsk(){open(`<h2>${mgT("خروج من التطبيق","Close the app")}</h2><p style="margin:10px 0 0">${mgT("هل تريد إغلاق التطبيق؟","Do you want to close the app?")}</p><div class="row" style="margin:14px 0 0"><button class="btn" id="bky">${mgT("نعم","Yes")}</button><button class="btn g" id="bkn">${mgT("لا","No")}</button></div>`);
  $("bkn").onclick=close;$("bky").onclick=bkQuit}
 function bkQuit(){close();_bkExit=true;try{window.close()}catch(e){}
  setTimeout(()=>{try{history.back()}catch(e){}bkHint(mgT("اضغط زر الرجوع مرة تانية للخروج","Press Back once more to exit"))},350)}
+/* guard entry must be pushed from a real user gesture, otherwise Chrome skips it and Back leaves the app at once */
+function bkPush(){try{history.pushState({g:1},"")}catch(e){}}
+function bkGuard(){if(_bkTouch&&me&&!(history.state&&history.state.g)){bkPush();_bkExit=false;_bkN=0}}
 window.addEventListener("popstate",e=>{
  if(!_bkTouch||_bkExit||!me||(e.state&&e.state.g))return;
- try{history.pushState({g:1},"")}catch(x){}
  const o=$("ov");
- if(o&&o.classList.contains("on")){close();return}
- if(view!="home"){view="home";render();return}
- bkAsk()});
-document.addEventListener("pointerdown",()=>{if(_bkTouch&&_bkExit&&me){_bkExit=false;try{history.pushState({g:1},"")}catch(e){}}},true);
+ if(o&&o.classList.contains("on")){bkPush();close();return}
+ if(view!="home"){bkPush();view="home";render();return}
+ /* Home: 1st Back -> hint, 2nd Back -> hint, 3rd Back -> really exits */
+ clearTimeout(_bkT);_bkN++;
+ if(_bkN==1){bkPush();bkHint(mgT("اضغط زر الرجوع مرتين كمان للخروج","Press Back 2 more times to exit"))}
+ else if(_bkN==2){bkHint(mgT("اضغط زر الرجوع مرة كمان للخروج","Press Back once more to exit"))}
+ _bkT=setTimeout(()=>{_bkN=0;bkGuard()},4000)});
+document.addEventListener("pointerdown",()=>{if(_bkTouch&&me){if(_bkN)_bkN=0;bkGuard()}},true);
 
 /* tab-switch motion: only when the page (view) actually changes, never on background refreshes */
 let _anV=null;const _anRender=render;
 render=function(){_anRender.apply(this,arguments);
  if(!me){_anV=null;return}
- if(_bkTouch&&!(history.state&&history.state.g))try{history.pushState({g:1},"");_bkExit=false}catch(e){}
+ if(navigator.userActivation&&navigator.userActivation.isActive)bkGuard();
  const ch=_anV!==null&&_anV!==view;_anV=view;
  if(!ch)return;
  const a=$("app"),t=$("pgt");if(!a)return;
