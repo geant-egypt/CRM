@@ -1655,13 +1655,19 @@ function cmV(a){
  const f=()=>{const l=cmList(),tot=l.reduce((s,r)=>s+(+r.f.amt||0),0);
   $("cs").innerHTML=`<div class="st" style="--c:var(--red)"><b>${l.length}</b><span>${mgT("عدد الأخطاء","Mistakes")}</span></div><div class="st" style="--c:var(--amb)"><b>${tot.toLocaleString("en-US",{maximumFractionDigits:2})}</b><span>${mgT("إجمالي المبلغ","Total amount")}</span></div>`;
   $("cl").innerHTML=l.map(r=>`<div class="tk" data-cm="${r.id}"><div class="t"><b>${esc(r.f.branch)}</b> • ${esc(r.f.cashier)}${r.f.reason?" • "+esc(r.f.reason):""}<small>${esc(r.f.date)}${r.f.sale?" • "+esc(r.f.sale):""}${r.f.terminal?" • "+esc(r.f.terminal):""}${r.f.otype?" • "+esc(r.f.otype):""} • ${TL("by")}: ${nm(r.ag)}</small></div><span class="tag prog">${esc(r.f.amt)}</span></div>`).join("")||`<div class="empty">${TL("empty")}</div>`;
-  $("cl").querySelectorAll("[data-cm]").forEach(e=>e.onclick=()=>cmForm(e.dataset.cm))};
+  $("cl").querySelectorAll("[data-cm]").forEach(e=>e.onclick=()=>cmDet(e.dataset.cm))};
  $("cq").oninput=e=>{cmq=e.target.value;f()};$("cb").onchange=e=>{cmb=e.target.value;f()};$("cf").onchange=e=>{cmf=e.target.value;f()};$("ct").onchange=e=>{cmt=e.target.value;f()};
  $("cn").onclick=()=>cmForm();if($("cx"))$("cx").onclick=cmExport;f()}
 const CM_OT=["InStore","Home Delivery","Insta Shop","Talabat"],CM_REA=["Bad Attitude","Double Scan","Wrong Code Entire","Wrong Count","Wrong Tender"],
 CM_LISTS={REH:{terminal:["T201","T202","T203","T204","T205","T206","T251","T271","T281"],reason:CM_REA,sv:["Emad","Rania Reda","Omar"]},
 TRI:{terminal:["HD101","HD102","HD103","S1C1","T101","T102","T103","T104","T105","T106","T107","T108","T151","T161","T162","T171","T176","T180","T181","T182","T183","T184"],reason:CM_REA,sv:["Nader Abd El Fatah","Waled","Ayman","Ahmed Saleh"]}};
 function cmOpts(k){return[...new Set(S.m.cm.map(r=>r.f[k]).filter(Boolean))].sort()}
+function cmDet(id){const r=S.m.cm.find(x=>x.id==id);if(!r)return;const f=r.f,
+ row=(l,v)=>`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><b style="flex:0 0 42%;color:var(--mut);font-weight:600">${l}</b><span style="flex:1;word-break:break-word">${v?esc(v).replace(/\n/g,"<br>"):"—"}</span></div>`;
+ open(`<h2>${mgT("تفاصيل خطأ الكاشير","Cashier mistake details")}</h2><div style="margin-top:8px">
+ ${row(TL("branch"),f.branch)}${row("Date",f.date)}${row("Cashier ID",f.cashier)}${row("Sale Transaction No.",f.sale)}${row("Terminal No.",f.terminal)}${row("Reason",f.reason)}${row("Order Type",f.otype)}${row("Details",f.det)}${row("Cashier Shift S.V",f.sv)}${row("Total Mistake Amount",f.amt)}${row("Comment",f.cmt)}${row(TL("by"),nm(r.ag))}${row(mgT("وقت التسجيل","Recorded at"),fdt(r.d))}</div>
+ <div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="cme">${mgT("تعديل","Edit")}</button></div>`);
+ $("x").onclick=close;$("cme").onclick=()=>cmForm(id)}
 function cmForm(id){const r=id?S.m.cm.find(x=>x.id==id):null,f=r?r.f:{date:cmDay()};if(id&&!r)return;
  const dl=k=>`<datalist id="dl_${k}">${cmOpts(k).map(v=>`<option value="${esc(v)}">`).join("")}</datalist>`,
  inp=(k,l,t,li)=>`<label>${l}<input id="cm_${k}" type="${t||"text"}" value="${esc(f[k]??"")}" ${li?`list="dl_${k}" autocomplete="off"`:""}></label>${li?dl(k):""}`;
