@@ -488,7 +488,8 @@ function perfBox(){
  <td><div class="bar" style="width:80px;display:inline-flex"><i style="width:${x.rt}%;--c:var(--grn)"></i></div> ${x.rt}%</td><td>${x.av}</td></tr>`).join("")}</table></div></div>`;
 }
 function perf(a){a.innerHTML=perfBox()}
-const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>{ov.classList.remove("on");if(dpBack){const v=dpBack;dpBack=null;view=v;render()}};
+let cuBackId=null;
+const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>{ov.classList.remove("on");if(dpBack){const v=dpBack;dpBack=null;view=v;render()}if(cuBackId!=null){const i=cuBackId;cuBackId=null;view="cu";cuView(i)}};
 ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{if(e.key=="Escape")close()});
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
 function tkOpen(id){tkDetails(id)}
@@ -527,10 +528,10 @@ function cuForm(id){
   save();close();view="cu";render()};
 }
 function cuView(id){
- const c=cu(id),k=mine().filter(t=>t.cid==id);
+ cuBackId=null;const c=cu(id),k=mine().filter(t=>t.cid==id);
  open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}</div>`:""}${cuSum(id)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${k.map(t=>tkRow(t)).join("").replace(/<span class="cbi">.*?<\/span>/g,"")||`<div class="empty">${L("noTk")}</div>`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
- $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ ${cuHistHtml(id,k)}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};cuBind(id);
 }
 </script>
 <script>
@@ -551,6 +552,24 @@ function getCust(n,p){n=(n||"").trim();p=(p||"").trim();const pd=phNorm(p);
  if(!c&&n)c=S.c.find(x=>x.name==n&&(!pd||!phNorm(x.phone)));
  if(c){if(pd&&!phNorm(c.phone))c.phone=p;if(n&&!c.name)c.name=n}
  else{c={id:S.n++,name:n,phone:p,email:"",co:""};S.c.push(c)}return c.id}
+
+/* ===== customer history: complaints + deposits + missing items, each opens its Details ===== */
+function cuShorts(id){const c=cu(id),pd=phNorm(c.phone),nm0=(c.name||"").trim().toLowerCase();
+ return(S.m.short||[]).filter(r=>{const t=String(r.f&&r.f.cnp||""),td=phNorm(t);
+  if(pd&&pd.length>5&&td&&td.includes(pd))return true;
+  if(pd&&pd.length>5)return t.replace(/\D/g,"").includes(pd);
+  return nm0.length>2&&t.toLowerCase().includes(nm0)}).sort((x,y)=>y.d-x.d)}
+function cuHistHtml(id,k){
+ const hd=(t,n)=>`<h4 style="margin:12px 0 4px;font-size:14px;color:var(--red)">${t} (${n})</h4>`,
+  strip=h=>h.replace(/<span class="cbi">.*?<\/span>/g,""),
+  dps=S.m.resv.filter(r=>r.f&&r.f.cust==id).sort((x,y)=>y.d-x.d),sh=cuShorts(id),em=`<div class="empty">—</div>`;
+ return hd("💬 "+mgT("الشكاوى","Complaints"),k.length)+(k.map(t=>tkRow(t)).join("")?strip(k.map(t=>tkRow(t)).join("")):`<div class="empty">${L("noTk")}</div>`)
+  +hd("💰 "+TL("resv"),dps.length)+(dps.length?`<div data-k="resv">${strip(dps.map(r=>mrow(r,MOD.resv)).join(""))}</div>`:em)
+  +hd("📦 "+TL("short"),sh.length)+(sh.length?`<div data-k="short">${strip(sh.map(r=>mrow(r,MOD.short)).join(""))}</div>`:em)}
+function cuBind(id){
+ md.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>{cuBackId=id;tkOpen(e.dataset.t)});
+ md.querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>{const w=e.closest("[data-k]");if(!w)return;cuBackId=id;dpOpen(w.dataset.k,e.dataset.m,"cu")});
+ md.querySelectorAll("[data-dpp]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const r=S.m.resv.find(x=>x.id==b.dataset.dpp);if(r)dpPrint(r)})}
 function cuSum(id){const k=mine().filter(t=>t.cid==id),op=k.filter(t=>t.s!="done").length,dp=S.m.resv.filter(r=>r.f&&r.f.cust==id),
  ch=(t,c)=>`<span class="tag" style="--c:var(--${c});display:inline-block;margin:4px 0 0;margin-inline-end:4px">${t}</span>`;
  return`<div class="csum">${ch("💬 "+mgT("شكاوي","Complaints")+": "+k.length,"red")}${k.length?ch(mgT("مفتوحة","Open")+": "+op,op?"amb":"mut")+ch(mgT("مقفولة","Closed")+": "+(k.length-op),"grn"):""}${ch("💰 "+TL("resv")+": "+dp.length,"grn")}</div>`}
@@ -1199,7 +1218,7 @@ ${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""
 <label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>
 <div class="row" style="margin:0"><button class="btn" id="dpp">🖨 ${dpD("طباعة","Print")}</button><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;
- $("dpp").onclick=()=>dpPrint(r);$("dpe").onclick=()=>{const b=dpBack;dpBack=null;close();view="resv";mForm(r.id);dpBack=b};
+ $("dpp").onclick=()=>dpPrint(r);$("dpe").onclick=()=>{const b=dpBack,cb0=cuBackId;dpBack=null;cuBackId=null;close();view="resv";mForm(r.id);dpBack=b;cuBackId=cb0};
  if($("dpc"))$("dpc").onclick=()=>{close();caseClose("resv:"+r.id)};
  if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
  if($("dd"))$("dd").onclick=()=>dlT("dep");
