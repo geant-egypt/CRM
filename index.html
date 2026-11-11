@@ -1403,6 +1403,7 @@ document.addEventListener("pointerdown",()=>{if(_bkTouch&&me){if(_bkN)_bkN=0;bkG
 let _anV=null;const _anRender=render;
 render=function(){_anRender.apply(this,arguments);
  if(!me){_anV=null;return}
+ sesSave();
  if(navigator.userActivation&&navigator.userActivation.isActive)bkGuard();
  const ch=_anV!==null&&_anV!==view;_anV=view;
  if(!ch)return;
@@ -1700,7 +1701,27 @@ function cmExport(){if(!me||me.r!="owner")return;const l=cmList().slice().sort((
  if(!l.length){mgToast("📭",mgT("مفيش أخطاء للتصدير","Nothing to export"),"",[[mgT("تمام","OK"),()=>{}]]);return}
  const lab=(cmb?cmStore(cmb):"ALL")+((cmf||cmt)?" "+(cmf||"…")+" to "+(cmt||"…"):"");
  try{mgDownload("Cashier Mistakes - "+lab+".xlsx",cmXlsx(l))}catch(e){console.error(e);mgToast("⚠️",mgT("تعذر إنشاء الملف","Could not build the file"),String(e&&e.message||e),[[mgT("تمام","OK"),()=>{}]])}}
-render();dbInit();
+/* keep the login across refresh (per tab, cleared on logout / idle / tab close) */
+function sesSave(){try{if(me&&!SBX&&AUTH.rt)sessionStorage.setItem("g-me",JSON.stringify({rt:AUTH.rt,uid:AUTH.uid,la:lastAct,v:view}))}catch(e){}}
+setInterval(sesSave,5000);addEventListener("pagehide",sesSave);
+async function sesRestore(){
+ let d=null;try{d=JSON.parse(sessionStorage.getItem("g-me")||"null")}catch(e){}
+ if(!d||!d.rt||!d.uid||me||SBX)return;
+ if(Date.now()-(d.la||0)>IDLE){try{sessionStorage.removeItem("g-me")}catch(e){}return}
+ const rt=$("root");if(rt)rt.style.visibility="hidden";
+ try{
+  AUTH.rt=d.rt;AUTH.uid=d.uid;AUTH.exp=0;AUTH.t="";
+  await authTok();if(!AUTH.t)throw 0;
+  const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro||isTU(ro.u))throw 0;
+  if(!DB.es){DB.url=DBU;dbStream();kickStream()}
+  for(let i=0;i<40&&DB.first;i++)await new Promise(r=>setTimeout(r,150));
+  reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off||banLeft(x.u)>0)throw 0;
+  if(me)return;
+  (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
+  me=x;view=d.v||"home";lastAct=Date.now();render()
+ }catch(e){AUTH.t="";AUTH.rt="";AUTH.uid="";AUTH.exp=0;try{sessionStorage.removeItem("g-me")}catch(x){}}
+ finally{if(rt)rt.style.visibility=""}}
+render();dbInit();sesRestore();
 </script>
 <script>(function(){function f(){var h=document.querySelector("header");document.documentElement.style.setProperty("--hh",(h?h.offsetHeight:0)+"px")}addEventListener("resize",f);new MutationObserver(f).observe(document.getElementById("root"),{childList:true,subtree:true});addEventListener("load",f);f()})()</script>
 <script>function lgRect(){var i=document.querySelector(".lg img");if(!i)return null;var r=i.getBoundingClientRect();return r.width>10&&r.height>10?{l:r.left,t:r.top,w:r.width,h:r.height}:null}
