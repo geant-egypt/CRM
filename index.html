@@ -1129,7 +1129,7 @@ function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>{const q=+
 function dpReqClose(r){if(r.cl)return false;const c={id:S.n++,k:"resv",rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c);return true}
 function dpPrint(r){
  const rtl=lang=="ar",c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
- const COPIES=[dpD("نسخة العميل","Customer copy"),dpD("نسخة خدمة العملاء","Customer service copy"),dpD("نسخة الخزينة المركزية","Cash office copy")];
+ const COPIES=[dpD("نسخة العميل","Customer copy"),dpD("نسخة خدمة العملاء","Customer service copy"),dpD("نسخة القسم","Section copy")];
  const row=(k,v)=>`<tr><th>${k}</th><td>${v||"—"}</td></tr>`;
  const page=cp=>`<div class="pg">
 <div class="hd"><div class="tt"><h1>${esc(TL("resv"))} #${r.no||""}</h1><div class="sub">${esc(fdt(r.d))}</div></div><img src="${LOGO}" alt=""></div>
