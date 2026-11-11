@@ -438,7 +438,7 @@ function render(){if(SBX&&!me){location.reload();return}
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;if(navOpen&&!navPinned){navOpen=false;navAnim=true}render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(view=="cm")cmV(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
- a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t));
+ a.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkOpen(e.dataset.t));
  a.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c));
  if(S.un[me.u]){const k=S.un[me.u];a.insertAdjacentHTML("afterbegin",`<div class="box" style="border-inline-start:6px solid var(--${k=="ok"?"grn":"red"})"><div class="row" style="margin:0"><span>${TL(k=="ok"?"nOk":"nRej")}</span><button class="btn g s" id="nx">OK</button></div></div>`);$("nx").onclick=()=>{delete S.un[me.u];save();render()}}
 }
@@ -465,7 +465,7 @@ function tks(a){
  a.innerHTML=`<div class="row" id="chips">${["",...CH].map(c=>`<button class="btn s" data-ch="${c}" style="${fc==c?"background:var(--red);color:#fff":"background:#fff;color:var(--red);border:1px solid var(--red)"}">${c?CHL(c):TL("all")} (${mine().filter(t=>!c||t.ch==c).length})</button>`).join("")}</div><div class="row"><button class="btn" id="nw">+ ${L("newTk")}</button><input id="q" placeholder="${L("search")}" value="${esc(q)}"><select id="fs"><option value="">${L("allS")}</option>${["new","prog","done"].map(k=>`<option value="${k}" ${fs==k?"selected":""}>${L(k)}</option>`).join("")}</select>
  ${sup()?`<select id="fa"><option value="">${L("allA")}</option>${AG.map(g=>`<option value="${g}" ${fa==g?"selected":""}>${nm(g)}</option>`).join("")}</select>`:""}</div><div class="box" id="lst"></div>`;
  const f=()=>{const l=mine().filter(t=>(!fc||t.ch==fc)&&(!fs||t.s==fs)&&(!fa||t.ag==fa)&&(tkn(t)+" "+t.title+cu(t.cid).name+cu(t.cid).phone).toLowerCase().includes(q.toLowerCase())).sort((x,y)=>y.d-x.d);
-  $("lst").innerHTML=l.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`;$("lst").querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkView(e.dataset.t))};
+  $("lst").innerHTML=l.map(tkRow).join("")||`<div class="empty">${L("noTk")}</div>`;$("lst").querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>tkOpen(e.dataset.t))};
  $("q").oninput=e=>{q=e.target.value;f()};$("fs").onchange=e=>{fs=e.target.value;f()};if($("fa"))$("fa").onchange=e=>{fa=e.target.value;f()};f();$("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{fc=b.dataset.ch;render()});$("nw").onclick=tkForm;
 }
 let cuQ="";
@@ -491,6 +491,7 @@ function perf(a){a.innerHTML=perfBox()}
 const ov=$("ov"),md=$("md"),open=h=>{md.innerHTML=h;ov.classList.add("on")},close=()=>{ov.classList.remove("on");if(dpBack){const v=dpBack;dpBack=null;view=v;render()}};
 ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener("keydown",e=>{if(e.key=="Escape")close()});
 const sel=(id,o,v)=>`<select id="${id}">${o.map(([k,t])=>`<option value="${k}" ${v==k?"selected":""}>${t}</option>`).join("")}</select>`;
+function tkOpen(id){tkDetails(id)}
 function tkView(id){
  const t=S.t.find(x=>x.id==id),c=cu(t.cid);
  open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)} ${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:""}</h2><small style="color:var(--mut)">${esc(c.name)} • ${esc(c.phone)} • ${L("opened")} ${fd(t.d)}</small> ${cb(c.phone)}<div class="f" style="margin-top:12px"><div class="row" style="margin:0">
@@ -982,7 +983,7 @@ caseCheck=function(){_caseCheck2();if(!me||me.r!="owner")return;
   box.appendChild(el);beep(2)}})};
 
 /* full complaint details (owner + supervisors) */
-function tkDetails(id){if(!me||!sup())return;const t=S.t.find(x=>x.id==id);if(!t)return;const c=cu(t.cid);
+function tkDetails(id){if(!me)return;const t=S.t.find(x=>x.id==id);if(!t)return;const c=cu(t.cid);
  const row=(l,v)=>v?`<b>${l}</b><span>${v}</span>`:"";
  const st=t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span> <small style="color:var(--mut)">${TL("clBy")}: ${esc(nm(t.cr.by))} • ${fdt(t.cr.d)}</small>`:"";
  open(`<h2><span class="tno">${tkn(t)}</span>${esc(t.title)}</h2><div style="margin:6px 0">${vdTag(t)} <span class="tag ${t.s}">${L(t.s)}</span> <span class="tag ${t.pr}">${L(t.pr)}</span></div>
@@ -1586,7 +1587,7 @@ function tkRepDetails(a){const{R}=repRows(),tb=a.querySelector("table");if(!tb)r
  const dtl=mgT("تفاصيل","Details");
  rows[0].insertAdjacentHTML("beforeend",`<th>${dtl}</th>`);
  rows.slice(1).forEach((tr,i)=>{const x=R[i];if(x)tr.insertAdjacentHTML("beforeend",`<td><button class="btn" data-rd="${x.o.id}" style="padding:4px 12px">${dtl}</button></td>`)});
- tb.querySelectorAll("[data-rd]").forEach(b=>b.onclick=()=>tkView(b.dataset.rd))}
+ tb.querySelectorAll("[data-rd]").forEach(b=>b.onclick=()=>tkOpen(b.dataset.rd))}
 function cmRepV(a){if(!S.m.cm)S.m.cm=[];
  const lb=t=>`<label style="font-size:12px;color:var(--mut)">${t}`,
  l=S.m.cm.filter(r=>(!rbr||r.f.branch==rbr)&&(!rf||(r.f.date||"")>=rf)&&(!rto||(r.f.date||"")<=rto)).sort((x,y)=>(y.f.date||"").localeCompare(x.f.date||"")||y.d-x.d),
