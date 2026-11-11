@@ -1104,8 +1104,8 @@ MOD.resv.f=[["cust","cust"],["product","text"],["qty","num"],["branch","br"],["d
 function dpNums(){const l=S.m.resv.filter(r=>!r.no).sort((a,b)=>a.d-b.d||a.id-b.id);if(!l.length)return;let m=Math.max(0,...S.m.resv.map(r=>r.no||0));l.forEach(r=>r.no=++m);save()}
 function dpNext(){return Math.max(0,...S.m.resv.map(r=>r.no||0))+1}
 function dpItems(r){return r.items&&r.items.length?r.items:[{p:r.f.product||"",q:+r.f.qty||0,v:0}]}
-function dpRows(items){return items.map((it,i)=>`<div class="dpi" style="display:grid;grid-template-columns:2fr 1fr 1.3fr auto;gap:6px;margin-bottom:6px;align-items:center"><input class="ip" placeholder="${esc(TL("product"))}" value="${esc(it.p||"")}"><input class="iq" type="number" min="0" placeholder="${esc(dpD("الكمية","Qty"))}" value="${esc(it.q||"")}"><input class="iv" type="number" min="0" placeholder="${esc(dpD("القيمة","Value"))}" value="${esc(it.v||"")}"><button class="btn g s" type="button" data-rm="${i}">×</button></div>`).join("")}
-function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>({p:d.querySelector(".ip").value.trim(),q:+d.querySelector(".iq").value||0,v:+d.querySelector(".iv").value||0}))}
+function dpRows(items){return items.map((it,i)=>`<div class="dpi" style="display:grid;grid-template-columns:2fr .9fr 1.1fr 1.1fr auto;gap:6px;margin-bottom:6px;align-items:center"><input class="ip" placeholder="${esc(TL("product"))}" value="${esc(it.p||"")}"><input class="iq" type="number" min="0" placeholder="${esc(dpD("الكمية","Qty"))}" value="${esc(it.q||"")}"><input class="iu" type="number" min="0" step="any" placeholder="${esc(dpD("السعر","Price"))}" value="${esc(it.u||"")}"><input class="iv" type="number" readonly tabindex="-1" placeholder="${esc(dpD("القيمة","Value"))}" value="${esc(it.v||"")}" style="opacity:.85;font-weight:700"><button class="btn g s" type="button" data-rm="${i}">×</button></div>`).join("")}
+function dpRead(){return[...document.querySelectorAll(".dpi")].map(d=>{const q=+d.querySelector(".iq").value||0,u=+d.querySelector(".iu").value||0;return{p:d.querySelector(".ip").value.trim(),q:q,u:u,v:Math.round(q*u*100)/100}})}
 function dpReqClose(r){if(r.cl)return false;const c={id:S.n++,k:"resv",rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c);return true}
 function dpPrint(r){
  const rtl=lang=="ar",c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
@@ -1154,21 +1154,21 @@ function mForm(ed){
  if(view!="resv")return mForm0();
  dpNums();
  const r=(typeof ed=="number"||typeof ed=="string")?S.m.resv.find(x=>x.id==ed):null,c=r?cu(r.f.cust):{name:"",phone:""};
- let items=r?dpItems(r).map(x=>({...x})):[{p:"",q:1,v:""}];
+ let items=r?dpItems(r).map(x=>({...x,u:x.u!=null?x.u:(x.q?Math.round(x.v/x.q*100)/100:x.v)})):[{p:"",q:1,u:"",v:""}];
  open(`<h2>${r?dpD("تعديل حجز","Edit deposit")+" #"+r.no:TL("resv")}</h2><div class="f" style="margin-top:10px">
 <label>${TL("cust")}<input id="d_c" value="${esc(r?c.name:"")}"></label>
 <label>${L("phone")}<input id="d_p" inputmode="tel" value="${esc(r?c.phone||"":"")}"></label>
 <label>${TL("branch")}${sel("d_br",[["",TL("pickB")],...BR.map(b=>[b,b])],r?r.f.branch:"")}</label>
 <label>${TL("dlvD")}<input id="d_due" type="datetime-local" value="${esc(r&&r.f.due||"")}"></label>
-<div><small style="color:var(--mut)">${dpD("المنتجات المحجوزة (الاسم / الكمية / القيمة)","Reserved items (name / qty / value)")}</small><div id="dpl" style="margin-top:6px"></div><button class="btn g s" type="button" id="d_add">+ ${dpD("إضافة منتج","Add item")}</button></div>
+<div><small style="color:var(--mut)">${dpD("المنتجات المحجوزة (الاسم / الكمية / السعر / القيمة)","Reserved items (name / qty / price / value)")}</small><div id="dpl" style="margin-top:6px"></div><button class="btn g s" type="button" id="d_add">+ ${dpD("إضافة منتج","Add item")}</button></div>
 <label>${TL("vpaid")}<input id="d_paid" type="number" min="0" value="${esc(r&&r.f.vpaid||"")}"></label>
 <div id="d_sum" style="font-size:15px"></div>
 <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("save")}</button></div></div>`);
- const calc=()=>{const it=dpRead(),t=it.reduce((s,x)=>s+x.v,0),p=+$("d_paid").value||0;$("d_sum").innerHTML=`${dpD("الإجمالي","Total")}: <b>${dpFm(t)}</b> · ${dpD("المتبقي","Remaining")}: <b style="color:${t-p>0?"var(--red)":"var(--grn)"}">${dpFm(t-p)}</b>`};
+ const calc=()=>{const it=dpRead(),t=it.reduce((s,x)=>s+x.v,0),p=+$("d_paid").value||0;document.querySelectorAll(".dpi").forEach((d,i)=>{d.querySelector(".iv").value=it[i].v||""});$("d_sum").innerHTML=`${dpD("الإجمالي","Total")}: <b>${dpFm(t)}</b> · ${dpD("المتبقي","Remaining")}: <b style="color:${t-p>0?"var(--red)":"var(--grn)"}">${dpFm(t-p)}</b>`};
  const draw=()=>{$("dpl").innerHTML=dpRows(items);calc()};draw();
  $("dpl").oninput=calc;$("d_paid").oninput=calc;
- $("dpl").onclick=e=>{const b=e.target.closest("[data-rm]");if(!b)return;items=dpRead();items.splice(+b.dataset.rm,1);if(!items.length)items=[{p:"",q:1,v:""}];draw()};
- $("d_add").onclick=()=>{items=dpRead();items.push({p:"",q:1,v:""});draw()};
+ $("dpl").onclick=e=>{const b=e.target.closest("[data-rm]");if(!b)return;items=dpRead();items.splice(+b.dataset.rm,1);if(!items.length)items=[{p:"",q:1,u:"",v:""}];draw()};
+ $("d_add").onclick=()=>{items=dpRead();items.push({p:"",q:1,u:"",v:""});draw()};
  $("x").onclick=close;
  $("sv").onclick=()=>{
   const bad=id=>{$(id).focus();$(id).style.borderColor="var(--red)"};
