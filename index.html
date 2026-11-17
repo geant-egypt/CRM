@@ -421,7 +421,7 @@ function render(){if(SBX&&!me){location.reload();return}
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
-  const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=lv=="test"?"0123456789":(dv.length>=6?dv:lv),er=$("er");er.textContent="...";
+  const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=lv=="test"?"0123456789":(dv.length>=6?dv:lv.replace(/\s+/g," ")),er=$("er");er.textContent="...";
  try{await authIn(em(id),$("p").value);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
   if(isTU(ro.u))sbxEnter(ro.u);else if(!DB.es){DB.url=DBU;dbStream();kickStream()}
   for(let i=0;i<40&&DB.first&&!SBX;i++)await new Promise(r=>setTimeout(r,150));
@@ -937,8 +937,8 @@ addEventListener("storage",e=>{
 document.addEventListener("pointerdown",function f(){try{if("Notification" in window&&Notification.permission=="default")Notification.requestPermission()}catch(e){}document.removeEventListener("pointerdown",f)},{passive:true});
 
 /* ===== v6: shared data through Firebase Realtime Database (REST + live stream, no SDK) ===== */
-Object.assign(X.ar,{usr:"المستخدمين",addU:"إضافة مستخدم",uNm:"الاسم",uPw:"كلمة المرور",uNeed:"اكتب الاسم ورقم التليفون وكلمة المرور",uPh:"رقم التليفون غير صحيح",uDup:"رقم التليفون ده مستخدم قبل كده",uHint:"هيدخل برقم التليفون وكلمة المرور",uCreate:"إضافة",del:"حذف",delAsk:"هتحذف ده نهائيًا؟ مفيش رجوع.",delYes:"تأكيد الحذف",tkEdit:"تعديل",vd:"صلاحية الشكوى",vNone:"— غير محدد —",vOk:"Valid",vNo:"Not Valid",tcAsk:"هتقفل الشكوى دي؟ هتتبعت للمدير للموافقة.",tcAskO:"هتقفل الشكوى دي؟",tcReq:"طلبات قفل الشكاوى",tcClosed:"مقفولة",tcNew:"طلب قفل شكوى جديد",kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
-Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:"Enter name, phone and password",uPh:"Invalid phone number",uDup:"This phone number is already used",uHint:"Logs in with phone number and password",uCreate:"Add",del:"Delete",delAsk:"Delete this permanently? This cannot be undone.",delYes:"Yes, delete",tkEdit:"Edit",vd:"Validity",vNone:"— Not set —",vOk:"Valid",vNo:"Not Valid",tcAsk:"Close this case? It will be sent to the owner for approval.",tcAskO:"Close this case?",tcReq:"Complaint close requests",tcClosed:"Closed",tcNew:"New case close request",kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
+Object.assign(X.ar,{usr:"المستخدمين",addU:"إضافة مستخدم",uNm:"الاسم",uPw:"كلمة المرور",uNeed:"اكتب الاسم ورقم التليفون وكلمة المرور",uPh:"رقم التليفون غير صحيح",uDup:"الاسم ده مستخدم قبل كده",uHint:"هيدخل بالاسم (ثنائي أو أكتر) وكلمة المرور",uTwo:"اكتب الاسم ثنائي على الأقل",uCreate:"إضافة",del:"حذف",delAsk:"هتحذف ده نهائيًا؟ مفيش رجوع.",delYes:"تأكيد الحذف",tkEdit:"تعديل",vd:"صلاحية الشكوى",vNone:"— غير محدد —",vOk:"Valid",vNo:"Not Valid",tcAsk:"هتقفل الشكوى دي؟ هتتبعت للمدير للموافقة.",tcAskO:"هتقفل الشكوى دي؟",tcReq:"طلبات قفل الشكاوى",tcClosed:"مقفولة",tcNew:"طلب قفل شكوى جديد",kick:"خروج",kickAsk:"تسجيل خروج",banMsg:"تقدر تسجل دخول تاني بعد {s} ثانية",syOk:"متزامن",syWait:"جاري الاتصال",syErr:"غير متصل"});
+Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:"Enter name, phone and password",uPh:"Invalid phone number",uDup:"This name is already used",uHint:"Logs in with full name (2+ words) and password",uTwo:"Enter at least two names",uCreate:"Add",del:"Delete",delAsk:"Delete this permanently? This cannot be undone.",delYes:"Yes, delete",tkEdit:"Edit",vd:"Validity",vNone:"— Not set —",vOk:"Valid",vNo:"Not Valid",tcAsk:"Close this case? It will be sent to the owner for approval.",tcAskO:"Close this case?",tcReq:"Complaint close requests",tcClosed:"Closed",tcNew:"New case close request",kick:"Log out",kickAsk:"Log out",banMsg:"You can log in again in {s} seconds",syOk:"Synced",syWait:"Connecting",syErr:"Offline"});
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
@@ -1054,11 +1054,12 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
  if(!arr)return;const n=arr[+i];ownDel(()=>{const j=arr.indexOf(n);if(j>-1)arr.splice(j,1)})},true);
 function usrForm(){
  open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner"].map(k=>[k,L("role")[k]]),"agent")}</label>${pmBox({r:"agent"})}<small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
- $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),dg=ph.replace(/\D/g,"");
+ $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),pd=ph.replace(/\D/g,""),dg=nme.replace(/\s+/g," ").toLowerCase();
   if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
-  if(dg.length<6){er.textContent=TL("uPh");return}
+  if(dg.split(" ").length<2){er.textContent=TL("uTwo");return}
+  if(pd.length<6){er.textContent=TL("uPh");return}
   if(pw.length<6){er.textContent=TL("pShort");return}
-  if(U.some(x=>x.u==dg||String(x.ph||"").replace(/\D/g,"")==dg)){er.textContent=TL("uDup");return}
+  if(isTU(dg)||U.some(x=>String(x.u).replace(/\s+/g," ").toLowerCase()==dg)){er.textContent=TL("uDup");return}
   er.textContent="...";authCall("signUp",{email:em(dg),password:pw,returnSecureToken:false}).then(j=>fetch(DBU+"/roles/"+j.localId+".json",{method:"PUT",body:JSON.stringify({u:dg,r:rl})})).then(()=>{S.nu.push({u:dg,r:rl,n:{ar:nme,en:nme},ph,pm:pmRead()});alog("user","+ "+nme);nuApply();save();close();render()}).catch(e=>{er.textContent=(e&&e.error&&e.error.message=="EMAIL_EXISTS")?TL("uDup"):"Error"})}}
 
 document.addEventListener("scroll",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("nv"))window.__navY=t.scrollTop},true);
@@ -1107,7 +1108,7 @@ function sbxEnter(tu){SBX=true;if(DB.es){try{DB.es.close()}catch(e){}DB.es=null}
  b.style.cssText="position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:99999;background:#b45309;color:#fff;padding:5px 14px;border-radius:999px;font:600 12px system-ui,sans-serif;pointer-events:none;opacity:.92";
  document.body.appendChild(b)}
 const FBK="AIzaSyDXFZjntvRJdZ9ppDlLO1a-1UQ70gbLyvA",DBU="https://geant-cs-crm-default-rtdb.europe-west1.firebasedatabase.app",AUTH={t:"",rt:"",uid:"",exp:0},_fetch=window.fetch.bind(window),_ES=window.EventSource;
-const em=v=>v+"@geant-cs.app";
+const em=v=>(/^[a-z0-9._-]+$/.test(v)?v:"x"+[...v].map(c=>c.codePointAt(0).toString(16)).join("-"))+"@geant-cs.app";
 async function authCall(p,b){const r=await _fetch("https://identitytoolkit.googleapis.com/v1/accounts:"+p+"?key="+FBK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}),j=await r.json();if(!r.ok)throw j;return j}
 async function authIn(e,p){const j=await authCall("signInWithPassword",{email:e,password:p,returnSecureToken:true});AUTH.t=j.idToken;AUTH.rt=j.refreshToken;AUTH.uid=j.localId;AUTH.exp=Date.now()+j.expiresIn*1e3}
 async function authTok(){if(AUTH.rt&&Date.now()>AUTH.exp-6e4){try{const r=await _fetch("https://securetoken.googleapis.com/v1/token?key="+FBK,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+AUTH.rt}),j=await r.json();if(r.ok){AUTH.t=j.id_token;AUTH.rt=j.refresh_token;AUTH.exp=Date.now()+j.expires_in*1e3}}catch(e){}}return AUTH.t}
@@ -1464,7 +1465,7 @@ function swUser(){
  <div class="err" id="ser"></div></div>
  <div class="row" style="margin:12px 0 0"><button class="btn" id="sgo">${mgT("تبديل","Switch")}</button><button class="btn g" id="sx">${L("close")}</button></div>`);
  $("sx").onclick=close;$("su").focus();
- const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv,er=$("ser");
+ const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv.replace(/\s+/g," "),er=$("ser");
   if(!id||!$("sp").value){er.textContent=L("bad");return}
   er.textContent="...";const bak=Object.assign({},AUTH),fail=m=>{Object.assign(AUTH,bak);er.textContent=m||L("bad")};
   try{await authIn(em(id),$("sp").value);
