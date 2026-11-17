@@ -1736,9 +1736,9 @@ async function sesRestore(){
   me=x;view=d.v||"home";lastAct=Date.now();render()
  }catch(e){AUTH.t="";AUTH.rt="";AUTH.uid="";AUTH.exp=0;try{sessionStorage.removeItem("g-me")}catch(x){}}
  finally{if(rt)rt.style.visibility=""}}
-/* ===== Requests tab: annual leave / day off / unpaid leave / shift. Each week (Sat-Fri) closes the Wednesday before it at 12:00 PM Cairo time ===== */
+/* ===== Requests tab: annual leave / day off / unpaid leave / shift. Each week (Sun-Sat) closes the Wednesday before it at 12:00 PM Cairo time ===== */
 Object.assign(X.ar,{rq:"الطلبات"});Object.assign(X.en,{rq:"Requests"});
-const RQ_WK=6,RQ_H=12,RQI={al:"🏖️",off:"🛌",up:"💸",sh:"🕒"},RQ=()=>S.rq||(S.rq=[]),rqN=()=>RQ().filter(q=>q.s=="pend").length;
+const RQ_WK=0,RQ_BK=4,RQ_EM=24,RQ_H=12,RQI={al:"🏖️",off:"🛌",up:"💸",sh:"🕒"},RQ=()=>S.rq||(S.rq=[]),rqN=()=>RQ().filter(q=>q.s=="pend").length;
 const rqKL=k=>({al:mgT("إجازة سنوية","Annual leave"),off:mgT("أوف","Day off"),up:mgT("إجازة بدون مرتب","Unpaid leave"),sh:mgT("شفت معين","Specific shift")})[k];
 const rqSL=s=>s=="am"?mgT("صباحي: 8 ص – 5 م","Morning: 8:00 AM – 5:00 PM"):mgT("مسائي: 4 م – 1 ص","Evening: 4:00 PM – 1:00 AM");
 const rqT=s=>{const[y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d)};
@@ -1746,11 +1746,14 @@ const rqLoc=()=>lang=="ar"?"ar-EG":"en-GB";
 const rqD=s=>new Date(rqT(s)).toLocaleDateString(rqLoc(),{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
 const rqF=c=>new Date(c).toLocaleDateString(rqLoc(),{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"});
 const rqDays=q=>Math.round((rqT(q.b||q.a)-rqT(q.a))/day)+1;
-function rqInfo(q){if(q.k=="al"||q.k=="up")return rqD(q.a)+(q.b&&q.b!=q.a?" → "+rqD(q.b)+" • "+rqDays(q)+" "+mgT("يوم","days"):"");return rqD(q.a)+(q.k=="sh"?" • "+rqSL(q.sh):"")}
+function rqInfo(q){const e=q.em?" • 🚨 "+mgT("طارئ","Emergency"):"";if(q.k=="al"||q.k=="up")return rqD(q.a)+(q.b&&q.b!=q.a?" → "+rqD(q.b)+" • "+rqDays(q)+" "+mgT("يوم","days"):"")+e;return rqD(q.a)+(q.k=="sh"?" • "+rqSL(q.sh):"")+e}
 function rqWall(ms){const p={};new Intl.DateTimeFormat("en-US",{timeZone:"Africa/Cairo",hourCycle:"h23",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",second:"numeric"}).formatToParts(ms).forEach(x=>p[x.type]=+x.value);return Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second)}
-function rqCut(ds){const t=rqT(ds),off=(new Date(t).getUTCDay()-RQ_WK+7)%7;return t-off*day-3*day+RQ_H*hr}
-const rqOk=ds=>rqWall(Date.now())<rqCut(ds);
-function rqMin(){const t=rqWall(Date.now());for(let i=0;i<30;i++){const s=new Date(t+i*day).toISOString().slice(0,10);if(rqOk(s))return s}return""}
+function rqCut(ds){const t=rqT(ds),off=(new Date(t).getUTCDay()-RQ_WK+7)%7;return t-off*day-RQ_BK*day+RQ_H*hr}
+const rqOk=(ds,em)=>em?rqT(ds)-rqWall(Date.now())>=RQ_EM*hr:rqWall(Date.now())<rqCut(ds);
+function rqCd(){let x=Math.max(0,Math.floor((rqNext()-rqWall(Date.now()))/1000));const d=Math.floor(x/86400),h=Math.floor(x%86400/3600),m=Math.floor(x%3600/60),sc=x%60;
+ return (d?d+mgT(" يوم "," d "):"")+h+mgT(" ساعة "," h ")+m+mgT(" دقيقة "," m ")+sc+mgT(" ثانية"," s")+mgT(" متبقية"," left")}
+if(!window.rqTm)window.rqTm=setInterval(()=>{const e=document.getElementById("rqcd");if(e)e.textContent=rqCd()},1000);
+function rqMin(em){const t=rqWall(Date.now());for(let i=0;i<40;i++){const s=new Date(t+i*day).toISOString().slice(0,10);if(rqOk(s,em))return s}return""}
 function rqNext(){const w=rqWall(Date.now()),b=new Date(w);let c=Date.UTC(b.getUTCFullYear(),b.getUTCMonth(),b.getUTCDate(),RQ_H);c+=((3-b.getUTCDay()+7)%7)*day;if(c<=w)c+=7*day;return c}
 const rqTag=s=>`<span class="tag ${s=="ok"?"done":s=="rej"?"hi":"prog"}">${s=="ok"?mgT("تمت الموافقة","Approved"):s=="rej"?mgT("مرفوض","Rejected"):mgT("في الانتظار","Pending")}</span>`;
 let rqFl="all";
@@ -1764,18 +1767,20 @@ function rqAskDel(id){const q=RQ().find(x=>x.id==id);if(!q)return;if(me.r!="owne
  $("rqdn").onclick=close;$("rqdy").onclick=()=>{S.rq=RQ().filter(x=>x.id!=id);alog("edit",rqKL(q.k)+" "+nm(q.u)+" del");save();close();render()}}
 function rqBind(a){a.querySelectorAll("[data-rs]").forEach(b=>b.onclick=()=>{const p=b.dataset.rs.split(":");rqSet(p[0],p[1])});a.querySelectorAll("[data-rd]").forEach(b=>b.onclick=()=>rqAskDel(b.dataset.rd));a.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{rqFl=b.dataset.rf;render()})}
 const rqChips=()=>{const c=k=>k=="all"?RQ().length:RQ().filter(q=>q.s==k).length;return `<div class="row">${[["all",mgT("الكل","All")],["pend",mgT("في الانتظار","Pending")],["ok",mgT("تمت الموافقة","Approved")],["rej",mgT("مرفوض","Rejected")]].map(([k,t])=>`<button class="btn ${rqFl==k?"":"g "}s" data-rf="${k}">${t} (${c(k)})</button>`).join("")}</div>`};
-function rqV(a){const own=me.r!="owner",l=RQ().filter(q=>own?q.u==me.u:true).filter(q=>rqFl=="all"||q.s==rqFl).sort((x,y)=>y.d-x.d),nx=rqNext(),h=Math.max(0,Math.floor((nx-rqWall(Date.now()))/hr)),left=h<48?h+mgT(" ساعة متبقية"," hours left"):Math.floor(h/24)+mgT(" يوم متبقي"," days left");
- a.innerHTML=`<div class="box" style="border-inline-start:6px solid var(--amb)"><b>${mgT("آخر ميعاد للطلبات: ","Requests close: ")}${rqF(nx)} ${mgT("الساعة 12 ظهرًا","at 12:00 PM")} (${left})</b><div style="color:var(--mut);font-size:13px">${mgT("بتوقيت القاهرة، للأسبوع اللي بيبدأ ","Cairo time, for the week starting ")}${rqF(nx+3*day)}. ${mgT("الأسابيع الأبعد متاحة لحد الأربعاء اللي قبلها.","Later weeks stay open until the Wednesday before them.")}</div></div><div class="row"><button class="btn w" id="rqn">+ ${mgT("طلب جديد","New request")}</button></div>${rqChips()}<div class="box">${l.map(q=>rqRow(q,own)).join("")||`<div class="empty">${TL("empty")}</div>`}</div>`;
+function rqV(a){const own=me.r!="owner",l=RQ().filter(q=>own?q.u==me.u:true).filter(q=>rqFl=="all"||q.s==rqFl).sort((x,y)=>y.d-x.d),nx=rqNext();
+ a.innerHTML=`<div class="box" style="border-inline-start:6px solid var(--amb)"><b>${mgT("آخر ميعاد للطلبات: ","Requests close: ")}${rqF(nx)} ${mgT("الساعة 12 ظهرًا","at 12:00 PM")} (<span id="rqcd">${rqCd()}</span>)</b><div style="color:var(--mut);font-size:13px">${mgT("بتوقيت القاهرة، للأسبوع اللي بيبدأ ","Cairo time, for the week starting ")}${rqF(nx+RQ_BK*day)} (${mgT("الأسبوع من الأحد للسبت","week runs Sunday–Saturday")}). ${mgT("الأسابيع الأبعد متاحة لحد الأربعاء اللي قبلها. للظروف الطارئة: قبل اليوم المطلوب بـ 24 ساعة.","Later weeks stay open until the Wednesday before them. Emergencies: 24 hours before the day needed.")}</div></div><div class="row"><button class="btn w" id="rqn">+ ${mgT("طلب جديد","New request")}</button></div>${rqChips()}<div class="box">${l.map(q=>rqRow(q,own)).join("")||`<div class="empty">${TL("empty")}</div>`}</div>`;
  $("rqn").onclick=rqForm;rqBind(a)}
 function rqForm(){const mn=me.r=="owner"?"":rqMin();
- open(`<h2>${mgT("طلب جديد","New request")}</h2><div class="f" style="margin-top:10px"><label>${mgT("نوع الطلب","Request type")}${sel("rq_k",["al","off","up","sh"].map(k=>[k,rqKL(k)]),"al")}</label><label id="rq_la"><span>${mgT("من تاريخ","From date")}</span><input id="rq_a" type="date" min="${mn}"></label><label id="rq_lb">${mgT("إلى تاريخ","To date")}<input id="rq_b" type="date" min="${mn}"></label><label id="rq_ls">${mgT("الشفت","Shift")}${sel("rq_s",[["am",rqSL("am")],["pm",rqSL("pm")]],"am")}</label><label>${mgT("ملاحظات (اختياري)","Notes (optional)")}<textarea id="rq_n" rows="2"></textarea></label><div class="err" id="rq_e"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${mgT("إرسال","Send")}</button></div></div>`);
+ open(`<h2>${mgT("طلب جديد","New request")}</h2><div class="f" style="margin-top:10px"><label>${mgT("نوع الميعاد","Deadline type")}${sel("rq_t",[["w",mgT("أسبوعي","Weekly")],["e",mgT("ظرف طارئ (24 ساعة قبل اليوم)","Emergency (24h before the day)")]],"w")}</label><label>${mgT("نوع الطلب","Request type")}${sel("rq_k",["al","off","up","sh"].map(k=>[k,rqKL(k)]),"al")}</label><label id="rq_la"><span>${mgT("من تاريخ","From date")}</span><input id="rq_a" type="date" min="${mn}"></label><label id="rq_lb">${mgT("إلى تاريخ","To date")}<input id="rq_b" type="date" min="${mn}"></label><label id="rq_ls">${mgT("الشفت","Shift")}${sel("rq_s",[["am",rqSL("am")],["pm",rqSL("pm")]],"am")}</label><label>${mgT("ملاحظات (اختياري)","Notes (optional)")}<textarea id="rq_n" rows="2"></textarea></label><div class="err" id="rq_e"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${mgT("إرسال","Send")}</button></div></div>`);
  const tg=()=>{const k=$("rq_k").value,rg=k=="al"||k=="up";$("rq_lb").style.display=rg?"":"none";$("rq_ls").style.display=k=="sh"?"":"none";$("rq_la").firstChild.textContent=rg?mgT("من تاريخ","From date"):mgT("التاريخ","Date")};
  $("rq_k").onchange=tg;tg();$("x").onclick=close;
- $("sv").onclick=()=>{const k=$("rq_k").value,rg=k=="al"||k=="up",a1=$("rq_a").value,b1=rg?($("rq_b").value||a1):a1,er=$("rq_e");
+ $("rq_t").onchange=()=>{const m=me.r=="owner"?"":rqMin($("rq_t").value=="e");$("rq_a").min=m;$("rq_b").min=m};
+ $("sv").onclick=()=>{const k=$("rq_k").value,rg=k=="al"||k=="up",em=$("rq_t").value=="e",a1=$("rq_a").value,b1=rg?($("rq_b").value||a1):a1,er=$("rq_e");
   if(!a1){er.textContent=mgT("اختار التاريخ","Pick a date");return}
   if(b1<a1){er.textContent=mgT("تاريخ النهاية قبل البداية","The end date is before the start date");return}
-  if(me.r!="owner"&&!rqOk(a1)){er.textContent=mgT("ميعاد الطلبات لأسبوع التاريخ ده انتهى (الأربعاء 12 ظهرًا). اختار أسبوع بعده.","The deadline for that week has passed (Wednesday 12:00 PM). Pick a later week.");return}
-  const q={id:S.n++,u:me.u,k,a:a1,d:Date.now(),s:me.r=="owner"?"ok":"pend"},n=$("rq_n").value.trim();if(rg)q.b=b1;if(k=="sh")q.sh=$("rq_s").value;if(n)q.n=n;if(q.s=="ok")q.dec=q.d;
+  if(me.r!="owner"&&em&&!rqOk(a1,1)){er.textContent=mgT("الطلب الطارئ لازم يتقدم قبل اليوم المطلوب بـ 24 ساعة على الأقل.","An emergency request must be made at least 24 hours before the day needed.");return}
+  if(me.r!="owner"&&!em&&!rqOk(a1)){er.textContent=mgT("ميعاد الطلبات لأسبوع التاريخ ده انتهى (الأربعاء 12 ظهرًا). اختار أسبوع بعده.","The deadline for that week has passed (Wednesday 12:00 PM). Pick a later week.");return}
+  const q={id:S.n++,u:me.u,k,a:a1,d:Date.now(),s:me.r=="owner"?"ok":"pend"},n=$("rq_n").value.trim();if(em)q.em=1;if(rg)q.b=b1;if(k=="sh")q.sh=$("rq_s").value;if(n)q.n=n;if(q.s=="ok")q.dec=q.d;
   S.rq=RQ().filter(x=>x.s=="pend"||Date.now()-(x.dec||x.d)<90*day||rqT(x.b||x.a)>Date.now()-day);S.rq.push(q);alog("edit",rqKL(k)+" "+a1);save();close();render()}}
 function rqDec(id,s){const q=RQ().find(x=>x.id==id);if(!q||q.s!="pend")return;q.s=s;q.dec=Date.now();q.by=me.u;alog("edit",rqKL(q.k)+" "+nm(q.u)+" "+s);save();render()}
 const _aprV3=aprV;
