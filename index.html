@@ -539,11 +539,25 @@ function taxCard(c){
   ${nm?`<div style="position:absolute;top:40%;right:7%;left:7%;font-size:clamp(13px,3.4vw,17px);font-weight:800;line-height:1.4;text-shadow:0 1px 1px #ffffff99">${esc(nm)}</div>`:""}
   ${ein?`<div style="position:absolute;top:70%;right:7%;direction:ltr;font-size:clamp(14px,3.6vw,18px);font-weight:800;letter-spacing:1.5px;text-shadow:0 1px 1px #ffffff99">${esc(ein)}</div>`:""}
  </div>`;}
+const C128=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
+function einBar(t){
+ t=String(t||"").trim();if(!t)return"";
+ const cs=[104];for(let i=0;i<t.length;i++){const v=t.charCodeAt(i)-32;if(v>=0&&v<95)cs.push(v)}
+ let ck=cs[0];for(let i=1;i<cs.length;i++)ck+=cs[i]*i;
+ cs.push(ck%103,106);
+ let x=10,rs="";
+ cs.forEach(c=>{const p=C128[c];for(let i=0;i<p.length;i++){const w=+p[i];if(i%2==0)rs+=`<rect x="${x}" y="0" width="${w}" height="52"/>`;x+=w}});
+ const tw=x+10;
+ return `<div style="margin-top:8px;background:#fff;border-radius:10px;padding:10px 12px 6px;max-width:440px;text-align:center;box-shadow:0 2px 8px #0004"><svg viewBox="0 0 ${tw} 52" style="width:100%;height:62px;display:block" fill="#000" shape-rendering="crispEdges">${rs}</svg><div style="color:#111;font:700 13px/1.3 monospace;letter-spacing:3px;margin-top:4px;direction:ltr">${esc(t)}</div></div>`;
+}
 function cuView(id){
  cuBackId=null;const c=cu(id),k=mine().filter(t=>t.cid==id);
- open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}</div>`:""}${cuSum(id)}${taxCard(c)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px;align-items:center;flex-wrap:wrap">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}<button class="btn g s" id="ecp" style="margin-inline-start:6px">📋 ${mgT("نسخ","Copy")}</button><button class="btn g s" id="esh">📤 ${mgT("شير","Share")}</button></div>${einBar(c.einv)}`:""}${cuSum(id)}${taxCard(c)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
  ${cuHistHtml(id,k)}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
- $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};cuBind(id);
+ $("x").onclick=close;$("ced").onclick=()=>cuForm(id);
+ if($("ecp"))$("ecp").onclick=()=>{const b=$("ecp"),v=String(c.einv||"");(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).catch(()=>{const t=document.createElement("textarea");t.value=v;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()});b.textContent="✓ "+mgT("اتنسخ","Copied");setTimeout(()=>{b.textContent="📋 "+mgT("نسخ","Copy")},1500)};
+ if($("esh"))$("esh").onclick=()=>{const v=String(c.einv||""),nm0=(c.co||c.name||"").trim(),tx=(nm0?nm0+"\n":"")+"E-Invoice: "+v;if(navigator.share){navigator.share({title:"E-Invoice",text:tx}).catch(()=>{})}else window.open("https://wa.me/?text="+encodeURIComponent(tx),"_blank","noopener")};
+ if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};cuBind(id);
 }
 </script>
 <script>
