@@ -473,12 +473,12 @@ function tks(a){
 let cuQ="";
 function cuRow(c){const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small>${cuSum(c.id)}</div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}
 function cus(a){cuHeal();
- a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم","Search by name or phone")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
+ a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><button class="btn gr" id="ntx">📷 ${mgT("تصوير البطاقة الضريبية","Scan Tax Card")}</button><input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم","Search by name or phone")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
  {const m=S.c.filter(c=>c.miss).length;if(m)$("cusr").textContent=mgT("⚠ "+m+" عميل بياناتهم ناقصة (متعلمين بعلامة ⚠). افتح العميل واضغط تعديل واكتب الاسم والرقم.","⚠ "+m+" customers have missing details. Open one and tap Edit to add name and phone.")}
  const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),qr=qd.replace(/^0+/,""),l=S.c.filter(c=>{if(!q)return true;if((c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.co||"").toLowerCase().includes(q))return true;if(qd.length<3)return false;const pn=phNorm(c.phone);return pn.includes(qd)||(qr.length>2&&pn.includes(qr))}),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
   $("cul").innerHTML=sh.map(cuRow).join("")+(l.length>sh.length?`<div class="empty">${mgT("معروض","Showing")} ${sh.length} ${mgT("من","of")} ${l.length} — ${mgT("استخدم البحث","use search")}</div>`:"")||`<div class="empty">${L("noCu")}</div>`;
   $("cul").querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c))};
- $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();f();
+ $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();$("ntx").onclick=()=>taxScan(d=>cuForm(null,d));f();
  if($("cusy"))$("cusy").onclick=async()=>{const r=$("cusr");r.textContent="...";cuHeal();const x=await sheetSync(true);
   r.textContent=x==null?mgT("مقدرتش أقرا الشيت. اتأكد إنه متشارك Anyone with the link: Viewer","Could not read the sheet. Make sure it is shared as Anyone with the link: Viewer"):x.add?mgT("تمت إضافة "+x.add+" عميل جديد من الشيت","Added "+x.add+" new customers from the sheet"):mgT("مفيش عملاء جدد في الشيت","No new customers in the sheet");f()}
 }
@@ -513,12 +513,14 @@ function tkForm(){
  $("x").onclick=close;$("sv").onclick=()=>{if(!$("br").value){$("br").focus();$("br").style.borderColor="var(--red)";return}if(!$("ch").value){$("ch").focus();$("ch").style.borderColor="var(--red)";return}if(!$("c").value.trim()){$("c").focus();$("c").placeholder=L("fillN");$("c").style.borderColor="var(--red)";return}if(!$("ti").value.trim()){$("ti").focus();$("ti").placeholder=L("fill");$("ti").style.borderColor="var(--red)";return}
   const v=$("nt2").value.trim();alog("new",$("ti").value.trim());S.t.push({id:S.n++,no:++S.tn,br:$("br").value,ch:$("ch").value,cid:getCust($("c").value,$("cp").value),title:$("ti").value.trim(),pr:$("pr").value,s:"new",ag:$("ag").value,d:Date.now(),r:null,notes:v?[{t:v,d:Date.now()}]:[]});save();close();view="tk";render();tkView(S.t[S.t.length-1].id)};
 }
-function cuForm(id){
- const c=id!=null?cu(id):null,ed=!!c,em0=ed&&!sup();
- open(`<h2>${ed?mgT("تعديل بيانات العميل","Edit customer"):L("newCu")}</h2><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n" value="${ed?esc(c.name||""):""}"></label><label>${L("phone")}<input id="p" inputmode="tel" value="${ed?esc(c.phone||""):""}"></label>${em0?"":`<label>${L("email")}<input id="e" value="${ed?esc(c.email||""):""}"></label>`}<label>${L("co")}<input id="co" value="${ed?esc(c.co||""):""}"></label>
- <div>E-Invoice<div id="eib" style="display:flex;direction:ltr;gap:3px;margin-top:4px">${[0,1,2,3,4,5,6,7,8].map(i=>`<input class="eid" inputmode="numeric" autocomplete="off" maxlength="1" value="${ed&&c.einv?esc(String(c.einv)[i]||""):""}" aria-label="E-Invoice ${i+1}" style="flex:none;width:24px;height:32px;min-width:0;padding:0;border-radius:6px;text-align:center;font-weight:700;font-size:16px;line-height:1">`).join("")}</div></div>
+function cuForm(id,pre){
+ const c=id!=null?cu(id):null,ed=!!c,em0=ed&&!sup(),pv=pre||{};
+ const vName=ed?(c.name||""):(pv.name||""),vCo=ed?(c.co||""):(pv.co||""),vEin=ed?(c.einv||""):(pv.einv||"");
+ open(`<h2>${ed?mgT("تعديل بيانات العميل","Edit customer"):L("newCu")}</h2><div style="margin-top:8px"><button class="btn gr s" type="button" id="ctx">📷 ${mgT("قراءة من صورة البطاقة الضريبية","Fill from Tax Card photo")}</button></div><div class="f" style="margin-top:10px"><label>${L("name")}<input id="n" value="${esc(vName)}"></label><label>${L("phone")}<input id="p" inputmode="tel" value="${ed?esc(c.phone||""):""}"></label>${em0?"":`<label>${L("email")}<input id="e" value="${ed?esc(c.email||""):""}"></label>`}<label>${L("co")}<input id="co" value="${esc(vCo)}"></label>
+ <div>E-Invoice<div id="eib" style="display:flex;direction:ltr;gap:3px;margin-top:4px">${[0,1,2,3,4,5,6,7,8].map(i=>`<input class="eid" inputmode="numeric" autocomplete="off" maxlength="1" value="${vEin?esc(String(vEin)[i]||""):""}" aria-label="E-Invoice ${i+1}" style="flex:none;width:24px;height:32px;min-width:0;padding:0;border-radius:6px;text-align:center;font-weight:700;font-size:16px;line-height:1">`).join("")}</div></div>
  <div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="sv">${L("saveCu")}</button></div></div>`);
  const bx=[...md.querySelectorAll(".eid")],dg=t=>String(t||"").replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,"");
+ $("ctx").onclick=()=>taxScan(d=>cuForm(id,d));
  bx.forEach((b,i)=>{b.oninput=()=>{b.value=dg(b.value).slice(-1);b.style.borderColor="";if(b.value&&bx[i+1])bx[i+1].focus()};
   b.onkeydown=e=>{if(e.key=="Backspace"&&!b.value&&bx[i-1]){e.preventDefault();bx[i-1].value="";bx[i-1].focus()}};
   b.onpaste=e=>{e.preventDefault();const d=dg((e.clipboardData||window.clipboardData).getData("text")).slice(0,9);d.split("").forEach((ch,j)=>{if(bx[i+j])bx[i+j].value=ch});bx[Math.min(i+d.length,8)].focus()};
@@ -1140,6 +1142,24 @@ window.fetch=async(u,o)=>{if(SBX&&typeof u=="string"&&u.startsWith(DBU)&&((o&&o.
 window.EventSource=function(u){if(SBX&&typeof u=="string"&&u.startsWith(DBU))return{close(){},addEventListener(){}};return new _ES(AUTH.t&&u.startsWith(DBU)?u+(u.includes("?")?"&":"?")+"auth="+AUTH.t:u)};
 setInterval(()=>{if(AUTH.t&&DB.es)authTok().then(()=>{dbStream();kickStream()})},45*6e4);
 const ADMIN_URL="https://geant-admin.mbahaa1-mb.workers.dev";/* ضع هنا رابط الـ Cloudflare Worker بعد النشر */
+const TAX_OCR_URL="https://geant-tax-ocr.mbahaa1-mb.workers.dev";/* ضع هنا رابط الـ Cloudflare Worker الخاص بقراءة البطاقة الضريبية بعد النشر */
+function taxResize(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+ img.onload=()=>{URL.revokeObjectURL(u);const mx=1200;let w=img.width,h=img.height;if(w>mx||h>mx){if(w>=h){h=Math.round(h*mx/w);w=mx}else{w=Math.round(w*mx/h);h=mx}}
+  const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
+  res(cv.toDataURL("image/jpeg",0.82).split(",")[1])};
+ img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("img"))};img.src=u})}
+function taxScan(onDone){
+ if(!TAX_OCR_URL){msg(mgT("اربط رابط الـ Cloudflare Worker في متغير TAX_OCR_URL الأول.","Set TAX_OCR_URL in index.html first."),mgT("تصوير البطاقة الضريبية","Scan Tax Card"));return}
+ const inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.capture="environment";
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
+  open(`<h2>📷 ${mgT("جاري قراءة البطاقة الضريبية...","Reading Tax Card...")}</h2><p style="color:var(--mut)">${mgT("ثواني والبيانات هتتقرأ تلقائياً","Extracting details automatically...")}</p>`);
+  try{const b64=await taxResize(f);
+   const r=await _fetch(TAX_OCR_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:b64,mimeType:"image/jpeg"})});
+   const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||"OCR failed");
+   const einv=String(j.einv||"").replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,"").slice(0,9);
+   onDone({name:String(j.name||j.co||"").trim(),co:String(j.co||j.name||"").trim(),einv});
+  }catch(e){msg(mgT("مقدرتش أقرأ البطاقة، جرّب صورة أوضح أو اتأكد من النت.","Could not read the card. Try a clearer photo or check connection."),mgT("خطأ في القراءة","Scan error"))}};
+ inp.click()}
 async function adminCall(action,u,password){if(!ADMIN_URL)throw new Error(lang=="ar"?"الوسيط لسه مش متفعّل (ADMIN_URL فاضي)":"Admin worker is not configured");
  const r=await _fetch(ADMIN_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:await authTok(),action,u,password})}),j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Error");return j}
 function usrOff(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)return;const off=!x.off;
