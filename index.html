@@ -534,7 +534,7 @@ function taxCard(c){
  const e=String(c.einv||"").trim(),
   ein=e?e.replace(/(\d{3})(?=\d)/g,"$1-"):"",
   nm=(c.co||c.name||"").trim();
- if(!nm&&!ein)return "";
+ if(!ein)return "";
  return `<div dir="rtl" style="position:relative;margin-top:14px;width:100%;max-width:440px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px #0006;background:url('${TAXBG}') center/cover no-repeat;color:#1a1510;font-family:Cairo,Tahoma,sans-serif">
   ${nm?`<div style="position:absolute;top:40%;right:7%;left:7%;font-size:clamp(13px,3.4vw,17px);font-weight:800;line-height:1.4;text-shadow:0 1px 1px #ffffff99">${esc(nm)}</div>`:""}
   ${ein?`<div style="position:absolute;top:70%;right:7%;direction:ltr;font-size:clamp(14px,3.6vw,18px);font-weight:800;letter-spacing:1.5px;text-shadow:0 1px 1px #ffffff99">${esc(ein)}</div>`:""}
