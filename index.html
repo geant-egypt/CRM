@@ -529,9 +529,17 @@ function cuForm(id){
   if(ed){Object.assign(c,v);delete c.miss;alog("edit",mgT("عميل ","Customer ")+v.name)}else S.c.push(Object.assign({id:S.n++,email:""},v));
   save();close();view="cu";render()};
 }
+function taxCard(c){
+ const f=v=>v?esc(String(v)):"&nbsp;",e=String(c.einv||""),ein=e?e.replace(/(\d{3})(?=\d)/g,"$1-"):"",nm=c.co||c.name||"";
+ const ln=(l,v)=>`<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted #b9a77a;min-height:22px;margin-top:5px"><span style="color:#7a6a45;font-size:11px;white-space:nowrap">${l}</span><b style="flex:1;font-size:13px;color:#222">${f(v)}</b></div>`;
+ return `<div dir="rtl" style="margin-top:14px;border:1px solid #d8c48f;border-radius:12px;padding:12px 14px;background:linear-gradient(135deg,#fbf1d9,#f3e2b4);color:#222;max-width:420px">
+ <div style="text-align:center;font-weight:700;font-size:13px;line-height:1.6">جمهورية مصر العربية<br>وزارة المالية<br>مصلحة الضرائب المصرية</div>
+ ${ln("الشركة / الاسم",nm)}${ln("النشاط","")}${ln("العنوان","")}${ln("رقم التسجيل الضريبي",ein)}
+ <div style="display:flex;gap:8px;margin-top:5px"><div style="flex:1">${ln("رقم الملف","")}</div><div style="flex:1">${ln("تاريخ التسجيل","")}</div><div style="flex:1">${ln("تاريخ الانتهاء","")}</div></div>
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;direction:ltr"><div style="width:54px;height:54px;border:1px dashed #b9a77a;border-radius:4px"></div><div style="border-bottom:1px dotted #b9a77a;min-width:150px;min-height:20px;text-align:center;font-weight:700;letter-spacing:1px;direction:ltr">&nbsp;</div></div></div>`}
 function cuView(id){
  cuBackId=null;const c=cu(id),k=mine().filter(t=>t.cid==id);
- open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}</div>`:""}${cuSum(id)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}</div>`:""}${cuSum(id)}${taxCard(c)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
  ${cuHistHtml(id,k)}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
  $("x").onclick=close;$("ced").onclick=()=>cuForm(id);if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};cuBind(id);
 }
