@@ -471,14 +471,84 @@ function tks(a){
  $("q").oninput=e=>{q=e.target.value;f()};$("fs").onchange=e=>{fs=e.target.value;f()};if($("fa"))$("fa").onchange=e=>{fa=e.target.value;f()};f();$("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{fc=b.dataset.ch;render()});$("nw").onclick=tkForm;
 }
 let cuQ="";
-function cuRow(c){const k=mine().filter(t=>t.cid==c.id);return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${sup()&&c.email?" • "+esc(c.email):""}</small>${cuSum(c.id)}</div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}
+function cuRow(c){const k=mine().filter(t=>t.cid==c.id),ei=c.einv?String(c.einv).replace(/(\d{3})(?=\d)/g,"$1-"):"";return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${ei?" • E-Inv: "+esc(ei):""}${sup()&&c.email?" • "+esc(c.email):""}</small>${cuSum(c.id)}</div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}
+async function cuParseXlsx(buf){
+ const ps=mgUnzip(new Uint8Array(buf)),dec=new TextDecoder();
+ const readTxt=async p=>{if(!p)return"";const d=p.m==8?await mgPipe(p.d,DecompressionStream):p.d;return dec.decode(d)};
+ const ssTxt=await readTxt(ps.find(x=>x.n=="xl/sharedStrings.xml"));
+ const ss=[];
+ if(ssTxt){const doc=new DOMParser().parseFromString(ssTxt,"text/xml");doc.querySelectorAll("si").forEach(si=>{let t="";si.querySelectorAll("t").forEach(n=>t+=n.textContent||"");ss.push(t)})}
+ const sh=ps.find(x=>x.n=="xl/worksheets/sheet1.xml")||ps.find(x=>/^xl\/worksheets\/sheet\d+\.xml$/.test(x.n));
+ if(!sh)throw new Error("No worksheet found");
+ const sdoc=new DOMParser().parseFromString(await readTxt(sh),"text/xml"),rows=[];
+ const colIdx=r=>{let n=0,m=String(r||"").match(/^[A-Z]+/i);if(!m)return -1;for(const ch of m[0].toUpperCase())n=n*26+(ch.charCodeAt(0)-64);return n-1};
+ sdoc.querySelectorAll("sheetData > row").forEach(row=>{const arr=[];
+  row.querySelectorAll("c").forEach(c=>{const idx=colIdx(c.getAttribute("r")),t=c.getAttribute("t");let val="";
+   if(t=="s"){const v=c.querySelector("v");val=v?(ss[+v.textContent]||""):""}
+   else if(t=="inlineStr"){c.querySelectorAll("t").forEach(n=>val+=n.textContent||"")}
+   else{const v=c.querySelector("v");val=v?(v.textContent||""):""}
+   if(idx>=0)arr[idx]=val;else arr.push(val)});
+  if(arr.some(v=>String(v||"").trim()))rows.push(arr)});
+ return rows}
+function cuParseCsv(txt){
+ txt=String(txt||"").replace(/^\ufeff/,"");
+ const sep=(txt.split(/\r?\n/)[0]||"").includes(";")&&!(txt.split(/\r?\n/)[0]||"").includes(",")?";":",";
+ const rows=[];let row=[],cur="",q=false;
+ for(let i=0;i<txt.length;i++){const ch=txt[i];
+  if(q){if(ch=='"'&&txt[i+1]=='"'){cur+='"';i++}else if(ch=='"')q=false;else cur+=ch}
+  else{if(ch=='"')q=true;else if(ch==sep){row.push(cur);cur=""}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&txt[i+1]=='\n')i++;row.push(cur);if(row.some(v=>v.trim()))rows.push(row);row=[];cur=""}else cur+=ch}}
+ row.push(cur);if(row.some(v=>v.trim()))rows.push(row);return rows}
+function cuImport(onDone){
+ const inp=document.createElement("input");inp.type="file";inp.accept=".xlsx,.csv,.txt";
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
+  try{const rows=/\.xlsx$/i.test(f.name)?await cuParseXlsx(await f.arrayBuffer()):cuParseCsv(await f.text());
+   if(rows.length<2){msg(mgT("الملف فاضي أو مفيهوش بيانات.","The file is empty or has no data rows."),mgT("استيراد عملاء","Import customers"));return}
+   const hdr=rows[0].map(h=>String(h||"").trim().toLowerCase());
+   const findCol=re=>hdr.findIndex(h=>re.test(h));
+   let iName=findCol(/^(information|name|customer|cust|company|client|الاسم|اسم|الشركة|العميل|الممول)/i);
+   let iCo=findCol(/(company|co\b|سمة|شركة|الشركة)/i);
+   let iTax=findCol(/(register|tax|einv|e-inv|ضريب|تسجيل)/i);
+   let iPh=findCol(/(phone|mobile|tel|موبايل|تليفون|هاتف|رقم الهاتف)/i);
+   let iEm=findCol(/(email|mail|بريد|ايميل)/i);
+   if(iName<0)iName=0;if(iTax<0&&hdr.length>=2&&iPh<0)iTax=1;
+   const dg=t=>String(t||"").replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).replace(/\D/g,"");
+   const toAdd=[],toUpd=[],dups=[],bad=[],seenTax=new Set(),seenPh=new Set(),seenNm=new Set();
+   rows.slice(1).forEach(r=>{
+    const name=String(r[iName]||"").trim(),co=iCo>=0?String(r[iCo]||"").trim():name,ph=iPh>=0?String(r[iPh]||"").trim():"",em=iEm>=0?String(r[iEm]||"").trim():"",rawTax=iTax>=0?dg(r[iTax]):"";
+    if(!name&&!rawTax&&!ph)return;
+    if(iTax>=0&&rawTax&&rawTax.length!=9){bad.push({name:name||"—",tax:rawTax});return}
+    const einv=rawTax.length==9?rawTax:"",phn=phNorm(ph),nml=name.toLowerCase();
+    if((einv&&seenTax.has(einv))||(phn.length>=7&&seenPh.has(phn))||(!einv&&!phn&&nml&&seenNm.has(nml))){dups.push({name:name||co,tax:einv});return}
+    if(einv)seenTax.add(einv);if(phn.length>=7)seenPh.add(phn);if(nml)seenNm.add(nml);
+    const ex=S.c.find(c=>(einv&&c.einv==einv)||(phn.length>=7&&phNorm(c.phone)==phn)||(nml&&(c.name||"").trim().toLowerCase()==nml));
+    if(ex){const patch={};if(einv&&!ex.einv)patch.einv=einv;if(co&&!ex.co)patch.co=co;if(ph&&!phNorm(ex.phone))patch.phone=ph;if(em&&!ex.email)patch.email=em;
+     if(Object.keys(patch).length)toUpd.push({ex,patch});else dups.push({name:name||co,tax:einv})}
+    else toAdd.push({name:name||co,phone:ph,email:em,co:co||name,einv,src:"excel"})});
+   open(`<h2>📥 ${mgT("معاينة استيراد العملاء","Customer Import Preview")}</h2>
+   <div class="f" style="margin-top:10px;gap:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+     <div class="st" style="--c:var(--grn);margin:0"><b>${toAdd.length}</b><span>${mgT("عميل جديد هيُضاف","New customers")}</span></div>
+     <div class="st" style="--c:var(--amb);margin:0"><b>${toUpd.length}</b><span>${mgT("تحديث بيانات ناقصة","Will be updated")}</span></div>
+    </div>
+    <small style="color:var(--mut)">${mgT("مكرر (تم تجاهله)","Duplicates skipped")}: <b>${dups.length}</b> • ${mgT("أرقام ضريبية غير صالحة (تم تجاهلها)","Invalid tax IDs skipped")}: <b>${bad.length}</b></small>
+    ${bad.length?`<div style="background:#2f1b21;border-radius:10px;padding:8px 10px;font-size:12px;max-height:90px;overflow:auto"><b style="color:var(--amb)">⚠ ${mgT("صفوف غير مكتملة / تجريبية:","Skipped invalid rows:")}</b><br>${bad.slice(0,15).map(b=>`${esc(b.name)} (${esc(b.tax)})`).join(" • ")}</div>`:""}
+    <div class="row" style="margin:6px 0 0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="go" ${!toAdd.length&&!toUpd.length?"disabled":""}>✓ ${mgT("تأكيد الاستيراد","Confirm Import")}</button></div>
+   </div>`);
+   $("x").onclick=close;
+   $("go").onclick=()=>{
+    toAdd.forEach(c=>S.c.push(Object.assign({id:S.n++},c)));
+    toUpd.forEach(({ex,patch})=>{Object.assign(ex,patch);delete ex.miss});
+    alog("edit",mgT("استيراد عملاء: +"+toAdd.length+" / تحديث "+toUpd.length,"Imported customers: +"+toAdd.length+" / updated "+toUpd.length));
+    save();close();if(onDone)onDone();render()}}
+  catch(e){console.error(e);msg(mgT("تعذر قراءة الملف. اتأكد إنه ملف Excel (.xlsx) أو CSV سليم.","Could not read the file. Make sure it is a valid Excel (.xlsx) or CSV file."),mgT("خطأ في الاستيراد","Import error"))}};
+ inp.click()}
 function cus(a){cuHeal();
- a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><button class="btn gr" id="ntx">📷 ${mgT("تصوير البطاقة الضريبية","Scan Tax Card")}</button><input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم","Search by name or phone")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
+ a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><button class="btn gr" id="ntx">📷 ${mgT("تصوير البطاقة الضريبية","Scan Tax Card")}</button>${me.r=="owner"?`<button class="btn g" id="cuim">⬆ ${mgT("استيراد Excel","Import Excel")}</button>`:""}<input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم أو الضريبي","Search by name, phone or tax ID")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
  {const m=S.c.filter(c=>c.miss).length;if(m)$("cusr").textContent=mgT("⚠ "+m+" عميل بياناتهم ناقصة (متعلمين بعلامة ⚠). افتح العميل واضغط تعديل واكتب الاسم والرقم.","⚠ "+m+" customers have missing details. Open one and tap Edit to add name and phone.")}
- const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),qr=qd.replace(/^0+/,""),l=S.c.filter(c=>{if(!q)return true;if((c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.co||"").toLowerCase().includes(q))return true;if(qd.length<3)return false;const pn=phNorm(c.phone);return pn.includes(qd)||(qr.length>2&&pn.includes(qr))}),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
+ const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),qr=qd.replace(/^0+/,""),qt=q.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,""),l=S.c.filter(c=>{if(!q)return true;if((c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.co||"").toLowerCase().includes(q))return true;if(qt.length>=3&&String(c.einv||"").includes(qt))return true;if(qd.length<3)return false;const pn=phNorm(c.phone);return pn.includes(qd)||(qr.length>2&&pn.includes(qr))}),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
   $("cul").innerHTML=sh.map(cuRow).join("")+(l.length>sh.length?`<div class="empty">${mgT("معروض","Showing")} ${sh.length} ${mgT("من","of")} ${l.length} — ${mgT("استخدم البحث","use search")}</div>`:"")||`<div class="empty">${L("noCu")}</div>`;
   $("cul").querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c))};
- $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();$("ntx").onclick=()=>taxScan(d=>cuForm(null,d));f();
+ $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();$("ntx").onclick=()=>taxScan(d=>cuForm(null,d));if($("cuim"))$("cuim").onclick=()=>cuImport(f);f();
  if($("cusy"))$("cusy").onclick=async()=>{const r=$("cusr");r.textContent="...";cuHeal();const x=await sheetSync(true);
   r.textContent=x==null?mgT("مقدرتش أقرا الشيت. اتأكد إنه متشارك Anyone with the link: Viewer","Could not read the sheet. Make sure it is shared as Anyone with the link: Viewer"):x.add?mgT("تمت إضافة "+x.add+" عميل جديد من الشيت","Added "+x.add+" new customers from the sheet"):mgT("مفيش عملاء جدد في الشيت","No new customers in the sheet");f()}
 }
