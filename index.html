@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Géant – Customer Service Department</title>
+<title>Géant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap"></noscript>
@@ -361,7 +361,7 @@ late:"متأخرة (+2 يوم)",total:"إجمالي التذاكر",rate:"معد
 status:"الحالة",assignee:"المسؤول",priority:"الأولوية",notes:"الملاحظات",noNote:"لا توجد ملاحظات بعد",addNote:"ملاحظة جديدة",save:"حفظ التغييرات",close:"إغلاق",cancel:"إلغاء",create:"إضافة الشكوى",saveCu:"حفظ العميل",
 search:"ابحث بعنوان التذكرة أو اسم العميل",allS:"كل الحالات",allA:"كل الموظفين",noTk:"لا توجد تذاكر مطابقة. جرّب تغيير البحث أو أضف تذكرة جديدة.",noCu:"لا يوجد عملاء. أضف أول عميل.",
 cust:"اسم العميل",title:"عنوان المشكلة",det:"التفاصيل",name:"الاسم",phone:"رقم الموبايل",email:"البريد الإلكتروني",co:"الشركة",ind:"فرد",hist:"سجل التذاكر",ticketsN:n=>n+" تذكرة",
-opened:"فُتحت",resolved:"تم حلها",open:"مفتوحة",avg:"متوسط وقت الحل (ساعة)",mine:"أنت ترى تذاكرك فقط",role:{owner:"المدير",sup:"مشرف",agent:"موظف"},
+opened:"فُتحت",resolved:"تم حلها",open:"مفتوحة",avg:"متوسط وقت الحل (ساعة)",mine:"أنت ترى تذاكرك فقط",role:{owner:"المدير",sup:"مشرف",agent:"موظف",cco:"كاشير (CCO)"},
 i_rate:(r,t)=>`تم حل ${r}% من التذاكر (${t} تذكرة).`,i_late:n=>n?`يوجد ${n} تذكرة متأخرة وتحتاج تدخّل.`:"لا توجد تذاكر متأخرة.",i_hi:n=>n?`${n} تذكرة عالية الأولوية ما زالت مفتوحة.`:"لا توجد تذاكر عالية الأولوية مفتوحة.",i_top:(a,n)=>`أعلى حمل حالياً على ${a} (${n} تذكرة مفتوحة).`,i_best:(a,n)=>`الأكثر حلاً: ${a} (${n} تذكرة).`,
 fill:"اكتب عنوان المشكلة",fillN:"اكتب الاسم"},
 en:{app:"Géant",sub:"Customer Service Department",user:"Username",pass:"Password",login:"Sign in",logout:"Sign out",bad:"Wrong username or password",demo:"",
@@ -370,13 +370,13 @@ late:"Overdue (2+ days)",total:"Total tickets",rate:"Resolution rate",ins:"Insig
 status:"Status",assignee:"Assigned to",priority:"Priority",notes:"Notes",noNote:"No notes yet",addNote:"New note",save:"Save changes",close:"Close",cancel:"Cancel",create:"Add complaint",saveCu:"Save customer",
 search:"Search by ticket title or customer name",allS:"All statuses",allA:"All agents",noTk:"No matching tickets. Change the search or add a new ticket.",noCu:"No customers yet. Add the first one.",
 cust:"Customer name",title:"Issue title",det:"Details",name:"Name",phone:"Mobile number",email:"Email",co:"Company",ind:"Individual",hist:"Ticket history",ticketsN:n=>n+(n==1?" ticket":" tickets"),
-opened:"Opened",resolved:"Resolved",open:"Open",avg:"Avg. resolution (hrs)",mine:"You only see your own tickets",role:{owner:"Owner",sup:"Supervisor",agent:"Agent"},
+opened:"Opened",resolved:"Resolved",open:"Open",avg:"Avg. resolution (hrs)",mine:"You only see your own tickets",role:{owner:"Owner",sup:"Supervisor",agent:"Agent",cco:"Cashier (CCO)"},
 i_rate:(r,t)=>`${r}% of tickets are resolved (${t} total).`,i_late:n=>n?`${n} ticket(s) are overdue and need attention.`:"No overdue tickets.",i_hi:n=>n?`${n} high-priority ticket(s) still open.`:"No open high-priority tickets.",i_top:(a,n)=>`Heaviest workload: ${a} (${n} open).`,i_best:(a,n)=>`Most resolved: ${a} (${n} tickets).`,
 fill:"Enter the issue title",fillN:"Enter the name"}};
 const U=[{u:"owner",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",r:"sup",n:{ar:"كريم",en:"Karim"}},{u:"tamer",r:"sup",n:{ar:"تامر",en:"Tamer"}},
 {u:"abdullah",r:"agent",n:{ar:"عبد الله",en:"Abdullah"}},{u:"amr",r:"agent",n:{ar:"عمرو",en:"Amr"}},{u:"ahmed",r:"agent",n:{ar:"أحمد",en:"Ahmed"}}];
 let SBX=false;const TEST_IDS=["test","000000","0123456789"],isTU=u=>TEST_IDS.includes(String(u).toLowerCase());
-const AG=[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
+const AG=[...U.filter(x=>x.r!="owner"&&x.r!="cco"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
 /* left side menu: closed by default, toggled with the icon button in the header */
 let navPinned=false;try{navPinned=localStorage.getItem("g-navpin")=="1"&&innerWidth>640}catch(e){}
@@ -395,7 +395,7 @@ const seedM=()=>({short:[{id:21,ag:"ahmed",d:now-2*day,s:"rep",f:{product:"أر�
 function nuApply(){if(!S.nu)S.nu=[];if(!S.ud)S.ud=[];if(!S.bin)S.bin=[];if(!S.al)S.al=[];let ch=false;for(let i=U.length-1;i>=0;i--){if(!U[i]._nu&&S.ud.includes(U[i].u)){U.splice(i,1);ch=true}}
  for(let i=U.length-1;i>=0;i--){const x=U[i];if(x._nu&&!S.nu.some(e=>e.u==x.u)){U.splice(i,1);ch=true}}
  S.nu.forEach(e=>{if(!U.some(x=>x.u==e.u)){U.push(Object.assign({},e,{n:Object.assign({},e.n),_nu:1},(S.uo&&S.uo[e.u])||{}));ch=true}});
- if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX));
+ if(ch)AG.splice(0,AG.length,...[...U.filter(x=>x.r!="owner"&&x.r!="cco"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX));
  if(me&&!U.some(x=>x.u==me.u)){me=null;try{sessionStorage.removeItem("g-me")}catch(e){}}}
 let S;try{S=JSON.parse(localStorage.getItem("gian-crm3"))}catch(e){}if(!S||!S.c)S={n:1,c:[],t:[],m:{short:[],resv:[],ho:[]}};if(!S.m)S.m={short:[],resv:[],ho:[]};if(!S.m.cm)S.m.cm=[];S.t.forEach(t=>{if(!t.ch)t.ch=["branch","call","social"][t.id%3]});if(!S.tn)S.tn=S.t.reduce((m,t)=>Math.max(m,t.no||0),0);S.t.slice().sort((a,b)=>a.d-b.d).forEach(t=>{if(!t.no)t.no=++S.tn});if(!S.ue)S.ue=[];if(!S.uo)S.uo={};if(!S.un)S.un={};nuApply();Object.entries(S.uo).forEach(([k,v])=>{const x=U.find(a=>a.u==k);if(x)Object.assign(x,v)});
 ["short","resv","ho"].forEach(k=>{if(!S.m[k])S.m[k]=[]});if(!S.cl)S.cl=[];
@@ -404,7 +404,7 @@ try{const s=sessionStorage.getItem("g-me");if(s)me=null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
 const cu=id=>S.c.find(x=>x.id==id)||{name:"—"};
-const isA=()=>me.r=="agent",sup=()=>me.r!="agent";
+const isA=()=>me.r=="agent",isCco=()=>!!me&&me.r=="cco",sup=()=>!!me&&me.r!="agent"&&me.r!="cco",CCO_PW="cco#geant2026",isCcoId=v=>/^(tri cco|reh cco|cco tri|cco reh)$/i.test(String(v||"").trim().replace(/\s+/g," "));
 const mine=()=>isA()?S.t.filter(t=>t.ag==me.u):S.t;
 const $=id=>document.getElementById(id);
 function setLang(){lang=lang=="ar"?"en":"ar";try{localStorage.setItem("g-lang",lang)}catch(e){}render()}
@@ -413,30 +413,31 @@ const tkn=t=>"TK-"+String(t.no||t.id).padStart(4,"0");
 const vdTag=t=>t.vd=="valid"?`<span class="tag vrd">${TL("vOk")}</span>`:t.vd=="invalid"?`<span class="tag vgn">${TL("vNo")}</span>`:"";
 const tkRow=t=>`<div class="tk ${t.vd=="valid"?"vrd":t.vd=="invalid"?"vgn":""}" data-t="${t.id}"><div class="t"><span class="tno">${tkn(t)}</span>${esc(t.title)}<small>${esc(cu(t.cid).name)} • ${esc(cu(t.cid).phone||"—")} • ${CHL(t.ch)} • ${t.br||"—"} • ${nm(t.ag)} • ${fd(t.d)}</small></div><span class="tag ${t.pr}">${L(t.pr)}</span><span class="tag ${t.s}">${L(t.s)}</span>${vdTag(t)}${t.closed?`<span class="tag cx">${TL("tcClosed")}</span>`:t.cr?`<span class="tag" style="--c:var(--amb)">⏳</span>`:""}${cb(cu(t.cid).phone,1)}${me&&sup()?`<button class="btn g s" data-dt="${t.id}">${TL("det")}</button>`:""}</div>`;
 function render(){if(SBX&&!me){location.reload();return}
- document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app")+" | "+L("sub");
+ document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
   navOpen=navAnim=false;
-  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 6px"><p style="margin:0 0 16px;color:var(--grn);font-size:21px;font-weight:800;text-align:center;line-height:1.3">${L("sub")}</p><div class="f">
+  r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 16px"><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
   const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=lv=="test"?"0123456789":(dv.length>=6?dv:lv.replace(/\s+/g," ")),er=$("er");er.textContent="...";
- try{await authIn(em(id),$("p").value);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
+ try{const pw=$("p").value||(isCcoId(id)?CCO_PW:"");await authIn(em(id),pw);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
   if(isTU(ro.u))sbxEnter(ro.u);else if(!DB.es){DB.url=DBU;dbStream();kickStream()}
   for(let i=0;i<40&&DB.first&&!SBX;i++)await new Promise(r=>setTimeout(r,150));
   reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
   const bl=banLeft(x.u);if(bl>0){banU=x.u;banTick();return}
   (S.nu||[]).forEach(e=>delete e.p);Object.values(S.uo||{}).forEach(e=>delete e.p);(S.ue||[]).forEach(q=>q.ch&&delete q.ch.p);
   me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){console.error("login error:",e);if(SBX){location.reload();return}er.textContent=L("bad")}};
-  $("go").onclick=go;$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
+  $("go").onclick=go;$("u").onkeydown=e=>{if(e.key=="Enter"){if(isCcoId($("u").value))go();else $("p").focus()}};$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
- if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&me.r=="agent")view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="rq"&&me.r=="owner")view="home";if(view=="usr"&&me.r!="owner")view="tk";
- const tabs=["home","dash","tk","short","cm","svy","resv","ho","sch","rq","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent")&&(t[0]!="rq"||me.r!="owner"));if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);
- r.innerHTML=`<header><div class="hw"><div class="br"><button type="button" class="nvt${navPinned?" pin":""}" id="nvt" aria-label="${mgT("القائمة","Menu")}" aria-controls="snav" aria-expanded="${navOpen||navAnim}"><span class="nvb" aria-hidden="true"><i></i><i></i><i></i></span></button><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button><button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div><h1 class="pgt" id="pgt">${TL(view)}</h1></header><div class="shell${navOpen||navAnim?"":" nvc"}"><nav id="snav" class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()+rqN()?" ("+(S.ue.length+S.cl.length+tcN()+rqN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
+ if(isCco())view="cu";
+ if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&(me.r=="agent"||isCco()))view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="rq"&&me.r=="owner")view="home";if(view=="usr"&&me.r!="owner")view="tk";
+ const tabs=isCco()?[["cu","cu"]]:["home","dash","tk","short","cm","svy","resv","ho","sch","rq","tpl","cu","svr"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="svr"||me.r!="agent")&&(t[0]!="rq"||me.r!="owner"));if(!isCco()){if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);}
+ r.innerHTML=`<header><div class="hw"><div class="br"><button type="button" class="nvt${navPinned?" pin":""}" id="nvt" aria-label="${mgT("القائمة","Menu")}" aria-controls="snav" aria-expanded="${navOpen||navAnim}"><span class="nvb" aria-hidden="true"><i></i><i></i><i></i></span></button><img class="hl" src="${LOGOH}" alt="Géant"></div><div class="top hb" style="direction:ltr">${lb}${isCco()?`<span class="me">${nm(me.u)}</span>`:`<button class="btn w s" id="pf" title="${TL("prof")}">${nm(me.u)}<span class="pfr"> (${L("role")[me.r]})</span> ✎${S.ue.some(q=>q.u==me.u)?" ⏳":""}</button>`}<button class="btn w s" id="sw">${mgT("تبديل المستخدم","Switch user")}</button><button class="btn w s" id="lo">${L("logout")}</button></div></div><div class="onl" id="onl"></div><h1 class="pgt" id="pgt">${TL(view)}</h1></header><div class="shell${navOpen||navAnim?"":" nvc"}"><nav id="snav" class="nv${me.r=='owner'?' nv2':''}">${tabs.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()+rqN()?" ("+(S.ue.length+S.cl.length+tcN()+rqN())+")":""}</button>`).join("")}</nav><main id="app" dir="${lang=="ar"?"rtl":"ltr"}"></main></div>${bnav(tabs)}`;
   {const nv=r.querySelector(".shell .nv");if(nv)nv.scrollTop=window.__navY||0}
   {const sh=r.querySelector(".shell"),bt=$("nvt");if(bt){bt.onclick=navToggle;bt.ondblclick=navDbl}if(sh&&navAnim){navAnim=false;void sh.offsetWidth;sh.classList.add("nvc");if(bt)bt.setAttribute("aria-expanded","false")}}
-  $("lb").onclick=langMenu;$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
+  $("lb").onclick=langMenu;if($("pf"))$("pf").onclick=profForm;$("sw").onclick=swUser;$("lo").onclick=()=>{presOff();alog("out","");save();me=null;try{sessionStorage.removeItem("g-me")}catch(e){}render();showSplash("out");mgClose()};
  r.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{view=b.dataset.v;if(navOpen&&!navPinned){navOpen=false;navAnim=true}render()});bindBN(tabs);
  const a=$("app");
  if(view=="home")home(a);else if(view=="dash")dash(a);else if(view=="tk")tks(a);else if(view=="cu")cus(a);else if(view=="rep")rep(a);else if(view=="cm")cmV(a);else if(MOD[view])mod(a);else if(LK[view])ext(a);else if(view=="tpl")tplV(a);else if(view=="rq")rqV(a);else if(view=="apr")aprV(a);else if(view=="usr")usrV(a);else if(view=="bin")binV(a);else if(view=="log")logV(a);else if(view=="mgv")mgV(a);else perf(a);
@@ -471,7 +472,7 @@ function tks(a){
  $("q").oninput=e=>{q=e.target.value;f()};$("fs").onchange=e=>{fs=e.target.value;f()};if($("fa"))$("fa").onchange=e=>{fa=e.target.value;f()};f();$("chips").querySelectorAll("button").forEach(b=>b.onclick=()=>{fc=b.dataset.ch;render()});$("nw").onclick=tkForm;
 }
 let cuQ="";
-function cuRow(c){const k=mine().filter(t=>t.cid==c.id),ei=c.einv?String(c.einv).replace(/(\d{3})(?=\d)/g,"$1-"):"";return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${ei?" • E-Inv: "+esc(ei):""}${sup()&&c.email?" • "+esc(c.email):""}</small>${cuSum(c.id)}</div>${cb(c.phone,1)}<span class="tag lo">${L("ticketsN")(k.length)}</span></div>`}
+function cuRow(c){const k=isCco()?[]:mine().filter(t=>t.cid==c.id),ei=c.einv?String(c.einv).replace(/(\d{3})(?=\d)/g,"$1-"):"";return`<div class="tk" data-c="${c.id}"><div class="t">${esc(c.name)}<small>${esc(c.co||L("ind"))} • ${esc(c.phone||"—")}${ei?" • E-Inv: "+esc(ei):""}${sup()&&c.email?" • "+esc(c.email):""}</small>${isCco()?"":cuSum(c.id)}</div>${cb(c.phone,1)}${isCco()?"":`<span class="tag lo">${L("ticketsN")(k.length)}</span>`}</div>`}
 async function cuParseXlsx(buf){
  const ps=mgUnzip(new Uint8Array(buf)),dec=new TextDecoder();
  const readTxt=async p=>{if(!p)return"";const d=p.m==8?await mgPipe(p.d,DecompressionStream):p.d;return dec.decode(d)};
@@ -544,8 +545,8 @@ function cuImport(onDone){
  inp.click()}
 function cus(a){cuHeal();
  a.innerHTML=`<div class="row"><button class="btn w" id="nc">+ ${L("newCu")}</button><button class="btn gr" id="ntx">📷 ${mgT("تصوير البطاقة الضريبية","Scan Tax Card")}</button>${me.r=="owner"?`<button class="btn g" id="cuim">⬆ ${mgT("استيراد Excel","Import Excel")}</button>`:""}<input id="cuq" placeholder="${mgT("بحث بالاسم أو الرقم أو الضريبي","Search by name, phone or tax ID")}" value="${esc(cuQ)}">${sup()?`<button class="btn g" id="cusy">⟳ ${mgT("تحديث من الشيت","Sync from sheet")}</button>`:""}</div><div id="cusr" style="color:var(--mut);font-size:13px;margin:0 4px 6px"></div><div class="box" id="cul"></div>`;
- {const m=S.c.filter(c=>c.miss).length;if(m)$("cusr").textContent=mgT("⚠ "+m+" عميل بياناتهم ناقصة (متعلمين بعلامة ⚠). افتح العميل واضغط تعديل واكتب الاسم والرقم.","⚠ "+m+" customers have missing details. Open one and tap Edit to add name and phone.")}
- const f=()=>{const q=cuQ.trim().toLowerCase(),qd=phNorm(q),qr=qd.replace(/^0+/,""),qt=q.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,""),l=S.c.filter(c=>{if(!q)return true;if((c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.co||"").toLowerCase().includes(q))return true;if(qt.length>=3&&String(c.einv||"").includes(qt))return true;if(qd.length<3)return false;const pn=phNorm(c.phone);return pn.includes(qd)||(qr.length>2&&pn.includes(qr))}),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
+ if(!isCco()){const m=S.c.filter(c=>c.miss).length;if(m)$("cusr").textContent=mgT("⚠ "+m+" عميل بياناتهم ناقصة (متعلمين بعلامة ⚠). افتح العميل واضغط تعديل واكتب الاسم والرقم.","⚠ "+m+" customers have missing details. Open one and tap Edit to add name and phone.")}
+ const f=()=>{const q=cuQ.trim().toLowerCase();if(isCco()&&q.length<2){$("cul").innerHTML=`<div class="empty">🔍 ${mgT("ابحث باسم العميل أو رقم الموبايل أو الرقم الضريبي لعرض بياناته","Search by customer name, phone, or tax ID to view details")}</div>`;return}const qd=phNorm(q),qr=qd.replace(/^0+/,""),qt=q.replace(/[٠-٩]/g,d=>d.charCodeAt(0)-1632).replace(/\D/g,""),l=S.c.filter(c=>{if(!q)return true;if((c.name||"").toLowerCase().includes(q)||(c.email||"").toLowerCase().includes(q)||(c.co||"").toLowerCase().includes(q))return true;if(qt.length>=3&&String(c.einv||"").includes(qt))return true;if(qd.length<3)return false;const pn=phNorm(c.phone);return pn.includes(qd)||(qr.length>2&&pn.includes(qr))}),sh=l.sort((x,y)=>(y.miss?1:0)-(x.miss?1:0)).slice(0,150);
   $("cul").innerHTML=sh.map(cuRow).join("")+(l.length>sh.length?`<div class="empty">${mgT("معروض","Showing")} ${sh.length} ${mgT("من","of")} ${l.length} — ${mgT("استخدم البحث","use search")}</div>`:"")||`<div class="empty">${L("noCu")}</div>`;
   $("cul").querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>cuView(e.dataset.c))};
  $("cuq").oninput=e=>{cuQ=e.target.value;f()};$("nc").onclick=()=>cuForm();$("ntx").onclick=()=>taxScan(d=>cuForm(null,d));if($("cuim"))$("cuim").onclick=()=>cuImport(f);f();
@@ -624,9 +625,9 @@ function einBar(t){
 }
 function cuView(id){
  cuBackId=null;const c=cu(id),k=mine().filter(t=>t.cid==id);
- open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px;align-items:center;flex-wrap:wrap">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}<button class="btn g s" id="ecp" style="margin-inline-start:6px">📋 ${mgT("نسخ","Copy")}</button><button class="btn g s" id="esh">📤 ${mgT("شير","Share")}</button></div>${einBar(c.einv)}`:""}${cuSum(id)}${taxCard(c)}<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
- ${cuHistHtml(id,k)}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button><button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
- $("x").onclick=close;$("ced").onclick=()=>cuForm(id);
+ open(`<h2>${esc(c.name)}</h2><small style="color:var(--mut)">${esc(c.co||L("ind"))} • ${esc(c.phone)}${sup()?" • "+esc(c.email):""}</small> ${cb(c.phone)}${c.einv?`<div style="margin-top:10px;font-size:13px;color:var(--mut)">E-Invoice</div><div style="display:flex;direction:ltr;gap:3px;margin-top:3px;align-items:center;flex-wrap:wrap">${String(c.einv).split("").map(d=>`<span style="flex:none;width:22px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:2px 0;font-weight:700;line-height:1.4">${esc(d)}</span>`).join("")}<button class="btn g s" id="ecp" style="margin-inline-start:6px">📋 ${mgT("نسخ","Copy")}</button><button class="btn g s" id="esh">📤 ${mgT("شير","Share")}</button></div>${einBar(c.einv)}`:""}${isCco()?"":cuSum(id)}${taxCard(c)}${isCco()?"":`<h3 style="font-size:15px;margin:14px 0 4px">${L("hist")}</h3>
+ ${cuHistHtml(id,k)}`}<div class="row" style="margin:12px 0 0"><button class="btn g" id="x">${L("close")}</button>${isCco()?"":`<button class="btn" id="ced">✎ ${mgT("تعديل","Edit")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div>`);
+ $("x").onclick=close;if($("ced"))$("ced").onclick=()=>cuForm(id);
  if($("ecp"))$("ecp").onclick=()=>{const b=$("ecp"),v=String(c.einv||"");(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).catch(()=>{const t=document.createElement("textarea");t.value=v;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()});b.textContent="✓ "+mgT("اتنسخ","Copied");setTimeout(()=>{b.textContent="📋 "+mgT("نسخ","Copy")},1500)};
  if($("esh"))$("esh").onclick=()=>{const v=String(c.einv||""),nm0=(c.co||c.name||"").trim(),tx=(nm0?nm0+"\n":"")+"E-Invoice: "+v;if(navigator.share){navigator.share({title:"E-Invoice",text:tx}).catch(()=>{})}else window.open("https://wa.me/?text="+encodeURIComponent(tx),"_blank","noopener")};
  if($("dl"))$("dl").onclick=()=>{const n=S.t.filter(t=>t.cid==id).length+S.m.resv.filter(r=>r.f&&r.f.cust==id).length;if(n){alert(mgT("مينفعش تمسح العميل ده، عليه "+n+" شكوى/إيداع. امسح السجلات الأول.","Cannot delete this customer: it has "+n+" complaint/deposit records. Delete those first."));return}ownDel(()=>{S.c=S.c.filter(x=>x.id!=id)})};cuBind(id);
@@ -950,7 +951,7 @@ function caseFire(k,r,late){const box=pnBox(),el=document.createElement("div");e
  try{if("Notification" in window&&Notification.permission=="granted")new Notification(TL(k)+" • "+TL("clDue"),{body:r.f[MOD[k].main],tag:"cs"+r.id})}catch(e){}
  try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
  beep(3)}
-function caseCheck(){if(!me)return;const n=Date.now();let f=false;
+function caseCheck(){if(!me||isCco())return;const n=Date.now();let f=false;
  ["ho","resv"].forEach(k=>S.m[k].forEach(r=>{const at=caseAt(r);if(at&&at<=n&&!r.cl&&nfNew(k+":"+r.id+":"+me.u)){caseFire(k,r,n-at>9e4)}}));
  if(me.r=="owner")S.cl.forEach(q=>{const r=S.m[q.k]&&S.m[q.k].find(x=>x.id==q.rid);if(r&&nfNew("cl:"+q.id+":"+me.u)){
   const box=pnBox(),el=document.createElement("div");el.className="pnc case";
@@ -1134,7 +1135,7 @@ function usrDel(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner"||u==me.u)
  open(`<h2>${TL("del")}: ${esc(nm(u))}</h2><p>${TL("rsAsk").replace("{n}",n)}</p>${sel("rsTo",AG.filter(g=>g!=u).map(g=>[g,nm(g)]),"")}<div class="row" style="margin:10px 0 0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn" id="rsGo">${TL("rsGo")}</button></div>`);
  $("x").onclick=close;$("rsGo").onclick=()=>go($("rsTo").value)}
 function usrEdit(u){const x=U.find(a=>a.u==u);if(!x||!me||me.r!="owner")return;
- open(`<h2>${TL("tkEdit")}: ${esc(nm(u))}</h2><div class="f" style="margin-top:10px"><label>${TL("pNameAr")}<input id="ea" value="${esc(x.n.ar)}"></label><label>${TL("pNameEn")}<input id="en1" dir="ltr" value="${esc(x.n.en)}"></label><label>${TL("pPhone")}<input id="ep" inputmode="tel" value="${esc(x.ph||"")}"></label><label>${TL("pPass")}<input id="ew" autocomplete="off" placeholder="${TL("pPassH")}"></label><label>${TL("pRole")}${sel("er1",["owner","sup","agent"].map(k=>[k,L("role")[k]]),x.r)}</label>${pmBox(x)}<div class="err" id="eer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("pConfirm")}</button></div></div>`);
+ open(`<h2>${TL("tkEdit")}: ${esc(nm(u))}</h2><div class="f" style="margin-top:10px"><label>${TL("pNameAr")}<input id="ea" value="${esc(x.n.ar)}"></label><label>${TL("pNameEn")}<input id="en1" dir="ltr" value="${esc(x.n.en)}"></label><label>${TL("pPhone")}<input id="ep" inputmode="tel" value="${esc(x.ph||"")}"></label><label>${TL("pPass")}<input id="ew" autocomplete="off" placeholder="${TL("pPassH")}"></label><label>${TL("pRole")}${sel("er1",["owner","sup","agent","cco"].map(k=>[k,L("role")[k]]),x.r)}</label>${pmBox(x)}<div class="err" id="eer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("pConfirm")}</button></div></div>`);
  $("er1").onchange=()=>pmSync("er1");$("x").onclick=close;$("sv").onclick=()=>{const na=$("ea").value.trim(),ne=$("en1").value.trim(),ph=$("ep").value.trim(),pw=$("ew").value,rl=$("er1").value,er=$("eer"),dg=ph.replace(/\D/g,"");
   if(!na||!ne){er.textContent=TL("pNeed");return}
   if(ph&&dg.length<6){er.textContent=TL("uPh");return}
@@ -1149,8 +1150,8 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
  if(k=="t"){const t=S.t.find(x=>x.id==id);arr=t&&t.notes}else{const r=(S.m[k]||[]).find(x=>x.id==id);arr=r&&r.notes}
  if(!arr)return;const n=arr[+i];ownDel(()=>{const j=arr.indexOf(n);if(j>-1)arr.splice(j,1)})},true);
 function usrForm(){
- open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner"].map(k=>[k,L("role")[k]]),"agent")}</label>${pmBox({r:"agent"})}<small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
- $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),pw=$("uw1").value,rl=$("ur1").value,er=$("uer"),pd=ph.replace(/\D/g,""),dg=nme.replace(/\s+/g," ").toLowerCase();
+ open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner","cco"].map(k=>[k,L("role")[k]]),"agent")}</label>${pmBox({r:"agent"})}<small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
+ $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),rl=$("ur1").value,pw=$("uw1").value||(rl=="cco"?CCO_PW:""),er=$("uer"),pd=ph.replace(/\D/g,""),dg=nme.replace(/\s+/g," ").toLowerCase();
   if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
   if(dg.split(" ").length<2){er.textContent=TL("uTwo");return}
   if(pd.length<6){er.textContent=TL("uPh");return}
@@ -1169,7 +1170,7 @@ const pv=(x,k)=>x.r=="owner"||(k!="rep"&&x.pm&&k in x.pm&&!!x.pm[k]);
 const can=k=>!!me&&pv(me,k);
 const pmBox=x=>`<div class="box" style="margin:0;padding:10px"><b>${TL("pmT")}</b>${["del","rep","cls"].map(k=>`<label style="display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px"><input type="checkbox" id="pm_${k}" style="width:auto" ${pv(x,k)?"checked":""}> ${TL("pm_"+k)}</label>`).join("")}</div>`;
 const pmRead=()=>({del:$("pm_del").checked,rep:$("pm_rep").checked,cls:$("pm_cls").checked});
-const pmSync=id=>{const r=$(id).value;$("pm_del").checked=$("pm_cls").checked=r=="owner";$("pm_rep").checked=r!="agent"};
+const pmSync=id=>{const r=$(id).value;$("pm_del").checked=$("pm_cls").checked=r=="owner";$("pm_rep").checked=r!="agent"&&r!="cco"};
 function alog(a,x){if(!S.al)S.al=[];S.al.push({d:Date.now(),u:me?me.u:"",a,x:x||""});if(S.al.length>500)S.al.splice(0,S.al.length-500)}
 const binSnap=()=>({t:[...S.t],c:[...S.c],short:[...S.m.short],resv:[...S.m.resv],ho:[...S.m.ho],cm:[...(S.m.cm||[])]});
 function binDiff(sn){const add=(k,m,old,cur,lb)=>old.filter(x=>!cur.includes(x)).forEach(x=>{const l=lb(x);S.bin.push({id:S.n++,d:Date.now(),by:me.u,k,m,it:JSON.parse(JSON.stringify(x)),lb:l});alog("del",l)});
@@ -1445,10 +1446,10 @@ function mgConfirm(id,u){const n=Date.now();mgLocal(id,["cf",u],n);mgPatch(id,"c
 function mgReopen(id,u){mgLocal(id,["dn",u],null);mgLocal(id,["cf",u],null);mgPatch(id,"dn",{[u]:null}).catch(()=>{});mgPaint();mgBadgeRefresh()}
 function mgDel(id){if(!confirm(mgT("تمسح الرسالة دي من عند الجميع؟","Delete this message for everyone?")))return;
  delete MG.d[id];fetch(DB.url+"/d/mg/"+id+".json",{method:"DELETE"}).catch(()=>{});mgPaint()}
-function mgBadge(){if(!me||me.r=="agent")return"";let c=0;
+function mgBadge(){if(!me||me.r=="agent"||isCco())return"";let c=0;
  Object.values(MG.d||{}).forEach(m=>{if(m&&m.k=="t"&&m.dn&&(m.f==me.u||me.r=="owner"))Object.keys(m.dn).forEach(u=>{if(!(m.cf&&m.cf[u]))c++})});return c?" ("+c+")":""}
 function mgBadgeRefresh(){document.querySelectorAll('nav button[data-v="mgv"]').forEach(b=>{b.textContent=TL("mgv")+mgBadge()})}
-function mgNotify(){if(!me||me.r=="agent")return;
+function mgNotify(){if(!me||me.r=="agent"||isCco())return;
  Object.values(MG.d||{}).forEach(m=>{if(!m||!m.f||!m.to)return;
   if(m.k=="t"&&m.dn&&(m.f==me.u))Object.keys(m.dn).forEach(u=>{if(m.cf&&m.cf[u])return;if(!nfNew("mgd:"+m.id+":"+u+":"+me.u))return;
    mgToast("✅",mgT("تاسك اتنفذ","Task done")+" • "+nm(u),m.x,[[mgT("تأكيد","Confirm"),()=>mgConfirm(m.id,u),"gr"],[mgT("فتح","Open"),()=>{view="mgv";render()}]])});
@@ -1497,7 +1498,7 @@ const _mgRender=render;
 render=function(){_mgRender.apply(this,arguments);mgTick()};
 /* Desktop: Esc goes back to Home (modals still close first) */
 document.addEventListener("keydown",e=>{
- if(e.key!="Escape"||e.defaultPrevented||!me||view=="home")return;
+ if(e.key!="Escape"||e.defaultPrevented||!me||view=="home"||isCco())return;
  if(ov.classList.contains("on")||document.querySelector("#mgpop.on"))return;
  view="home";render()},true);
 /* Back button behaves like an app: modal -> close it, other tab -> Home, Home -> ask before closing */
@@ -1582,9 +1583,9 @@ function swUser(){
  <div class="row" style="margin:12px 0 0"><button class="btn" id="sgo">${mgT("تبديل","Switch")}</button><button class="btn g" id="sx">${L("close")}</button></div>`);
  $("sx").onclick=close;$("su").focus();
  const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv.replace(/\s+/g," "),er=$("ser");
-  if(!id||!$("sp").value){er.textContent=L("bad");return}
+  const pw=$("sp").value||(isCcoId(id)?CCO_PW:"");if(!id||!pw){er.textContent=L("bad");return}
   er.textContent="...";const bak=Object.assign({},AUTH),fail=m=>{Object.assign(AUTH,bak);er.textContent=m||L("bad")};
-  try{await authIn(em(id),$("sp").value);
+  try{await authIn(em(id),pw);
    const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
    reU();const x=U.find(a=>a.u==ro.u);if(!x||x.off)throw 0;
    const bl=banLeft(x.u);if(bl>0){fail(mgT("المستخدم ده اتعمله خروج إجباري، استنى دقيقة","This user was force-logged out, wait a minute"));return}
@@ -1594,7 +1595,7 @@ function swUser(){
    close();
    me=x;view="home";alog("in","");save();render();showSplash()
   }catch(e){fail()}};
- $("sgo").onclick=go;$("sp").onkeydown=e=>{if(e.key=="Enter")go()}}
+ $("sgo").onclick=go;$("su").onkeydown=e=>{if(e.key=="Enter"){if(isCcoId($("su").value))go();else $("sp").focus()}};$("sp").onkeydown=e=>{if(e.key=="Enter")go()}}
 
 const _rhTkForm=tkForm;
 tkForm=function(){_rhTkForm();const ti=$("ti");if(!ti)return;
