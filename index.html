@@ -639,7 +639,7 @@ function einBar(t){
  let x=10,rs="";
  cs.forEach(c=>{const p=C128[c];for(let i=0;i<p.length;i++){const w=+p[i];if(i%2==0)rs+=`<rect x="${x}" y="0" width="${w}" height="52"/>`;x+=w}});
  const tw=x+10;
- return `<div style="margin-top:8px;background:#fff;border-radius:10px;padding:10px 12px 6px;max-width:440px;text-align:center;box-shadow:0 2px 8px #0004"><svg viewBox="0 0 ${tw} 52" style="width:100%;height:62px;display:block" fill="#000" shape-rendering="crispEdges">${rs}</svg><div style="color:#111;font:700 13px/1.3 monospace;letter-spacing:3px;margin-top:4px;direction:ltr">${esc(t)}</div></div>`;
+ return `<div style="margin-top:10px;background:#fff;border-radius:12px;padding:14px 18px 10px;max-width:440px;text-align:center;box-shadow:0 4px 14px #0005"><svg viewBox="0 0 ${tw} 52" preserveAspectRatio="none" style="width:100%;height:96px;display:block" fill="#000" shape-rendering="crispEdges">${rs}</svg><div style="color:#000;font:800 18px/1.3 monospace;letter-spacing:4px;margin-top:8px;direction:ltr">${esc(t)}</div></div>`;
 }
 function cuView(id){
  cuBackId=null;const c=cu(id),k=mine().filter(t=>t.cid==id);
