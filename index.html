@@ -396,10 +396,10 @@ const U=[{u:"owner",r:"owner",n:{ar:"مؤمن",en:"Moamen"}},{u:"karim",r:"sup",
 let SBX=false;const TEST_IDS=["test","000000","0123456789"],isTU=u=>TEST_IDS.includes(String(u).toLowerCase());
 const AG=[...U.filter(x=>x.r!="owner"&&x.r!="cco"),...U.filter(x=>x.r=="owner")].map(x=>x.u).filter(u=>!isTU(u)||SBX),day=864e5,hr=36e5,now=Date.now();
 let lang="en",me=null,view="home",q="",fs="",fa="",fc="";
-/* left side menu: closed by default, toggled with the icon button in the header */
-let navPinned=false;try{navPinned=localStorage.getItem("g-navpin")=="1"&&innerWidth>640}catch(e){}
-let navOpen=navPinned,navAnim=false;
-function navSetPin(v){navPinned=v;try{localStorage.setItem("g-navpin",v?"1":"0")}catch(e){}}
+/* left side menu: single-click opens temporarily, double-click pins open — remembered per user */
+let navPinned=false,navOpen=false,navAnim=false,navUser=null;
+function navLoad(){if(!me||innerWidth<=640){navPinned=navOpen=navAnim=false;return}navUser=me.u;try{navPinned=localStorage.getItem("g-navpin-"+me.u)=="1"}catch(e){navPinned=false}navOpen=navPinned;navAnim=false}
+function navSetPin(v){navPinned=v;if(me)try{localStorage.setItem("g-navpin-"+me.u,v?"1":"0")}catch(e){}}
 function navApply(){const sh=document.querySelector(".shell"),bt=document.getElementById("nvt");if(sh)sh.classList.toggle("nvc",!navOpen);if(bt){bt.setAttribute("aria-expanded",String(navOpen));bt.classList.toggle("pin",navPinned)}}
 function navToggle(){if(navPinned){navSetPin(false);navOpen=false}else navOpen=!navOpen;navApply()}
 function navDbl(){navSetPin(true);navOpen=true;navApply()}
@@ -434,7 +434,7 @@ function render(){if(SBX&&!me){location.reload();return}
  document.body.style.background=document.documentElement.style.background="#fff";document.documentElement.lang=lang;document.body.classList.toggle("wide",!!me);document.documentElement.dir=lang=="ar"?"rtl":"ltr";document.title=L("app");
  const r=$("root"),lb=`<button class="btn w s" id="lb" aria-label="Language" title="Language"><span class="gl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span></button>`;
  if(!me){
-  navOpen=navAnim=false;
+  navPinned=navOpen=navAnim=false;navUser=null;
   r.innerHTML=`<div class="lt">${lb}</div><div class="box lg"><img src="${LOGO}" alt="Géant" style="height:200px;display:block;margin:0 auto 16px"><div class="f">
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
@@ -449,6 +449,7 @@ function render(){if(SBX&&!me){location.reload();return}
   me=x;view="home";alog("in","");save();var R0=lgRect();render();showSplash("in",R0)}catch(e){console.error("login error:",e);if(SBX){location.reload();return}er.textContent=L("bad")}};
   $("go").onclick=go;$("u").onkeydown=e=>{if(e.key=="Enter"){if(isCcoId($("u").value))go();else $("p").focus()}};$("p").onkeydown=e=>{if(e.key=="Enter")go()};return;
  }
+ if(navUser!==me.u)navLoad();
  if(isCco())view="cu";
  if(view=="dash"&&me.r!="owner")view="tk";if(view=="mgv"&&(me.r=="agent"||isCco()))view="tk";if(view=="perf")view=me.r=="owner"?"dash":"tk";if(view=="rep"&&!can("rep"))view="tk";if((view=="bin"||view=="log")&&me.r!="owner")view="tk";if(view=="apr"&&me.r!="owner")view="tk";if(view=="rq"&&me.r=="owner")view="home";if(view=="usr"&&me.r!="owner")view="tk";
  const tabs=isCco()?[["cu","cu"]]:["home","dash","tk","short","cm","resv","ho","rq","tpl","cu"].map(k=>[k,k]).filter(t=>(t[0]!="dash"||me.r=="owner")&&(t[0]!="rq"||me.r!="owner"));if(!isCco()){if(can("rep"))tabs.push(["rep","rep"]);if(me.r!="agent")tabs.push(["mgv","mgv"]);if(me.r=="owner")tabs.push(["apr","apr"],["usr","usr"],["bin","bin"],["log","log"]);tabs.push(["svy","svy"],["sch","sch"]);if(me.r!="agent")tabs.push(["svr","svr"]);}
