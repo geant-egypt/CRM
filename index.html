@@ -351,6 +351,8 @@ header .pgt.pgan{animation:none}
 
 /* external link tabs: owner desktop sidebar stays uniform 2-column grid without separator; mobile menu keeps stacked links */
 .shell .nv.nv2{padding-right:8px}
+.shell .nv.nv2 button:nth-of-type(odd):last-of-type,.shell .nv.nv2 a:nth-of-type(odd):last-of-type{grid-column:1/-1}
+.shell .nv.nv2 a:first-of-type,.shell .nv.nv2 a:first-of-type+a{margin-top:8px}
 .nv-q{grid-column:1/-1;width:100%;padding:8px 12px;border-radius:14px;border:1.5px solid var(--red);background:var(--card);color:var(--ink);font-size:14px;margin-bottom:2px}
 .nv-q::placeholder{color:var(--mut)}
 .mg button:nth-of-type(odd):last-of-type{grid-column:1/-1}
