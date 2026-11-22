@@ -422,7 +422,7 @@ try{const s=sessionStorage.getItem("g-me");if(s)me=null}catch(e){}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fd=d=>new Date(d).toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{day:"numeric",month:"short"});
 const cu=id=>S.c.find(x=>x.id==id)||{name:"—"};
-const isA=()=>me.r=="agent",isCco=()=>!!me&&me.r=="cco",sup=()=>!!me&&me.r!="agent"&&me.r!="cco",CCO_PW="cco#geant2026",isCcoId=v=>/^(tri cco|reh cco|cco tri|cco reh)$/i.test(String(v||"").trim().replace(/\s+/g," "));
+const isA=()=>me.r=="agent",isCco=()=>!!me&&me.r=="cco",sup=()=>!!me&&me.r!="agent"&&me.r!="cco",CCO_PW="cco#geant2026",isCcoId=v=>/^(tri[\s._-]?cco|reh[\s._-]?cco|cco[\s._-]?tri|cco[\s._-]?reh)$/i.test(String(v||"").trim());
 const mine=()=>isA()?S.t.filter(t=>t.ag==me.u):S.t;
 const $=id=>document.getElementById(id);
 function setLang(){lang=lang=="ar"?"en":"ar";try{localStorage.setItem("g-lang",lang)}catch(e){}render()}
@@ -439,7 +439,7 @@ function render(){if(SBX&&!me){location.reload();return}
   <label>${L("user")}<input id="u" autocomplete="username" autocapitalize="off"></label><label>${L("pass")}<input id="p" type="password" autocomplete="current-password"></label>
   <div class="err" id="er"></div><button class="btn" id="go">${L("login")}</button></div></div>`;
   $("lb").onclick=langMenu;
-  const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=lv=="test"?"0123456789":(dv.length>=6?dv:lv.replace(/\s+/g," ")),er=$("er");er.textContent="...";
+  const go=async()=>{const lv=$("u").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=lv=="test"?"0123456789":(dv.length>=6?dv:lv.replace(/\s+/g,".")),er=$("er");er.textContent="...";
  try{const pw=$("p").value||(isCcoId(id)?CCO_PW:"");await authIn(em(id),pw);const ro=await(await fetch(DBU+"/roles/"+AUTH.uid+".json")).json();if(!ro)throw 0;
   if(isTU(ro.u))sbxEnter(ro.u);else if(!DB.es){DB.url=DBU;dbStream();kickStream()}
   for(let i=0;i<40&&DB.first&&!SBX;i++)await new Promise(r=>setTimeout(r,150));
@@ -1169,9 +1169,8 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
  if(!arr)return;const n=arr[+i];ownDel(()=>{const j=arr.indexOf(n);if(j>-1)arr.splice(j,1)})},true);
 function usrForm(){
  open(`<h2>${TL("addU")}</h2><div class="f" style="margin-top:10px"><label>${TL("uNm")}<input id="un1" autocomplete="off"></label><label>${TL("pPhone")}<input id="up1" inputmode="tel" autocomplete="off"></label><label>${TL("uPw")}<input id="uw1" autocomplete="off"></label><label>${TL("pRole")}${sel("ur1",["agent","sup","owner","cco"].map(k=>[k,L("role")[k]]),"agent")}</label>${pmBox({r:"agent"})}<small style="color:var(--mut)">${TL("uHint")}</small><div class="err" id="uer"></div><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="sv">${TL("uCreate")}</button></div></div>`);
- $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),rl=$("ur1").value,pw=$("uw1").value||(rl=="cco"?CCO_PW:""),er=$("uer"),pd=ph.replace(/\D/g,""),dg=nme.replace(/\s+/g," ").toLowerCase();
+ $("ur1").onchange=()=>pmSync("ur1");$("x").onclick=close;$("sv").onclick=()=>{const nme=$("un1").value.trim(),ph=$("up1").value.trim(),rl=$("ur1").value,pw=$("uw1").value||(rl=="cco"?CCO_PW:""),er=$("uer"),pd=ph.replace(/\D/g,""),dg=nme.replace(/\s+/g,".").toLowerCase();
   if(!nme||!ph||!pw){er.textContent=TL("uNeed");return}
-  if(dg.split(" ").length<2){er.textContent=TL("uTwo");return}
   if(pd.length<6){er.textContent=TL("uPh");return}
   if(pw.length<6){er.textContent=TL("pShort");return}
   if(isTU(dg)||U.some(x=>String(x.u).replace(/\s+/g," ").toLowerCase()==dg)){er.textContent=TL("uDup");return}
@@ -1600,7 +1599,7 @@ function swUser(){
  <div class="err" id="ser"></div></div>
  <div class="row" style="margin:12px 0 0"><button class="btn" id="sgo">${mgT("تبديل","Switch")}</button><button class="btn g" id="sx">${L("close")}</button></div>`);
  $("sx").onclick=close;$("su").focus();
- const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv.replace(/\s+/g," "),er=$("ser");
+ const go=async()=>{const lv=$("su").value.trim().toLowerCase(),dv=lv.replace(/\D/g,""),id=dv.length>=6?dv:lv.replace(/\s+/g,"."),er=$("ser");
   const pw=$("sp").value||(isCcoId(id)?CCO_PW:"");if(!id||!pw){er.textContent=L("bad");return}
   er.textContent="...";const bak=Object.assign({},AUTH),fail=m=>{Object.assign(AUTH,bak);er.textContent=m||L("bad")};
   try{await authIn(em(id),pw);
