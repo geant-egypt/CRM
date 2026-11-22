@@ -349,8 +349,23 @@ header .pgt.pgan{animation:none}
 .nvt{position:relative}
 }
 
-/* external link tabs stacked vertically */
-.shell .nv.nv2 a,.mg a{grid-column:1/-1}
+/* external link tabs stacked vertically + balanced grid */
+.shell .nv.nv2{padding-right:8px}
+.shell .nv.nv2 button:nth-of-type(odd):last-of-type,.mg button:nth-of-type(odd):last-of-type{grid-column:1/-1}
+.shell .nv.nv2 a,.mg a{grid-column:1/-1;min-height:44px}
+.shell .nv.nv2 a:first-of-type,.mg a:first-of-type{margin-top:10px;position:relative}
+.shell .nv.nv2 a:first-of-type::before,.mg a:first-of-type::before{content:"";position:absolute;top:-9px;left:10%;right:10%;height:1.5px;background:rgba(47,138,34,.45);border-radius:99px;pointer-events:none}
+
+/* desktop-only fullscreen hidden exit X at top center */
+#fsx-zone{display:none}
+@media(min-width:641px) and (pointer:fine){
+ #fsx-zone{position:fixed;top:0;left:50%;transform:translateX(-50%);width:140px;height:52px;z-index:9999;display:none;align-items:flex-start;justify-content:center;padding-top:8px}
+ #fsx-zone.on{display:flex}
+ #fsx-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(0,0,0,.65);color:#fff;font:700 18px/1 sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-14px);transition:opacity .25s ease,transform .25s ease,background-color .2s ease;box-shadow:0 4px 14px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+ #fsx-zone:hover #fsx-btn,#fsx-btn:focus-visible{opacity:1;transform:translateY(0)}
+ #fsx-btn:hover{background:var(--red,#d7202c);border-color:#fff}
+}
+
 </style>
 </head>
 <body>
@@ -1952,5 +1967,34 @@ navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&e.data
 function chk(){try{fetch("index.html").catch(function(){})}catch(e){}}
 window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){setTimeout(chk,4000);setInterval(function(){try{r.update()}catch(e){}chk()},600000)}).catch(function(e){console.warn("SW",e)})});
 document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")chk()});addEventListener("online",chk)})()}</script>
+<script>(function(){
+var isDesk=function(){return window.matchMedia&&matchMedia("(min-width:641px) and (pointer:fine)").matches};
+var z=document.createElement("div");z.id="fsx-zone";
+var b=document.createElement("button");b.id="fsx-btn";b.type="button";b.title="Exit Fullscreen";b.setAttribute("aria-label","Exit Fullscreen");b.textContent="✕";
+z.appendChild(b);document.body.appendChild(z);
+var dismissed=false,entered=false;
+function inFS(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function sync(){var on=isDesk()&&inFS();z.classList.toggle("on",on);if(on)entered=true;else if(entered)dismissed=true}
+function goFS(){
+ if(!isDesk()||dismissed||inFS())return;
+ var el=document.documentElement,fn=el.requestFullscreen||el.webkitRequestFullscreen;
+ if(fn){try{var p=fn.call(el);if(p&&p.catch)p.catch(function(){})}catch(e){}}
+}
+b.onclick=function(e){
+ e.stopPropagation();dismissed=true;
+ var fn=document.exitFullscreen||document.webkitExitFullscreen;
+ if(fn){try{fn.call(document)}catch(x){}}
+};
+document.addEventListener("fullscreenchange",sync);
+document.addEventListener("webkitfullscreenchange",sync);
+window.addEventListener("resize",sync);
+window.addEventListener("load",function(){goFS();sync()});
+["pointerdown","keydown"].forEach(function(ev){
+ document.addEventListener(ev,function(e){
+  if(ev=="keydown"&&(e.key=="Escape"||e.key=="F11"))return;
+  if(!dismissed&&!inFS())goFS();
+ },true);
+});
+})();</script>
 </body>
 </html>
