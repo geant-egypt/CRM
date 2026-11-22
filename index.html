@@ -349,12 +349,12 @@ header .pgt.pgan{animation:none}
 .nvt{position:relative}
 }
 
-/* external link tabs stacked vertically + balanced grid */
+/* external link tabs: owner desktop sidebar stays uniform 2-column grid without separator; mobile menu keeps stacked links */
 .shell .nv.nv2{padding-right:8px}
-.shell .nv.nv2 button:nth-of-type(odd):last-of-type,.mg button:nth-of-type(odd):last-of-type{grid-column:1/-1}
-.shell .nv.nv2 a,.mg a{grid-column:1/-1;min-height:44px}
-.shell .nv.nv2 a:first-of-type,.mg a:first-of-type{margin-top:10px;position:relative}
-.shell .nv.nv2 a:first-of-type::before,.mg a:first-of-type::before{content:"";position:absolute;top:-9px;left:10%;right:10%;height:1.5px;background:rgba(47,138,34,.45);border-radius:99px;pointer-events:none}
+.mg button:nth-of-type(odd):last-of-type{grid-column:1/-1}
+.mg a{grid-column:1/-1;min-height:44px}
+.mg a:first-of-type{margin-top:10px;position:relative}
+.mg a:first-of-type::before{content:"";position:absolute;top:-9px;left:10%;right:10%;height:1.5px;background:rgba(47,138,34,.45);border-radius:99px;pointer-events:none}
 
 /* desktop-only fullscreen hidden exit X at top center */
 #fsx-zone{display:none}
