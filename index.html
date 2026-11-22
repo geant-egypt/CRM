@@ -886,7 +886,10 @@ function bnav(tabs){
  return `<div class="bn"><button data-b="more" aria-label="${mgT("القائمة","Menu")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>${mgT("القائمة","Menu")}</button></div>`}
 function bindBN(tabs){document.querySelectorAll(".bn button").forEach(b=>b.onclick=()=>moreMenu(tabs))}
 function moreMenu(tabs){const l=tabs;
- open(`<h2>${mgT("القائمة","Menu")}</h2><div class="mg">${l.map(t=>LK[t[0]]?`<a href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()+rqN()?" ("+(S.ue.length+S.cl.length+tcN()+rqN())+")":""}</button>`).join("")}</div><div class="row" style="margin:14px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ open(`<h2>${mgT("القائمة","Menu")}</h2><div class="mg" id="mgl">${l.map(t=>{const kq=esc(((X.ar[t[1]]||D.ar[t[1]]||"")+" "+(X.en[t[1]]||D.en[t[1]]||"")+" "+t[0]).toLowerCase());return LK[t[0]]?`<a data-q="${kq}" href="${LK[t[0]]}" target="_blank" rel="noopener">${TL(t[1])} ↗</a>`:`<button data-q="${kq}" data-v="${t[0]}" class="${view==t[0]?"on":""}">${TL(t[1])}${t[0]=="mgv"?mgBadge():""}${t[0]=="apr"&&S.ue.length+S.cl.length+tcN()+rqN()?" ("+(S.ue.length+S.cl.length+tcN()+rqN())+")":""}</button>`}).join("")}</div><input type="search" id="mgq" class="nv-q" style="margin:12px 0 0" placeholder="🔍 ${mgT("بحث في التابات...","Search tabs...")}" autocomplete="off"><div class="row" style="margin:10px 0 0"><button class="btn g" id="x">${L("close")}</button></div>`);
+ const mq=$("mgq"),ml=$("mgl");
+ if(mq&&ml){const fl=()=>{const s=mq.value.trim().toLowerCase();ml.querySelectorAll("[data-q]").forEach(el=>{el.style.display=!s||el.dataset.q.includes(s)?"":"none"})};
+  mq.oninput=fl;mq.onkeydown=e=>{if(e.key=="Enter"){const hit=[...ml.querySelectorAll("[data-q]")].find(el=>el.style.display!="none");if(hit)hit.click()}else if(e.key=="Escape"&&mq.value){e.stopPropagation();mq.value="";fl()}}}
  $("x").onclick=close;md.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{view=b.dataset.v;close();window.scrollTo(0,0);render()})}
 
 /* ---- personal notes / alarms / reminders ---- */
