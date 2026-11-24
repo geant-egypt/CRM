@@ -364,6 +364,26 @@ header .pgt.pgan{animation:none}
  #fsx-btn:hover{background:var(--red,#d7202c);border-color:#fff}
 }
 
+/* owner-only sidebar adjustment: move up slightly + slightly reduce button height */
+@media(min-width:641px){
+  .shell .nv.nv2{
+    top:calc(var(--hh,0px) + 4px);
+    max-height:calc(100vh - var(--hh,0px) - 8px);
+    padding-top:4px;
+    padding-bottom:6px;
+    gap:6px 8px;
+  }
+  .shell .nv.nv2 .nv-q{
+    padding:6px 12px;
+    margin-bottom:0;
+  }
+  .shell .nv.nv2 button,
+  .shell .nv.nv2 a{
+    min-height:44px;
+    padding:5px 10px;
+    line-height:1.15;
+  }
+}
 </style>
 </head>
 <body>
