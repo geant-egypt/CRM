@@ -283,11 +283,13 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .pnc.alarm{animation:pnIn .5s cubic-bezier(.32,.72,0,1),pnr .9s ease-in-out infinite alternate}
 .pnc.out{animation:pnOut .3s cubic-bezier(.4,0,1,1) forwards}
 @media(prefers-reduced-motion:reduce){.ov,.md{transition:none!important}.pnc,.pnc.out{animation:none!important}}
-.pg-snap{position:fixed;overflow:hidden;pointer-events:none;background:#fff;transform-origin:0 0;will-change:transform,clip-path,opacity}
-.pg-snap .pg-dim{position:absolute;inset:0;background:rgba(20,10,12,.26);pointer-events:none}
-#app.pg-morph{position:relative;z-index:10;background:#fff;min-height:calc(100vh - var(--hh,0px));transform-origin:0 0;will-change:transform,clip-path,opacity}
-#app.pg-back{transform-origin:50% 35vh;will-change:transform,opacity}
-@media(prefers-reduced-motion:reduce){.pg-snap{display:none!important}}
+.pg-snap{position:fixed;overflow:hidden;pointer-events:none;background:#fff;transform-origin:50% 45%;will-change:transform,opacity}
+.pg-snap .pg-dim{position:absolute;inset:0;background:rgba(20,10,12,.22);pointer-events:none}
+.pg-win{position:fixed;overflow:hidden;pointer-events:none;background:#fff;transform-origin:0 0;will-change:transform,clip-path}
+.pg-win .pg-inn{position:absolute;left:0;top:0;will-change:opacity}
+.pg-win .pg-card{position:absolute;left:0;top:0;margin:0!important;transform-origin:0 0;pointer-events:none;will-change:opacity}
+#app.pg-back{transform-origin:50% 38vh;will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){.pg-snap,.pg-win{display:none!important}}
 
 /* Home hub: one card per sidebar tab */
 .hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
@@ -1574,37 +1576,72 @@ window.addEventListener("popstate",e=>{
  _bkT=setTimeout(()=>{_bkN=0;bkGuard()},4000)});
 document.addEventListener("pointerdown",()=>{if(_bkTouch&&me){if(_bkN)_bkN=0;bkGuard()}},true);
 
-/* tab-switch motion: MIUI/Android icon-to-window morph (open out of tapped card/tab, close back into it) */
-let _anV=null,_pgAs=[],_pgO=null,_homeY=0;
+/* tab-switch motion: true card-to-tab & tab-to-card morph (emerge from tapped card, collapse back into it) */
+let _anV=null,_pgAs=[],_pgHid=[],_pgO=null,_homeY=0;
 function _pgClean(){
  _pgAs.forEach(x=>{try{x.cancel()}catch(e){}});_pgAs=[];
- const s=document.getElementById("pg-snap");if(s)s.remove();
- const a=$("app");if(a){a.classList.remove("pg-morph","pg-back");a.style.transformOrigin=""}}
-function _pgSnap(a){
+ _pgHid.forEach(el=>{if(el)el.style.visibility=""});_pgHid=[];
+ ["pg-snap","pg-win"].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()});
+ const a=$("app");if(a)a.classList.remove("pg-back")}
+function _pgHide(el){if(el){el.style.visibility="hidden";_pgHid.push(el)}}
+function _pgClonePage(a,w,topOffset){
+ const inn=a.cloneNode(true);inn.removeAttribute("id");inn.className="pg-inn";
+ inn.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+ inn.setAttribute("dir",a.getAttribute("dir")||document.documentElement.dir||"ltr");
+ const cs=getComputedStyle(a);
+ inn.style.cssText=`left:0;top:0;margin:0;padding:${cs.padding};width:${w}px;transform:translateY(${topOffset}px)`;
+ return inn}
+function _pgCloneCard(el,r,invS){
+ const c=el.cloneNode(true);c.removeAttribute("id");c.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+ c.classList.add("pg-card");
+ const cs=getComputedStyle(el);
+ c.setAttribute("dir",cs.direction||document.documentElement.dir||"ltr");
+ c.style.width=r.width+"px";c.style.height=r.height+"px";
+ c.style.background=cs.backgroundColor;c.style.color=cs.color;
+ c.style.border=cs.border;c.style.borderTop=cs.borderTop;c.style.borderRadius=cs.borderRadius;
+ c.style.padding=cs.padding;c.style.font=cs.font;c.style.textAlign=cs.textAlign;
+ c.style.display=cs.display;c.style.flexDirection=cs.flexDirection;c.style.alignItems=cs.alignItems;c.style.justifyContent=cs.justifyContent;
+ c.style.gap=cs.gap;c.style.boxSizing="border-box";c.style.overflow="hidden";c.style.boxShadow="none";
+ c.style.transform=`scale(${invS})`;
+ return c}
+function _pgSnap(a,hideSel){
  const r=a.getBoundingClientRect(),h=document.querySelector("header"),hh=h?h.offsetHeight:0;
- const top=Math.max(hh,r.top),visH=Math.max(200,innerHeight-top);
+ const top=Math.max(hh,r.top),visH=Math.max(220,innerHeight-top);
  const wrap=document.createElement("div");wrap.id="pg-snap";wrap.className="pg-snap";
  wrap.style.cssText=`left:${r.left}px;top:${top}px;width:${r.width}px;height:${visH}px`;
- const inn=a.cloneNode(true);inn.removeAttribute("id");inn.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
- const cs=getComputedStyle(a);
- inn.style.cssText=`margin:0;padding:${cs.padding};width:${r.width}px;transform:translateY(${r.top-top}px)`;
+ const inn=_pgClonePage(a,r.width,r.top-top);
+ if(hideSel){const hEl=inn.querySelector(hideSel);if(hEl)hEl.style.visibility="hidden"}
  wrap.appendChild(inn);
- return{wrap,rect:{left:r.left,top,width:r.width,height:visH}}}
+ return{wrap,inn,rect:{left:r.left,top,width:r.width,height:visH}}}
 function _pgVis(el,hh){if(!el)return null;const r=el.getBoundingClientRect();return r.width>10&&r.height>10&&r.bottom>hh&&r.top<innerHeight?r:null}
+function _pgGeom(winRect,cardRect,radPx){
+ const ww=Math.max(1,winRect.width),wh=Math.max(1,winRect.height);
+ const cw=Math.max(24,cardRect.width),ch=Math.max(24,cardRect.height);
+ const s=Math.max(0.10,Math.min(1,Math.max(cw/ww,ch/wh)));
+ const ir=Math.max(0,ww-cw/s),ib=Math.max(0,wh-ch/s);
+ return{s,invS:1/s,dx:cardRect.left-winRect.left,dy:cardRect.top-winRect.top,ir,ib,rad:Math.round((radPx||18)/s)}}
 document.addEventListener("pointerdown",e=>{
  const b=e.target&&e.target.closest&&e.target.closest("[data-v],[data-hv]");
  if(!b)return;const r=b.getBoundingClientRect();
- if(r.width>8&&r.height>8)_pgO={v:b.dataset.v||b.dataset.hv,rect:{left:r.left,top:r.top,width:r.width,height:r.height},t:Date.now()}
+ if(r.width>8&&r.height>8){
+  const cs=getComputedStyle(b),rad=parseFloat(cs.borderTopLeftRadius)||18;
+  _pgO={v:b.dataset.v||b.dataset.hv,isCard:b.hasAttribute("data-hv"),rect:{left:r.left,top:r.top,width:r.width,height:r.height},rad,el:b,t:Date.now()}
+ }
 },true);
 const _anRender=render;
 render=function(){
  const prev=_anV,willCh=!!me&&prev!==null&&prev!==view;
- let snap=null;
+ let snap=null,srcO=null;
  const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
  if(willCh&&!rm){
   _pgClean();
   if(prev=="home")_homeY=scrollY||0;
-  const oa=$("app");if(oa&&oa.animate)snap=_pgSnap(oa);
+  if(_pgO&&Date.now()-_pgO.t<900&&_pgO.v==view){
+   srcO={rect:_pgO.rect,rad:_pgO.rad,isCard:_pgO.isCard,el:_pgO.el,clone:_pgO.el?_pgCloneCard(_pgO.el,_pgO.rect,1):null};
+  }
+  _pgO=null;
+  const oa=$("app");
+  if(oa&&oa.animate)snap=_pgSnap(oa,(prev=="home"&&srcO&&srcO.isCard)?`[data-hv="${view}"]`:null);
  }
  _anRender.apply(this,arguments);
  if(!me){_pgClean();_anV=null;return}
@@ -1619,43 +1656,62 @@ render=function(){
   if(_homeY)scrollTo(0,_homeY);
   const sh=document.querySelector(".shell"),navVis=sh&&!sh.classList.contains("nvc");
   let tgt=a.querySelector(`[data-hv="${prev}"]`),tr=_pgVis(tgt,hh);
+  if(tgt&&!tr){try{tgt.scrollIntoView({block:"center",behavior:"instant"})}catch(e){tgt.scrollIntoView()}tr=_pgVis(tgt,hh)}
   if(!tr&&navVis){tgt=document.querySelector(`#snav [data-v="${prev}"]`);tr=_pgVis(tgt,hh)}
+  const radPx=tgt?(parseFloat(getComputedStyle(tgt).borderTopLeftRadius)||18):18;
   if(!tr){tgt=null;tr=innerWidth<=640?{left:innerWidth/2-55,top:innerHeight-95,width:110,height:54}:{left:18,top:hh+18,width:120,height:48}}
-  const sr=snap.rect,sw=Math.max(1,sr.width),sh0=Math.max(1,sr.height);
-  const s=Math.max(0.30,Math.min(0.72,tr.width/sw));
-  const cw=Math.min(sw,tr.width/s),ch0=Math.min(sh0,tr.height/s);
-  const dx=tr.left-sr.left,dy=tr.top-sr.top,ir=Math.max(0,sw-cw),ib=Math.max(0,sh0-ch0),rad=Math.round(24/s);
-  snap.wrap.style.zIndex="11";document.body.appendChild(snap.wrap);
+  const sr=snap.rect,g=_pgGeom(sr,tr,radPx);
+  const win=document.createElement("div");win.id="pg-win";win.className="pg-win";
+  win.style.cssText=`left:${sr.left}px;top:${sr.top}px;width:${sr.width}px;height:${sr.height}px;z-index:11`;
+  const pgEl=snap.inn;win.appendChild(pgEl);
+  let cEl=null;
+  if(tgt){cEl=_pgCloneCard(tgt,tr,g.invS);cEl.style.opacity="0";win.appendChild(cEl);_pgHide(tgt)}
+  document.body.appendChild(win);
   a.classList.add("pg-back");
-  const a1=a.animate([{transform:"scale(.93)",opacity:.55},{transform:"scale(1)",opacity:1}],{duration:880,easing:"cubic-bezier(.2,.85,.25,1)"});
-  const a2=snap.wrap.animate([
-   {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)",opacity:1},
-   {opacity:1,offset:.72},
-   {transform:`translate3d(${dx}px,${dy}px,0) scale(${s})`,clipPath:`inset(0px ${ir}px ${ib}px 0px round ${rad}px)`,opacity:0}
-  ],{duration:880,easing:"cubic-bezier(.28,.75,.18,1)",fill:"forwards"});
-  _pgAs=[a1,a2];
-  if(tgt)tgt.animate([{transform:"scale(1)"},{transform:"scale(.95)",offset:.45},{transform:"scale(1.02)",offset:.78},{transform:"scale(1)"}],{duration:460,delay:540,easing:"cubic-bezier(.22,1,.36,1)"})
-  a2.onfinish=_pgClean;
+  const dur=480,ease="cubic-bezier(.24,.9,.24,1)";
+  const a1=a.animate([{transform:"scale(.95)",opacity:.68},{transform:"scale(1)",opacity:1}],{duration:dur,easing:ease});
+  const a2=win.animate([
+   {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)"},
+   {transform:`translate3d(${g.dx}px,${g.dy}px,0) scale(${g.s})`,clipPath:`inset(0px ${g.ir}px ${g.ib}px 0px round ${g.rad}px)`}
+  ],{duration:dur,easing:ease,fill:"forwards"});
+  const a3=pgEl.animate([{opacity:1},{opacity:1,offset:.25},{opacity:0,offset:.82},{opacity:0}],{duration:dur,easing:"ease-out",fill:"forwards"});
+  _pgAs=[a1,a2,a3];
+  if(cEl){_pgAs.push(cEl.animate([{opacity:0},{opacity:0,offset:.26},{opacity:1,offset:.82},{opacity:1}],{duration:dur,easing:"ease-in",fill:"forwards"}))}
+  const landEl=tgt;
+  a2.onfinish=()=>{
+   _pgClean();
+   if(landEl&&landEl.isConnected)landEl.animate([{transform:"scale(.975)"},{transform:"scale(1)"}],{duration:160,easing:"cubic-bezier(.22,1,.36,1)"});
+  };
  }else{
   if(prev=="home")scrollTo(0,0);
-  let fr=(_pgO&&Date.now()-_pgO.t<900&&_pgO.v==view)?_pgO.rect:null;_pgO=null;
+  let fr=srcO?srcO.rect:null,radPx=srcO?srcO.rad:18;
   if(!fr){const sb=document.querySelector(`#snav [data-v="${view}"]`);fr=_pgVis(sb,hh)}
-  a.classList.add("pg-morph");
-  const rr=a.getBoundingClientRect(),rw=Math.max(1,rr.width),rh=Math.max(1,rr.height);
-  if(!fr)fr={left:rr.left+rw*.32,top:Math.max(hh,rr.top)+110,width:rw*.36,height:100};
-  const s=Math.max(0.32,Math.min(0.74,fr.width/rw));
-  const cw=Math.min(rw,fr.width/s),ch0=Math.min(rh,fr.height/s);
-  const dx=fr.left-rr.left,dy=fr.top-rr.top,ir=Math.max(0,rw-cw),ib=Math.max(0,rh-ch0),rad=Math.round(24/s);
+  const sh=document.querySelector(".shell"),rr0=a.getBoundingClientRect();
+  const top=Math.max(hh,rr0.top),visH=Math.max(220,innerHeight-top);
+  const finLeft=(sh&&sh.classList.contains("nvc")&&rr0.left>40&&innerWidth>640)?8:rr0.left;
+  const finW=(sh&&sh.classList.contains("nvc")&&rr0.left>40&&innerWidth>640)?Math.max(300,document.documentElement.clientWidth-16):rr0.width;
+  const wr={left:finLeft,top,width:finW,height:visH};
+  if(!fr)fr={left:wr.left+wr.width*.32,top:wr.top+110,width:wr.width*.36,height:110};
+  const g=_pgGeom(wr,fr,radPx);
   const dim=document.createElement("div");dim.className="pg-dim";snap.wrap.appendChild(dim);
-  snap.wrap.style.zIndex="8";snap.wrap.style.transformOrigin="50% 45%";document.body.appendChild(snap.wrap);
-  const a1=snap.wrap.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.93)",opacity:0}],{duration:880,easing:"cubic-bezier(.2,.85,.25,1)",fill:"forwards"});
-  const a2=dim.animate([{opacity:0},{opacity:1}],{duration:520,easing:"ease-out",fill:"forwards"});
-  const a3=a.animate([
-   {transform:`translate3d(${dx}px,${dy}px,0) scale(${s})`,clipPath:`inset(0px ${ir}px ${ib}px 0px round ${rad}px)`,opacity:.45},
-   {opacity:1,offset:.20},
-   {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)",opacity:1}
-  ],{duration:950,easing:"cubic-bezier(.2,.85,.25,1)"});
-  _pgAs=[a1,a2,a3];
+  snap.wrap.style.zIndex="8";document.body.appendChild(snap.wrap);
+  const win=document.createElement("div");win.id="pg-win";win.className="pg-win";
+  win.style.cssText=`left:${wr.left}px;top:${wr.top}px;width:${wr.width}px;height:${wr.height}px;z-index:11`;
+  const pgEl=_pgClonePage(a,wr.width,rr0.top-top);win.appendChild(pgEl);
+  let cEl=null;
+  if(srcO&&srcO.clone){cEl=srcO.clone;cEl.style.transform=`scale(${g.invS})`;win.appendChild(cEl)}
+  _pgHide(a);
+  document.body.appendChild(win);
+  const dur=520,ease="cubic-bezier(.22,1,.36,1)";
+  const a1=snap.wrap.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.95)",opacity:.75}],{duration:dur,easing:ease,fill:"forwards"});
+  const a2=dim.animate([{opacity:0},{opacity:1}],{duration:Math.round(dur*.6),easing:"ease-out",fill:"forwards"});
+  const a3=win.animate([
+   {transform:`translate3d(${g.dx}px,${g.dy}px,0) scale(${g.s})`,clipPath:`inset(0px ${g.ir}px ${g.ib}px 0px round ${g.rad}px)`},
+   {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)"}
+  ],{duration:dur,easing:ease,fill:"forwards"});
+  const a4=pgEl.animate([{opacity:0},{opacity:1,offset:.42},{opacity:1}],{duration:dur,easing:"ease-out",fill:"forwards"});
+  _pgAs=[a1,a2,a3,a4];
+  if(cEl){_pgAs.push(cEl.animate([{opacity:1},{opacity:0,offset:.38},{opacity:0}],{duration:dur,easing:"ease-out",fill:"forwards"}))}
   a3.onfinish=_pgClean;
  }
 };
