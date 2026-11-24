@@ -364,23 +364,31 @@ header .pgt.pgan{animation:none}
  #fsx-btn:hover{background:var(--red,#d7202c);border-color:#fff}
 }
 
-/* owner-only sidebar adjustment: move up slightly + slightly reduce button height */
+/* owner-only sidebar: fill full height evenly, aligned with main content, no scrollbar */
 @media(min-width:641px){
   .shell .nv.nv2{
-    top:calc(var(--hh,0px) + 4px);
-    max-height:calc(100vh - var(--hh,0px) - 8px);
-    padding-top:4px;
-    padding-bottom:6px;
-    gap:6px 8px;
+    top:var(--hh,0px);
+    height:calc(100vh - var(--hh,0px));
+    max-height:calc(100vh - var(--hh,0px));
+    padding:10px 4px;
+    gap:7px 8px;
+    grid-template-rows:auto;
+    grid-auto-rows:minmax(42px,1fr);
+    align-content:stretch;
+  }
+  .shell .nv.nv2:has(.nv-q:not(:placeholder-shown)){
+    grid-auto-rows:50px;
+    align-content:start;
   }
   .shell .nv.nv2 .nv-q{
-    padding:6px 12px;
+    padding:7px 12px;
     margin-bottom:0;
   }
   .shell .nv.nv2 button,
   .shell .nv.nv2 a{
-    min-height:44px;
-    padding:5px 10px;
+    min-height:0;
+    height:100%;
+    padding:6px 10px;
     line-height:1.15;
   }
 }
