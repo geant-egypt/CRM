@@ -1627,14 +1627,14 @@ render=function(){
   const dx=tr.left-sr.left,dy=tr.top-sr.top,ir=Math.max(0,sw-cw),ib=Math.max(0,sh0-ch0),rad=Math.round(24/s);
   snap.wrap.style.zIndex="11";document.body.appendChild(snap.wrap);
   a.classList.add("pg-back");
-  const a1=a.animate([{transform:"scale(.93)",opacity:.55},{transform:"scale(1)",opacity:1}],{duration:440,easing:"cubic-bezier(.22,1,.36,1)"});
+  const a1=a.animate([{transform:"scale(.93)",opacity:.55},{transform:"scale(1)",opacity:1}],{duration:880,easing:"cubic-bezier(.2,.85,.25,1)"});
   const a2=snap.wrap.animate([
    {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)",opacity:1},
-   {opacity:1,offset:.68},
+   {opacity:1,offset:.72},
    {transform:`translate3d(${dx}px,${dy}px,0) scale(${s})`,clipPath:`inset(0px ${ir}px ${ib}px 0px round ${rad}px)`,opacity:0}
-  ],{duration:440,easing:"cubic-bezier(.32,.72,0,1)",fill:"forwards"});
+  ],{duration:880,easing:"cubic-bezier(.28,.75,.18,1)",fill:"forwards"});
   _pgAs=[a1,a2];
-  if(tgt)tgt.animate([{transform:"scale(1)"},{transform:"scale(.95)",offset:.45},{transform:"scale(1.02)",offset:.78},{transform:"scale(1)"}],{duration:300,delay:250,easing:"cubic-bezier(.22,1,.36,1)"})
+  if(tgt)tgt.animate([{transform:"scale(1)"},{transform:"scale(.95)",offset:.45},{transform:"scale(1.02)",offset:.78},{transform:"scale(1)"}],{duration:460,delay:540,easing:"cubic-bezier(.22,1,.36,1)"})
   a2.onfinish=_pgClean;
  }else{
   if(prev=="home")scrollTo(0,0);
@@ -1648,13 +1648,13 @@ render=function(){
   const dx=fr.left-rr.left,dy=fr.top-rr.top,ir=Math.max(0,rw-cw),ib=Math.max(0,rh-ch0),rad=Math.round(24/s);
   const dim=document.createElement("div");dim.className="pg-dim";snap.wrap.appendChild(dim);
   snap.wrap.style.zIndex="8";snap.wrap.style.transformOrigin="50% 45%";document.body.appendChild(snap.wrap);
-  const a1=snap.wrap.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.93)",opacity:0}],{duration:440,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
-  const a2=dim.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out",fill:"forwards"});
+  const a1=snap.wrap.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.93)",opacity:0}],{duration:880,easing:"cubic-bezier(.2,.85,.25,1)",fill:"forwards"});
+  const a2=dim.animate([{opacity:0},{opacity:1}],{duration:520,easing:"ease-out",fill:"forwards"});
   const a3=a.animate([
    {transform:`translate3d(${dx}px,${dy}px,0) scale(${s})`,clipPath:`inset(0px ${ir}px ${ib}px 0px round ${rad}px)`,opacity:.45},
-   {opacity:1,offset:.22},
+   {opacity:1,offset:.20},
    {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)",opacity:1}
-  ],{duration:480,easing:"cubic-bezier(.22,1,.36,1)"});
+  ],{duration:950,easing:"cubic-bezier(.2,.85,.25,1)"});
   _pgAs=[a1,a2,a3];
   a3.onfinish=_pgClean;
  }
