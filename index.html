@@ -286,10 +286,27 @@ header{position:sticky!important;top:env(safe-area-inset-top,0px)!important;z-in
 .pg-snap{position:fixed;overflow:hidden;pointer-events:none;background:#fff;transform-origin:50% 45%;will-change:transform,opacity}
 .pg-snap .pg-dim{position:absolute;inset:0;background:rgba(20,10,12,.22);pointer-events:none}
 .pg-win{position:fixed;overflow:hidden;pointer-events:none;background:#fff;transform-origin:0 0;will-change:transform,clip-path}
-.pg-win .pg-inn{position:absolute;left:0;top:0;will-change:opacity}
-.pg-win .pg-card{position:absolute;left:0;top:0;margin:0!important;transform-origin:0 0;pointer-events:none;will-change:opacity}
+.pg-win .pg-inn{position:absolute;left:0;top:0;will-change:opacity,filter}
+.pg-win .pg-card{position:absolute;left:0;top:0;margin:0!important;transform-origin:0 0;pointer-events:none;will-change:opacity,filter}
 #app.pg-back{transform-origin:50% 38vh;will-change:transform,opacity}
-@media(prefers-reduced-motion:reduce){.pg-snap,.pg-win{display:none!important}}
+@keyframes pgFrostIn{0%{opacity:0;transform:scale(.82);filter:blur(9px) brightness(1.25)}45%{opacity:.95;transform:scale(1.03);filter:blur(2.5px) brightness(1.1)}100%{opacity:1;transform:scale(1);filter:blur(0) brightness(1)}}
+@keyframes pgFrostVeil{0%{opacity:.95}48%{opacity:.65}100%{opacity:0}}
+@keyframes pgFrostSheen{0%{transform:translateX(-145%) skewX(-22deg);opacity:0}22%{opacity:.95}75%{opacity:.6}100%{transform:translateX(155%) skewX(-22deg);opacity:0}}
+@keyframes pgFrostLand{0%{transform:scale(.955)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
+.pg-frost{position:relative!important;overflow:hidden!important;animation:pgFrostIn .58s cubic-bezier(.22,1,.36,1) both!important}
+.pg-frost::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+ background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.22) 52%,rgba(255,215,220,.46));
+ -webkit-backdrop-filter:blur(12px) saturate(170%);backdrop-filter:blur(12px) saturate(170%);
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.92),inset 0 -1px 1px rgba(255,255,255,.35);
+ animation:pgFrostVeil .58s ease-out both}
+.pg-frost::after{content:"";position:absolute;inset:-20% -35%;pointer-events:none;z-index:3;
+ background:linear-gradient(105deg,transparent 25%,rgba(255,255,255,.76) 50%,rgba(255,255,255,.18) 62%,transparent 78%);
+ animation:pgFrostSheen .62s cubic-bezier(.22,1,.36,1) both}
+.pg-frost-land{position:relative!important;overflow:hidden!important;animation:pgFrostLand .28s cubic-bezier(.22,1,.36,1) both!important}
+.pg-frost-land::after{content:"";position:absolute;inset:-20% -35%;pointer-events:none;z-index:3;
+ background:linear-gradient(105deg,transparent 28%,rgba(255,255,255,.55) 50%,transparent 72%);
+ animation:pgFrostSheen .42s cubic-bezier(.22,1,.36,1) both}
+@media(prefers-reduced-motion:reduce){.pg-snap,.pg-win{display:none!important}.pg-frost,.pg-frost-land,.pg-frost::before,.pg-frost::after,.pg-frost-land::after{animation:none!important}}
 
 /* Home hub: one card per sidebar tab */
 .hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
@@ -1576,14 +1593,27 @@ window.addEventListener("popstate",e=>{
  _bkT=setTimeout(()=>{_bkN=0;bkGuard()},4000)});
 document.addEventListener("pointerdown",()=>{if(_bkTouch&&me){if(_bkN)_bkN=0;bkGuard()}},true);
 
-/* tab-switch motion: true card-to-tab & tab-to-card morph (emerge from tapped card, collapse back into it) */
-let _anV=null,_pgAs=[],_pgHid=[],_pgO=null,_homeY=0;
-function _pgClean(){
+/* tab-switch motion: button/card emerges into page, reappears in its slot with frosted-glass reveal, and returns to its slot on back */
+let _anV=null,_pgAs=[],_pgHid=[],_pgTs=[],_pgO=null,_pgFrom={v:null,isNav:false},_homeY=0;
+function _pgClean(keepFrost){
  _pgAs.forEach(x=>{try{x.cancel()}catch(e){}});_pgAs=[];
+ if(!keepFrost){
+  _pgTs.forEach(t=>clearTimeout(t));_pgTs=[];
+  document.querySelectorAll(".pg-frost,.pg-frost-land").forEach(el=>el.classList.remove("pg-frost","pg-frost-land"));
+ }
  _pgHid.forEach(el=>{if(el)el.style.visibility=""});_pgHid=[];
  ["pg-snap","pg-win"].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()});
  const a=$("app");if(a)a.classList.remove("pg-back")}
 function _pgHide(el){if(el){el.style.visibility="hidden";_pgHid.push(el)}}
+function _pgUnhide(el){if(!el)return;el.style.visibility="";const i=_pgHid.indexOf(el);if(i>-1)_pgHid.splice(i,1)}
+function _pgFrost(el,cls,ms){
+ if(!el||!el.isConnected)return;
+ _pgUnhide(el);
+ el.classList.remove("pg-frost","pg-frost-land");
+ void el.offsetWidth;
+ el.classList.add(cls);
+ const t=setTimeout(()=>{if(el)el.classList.remove(cls)},ms);
+ _pgTs.push(t)}
 function _pgClonePage(a,w,topOffset){
  const inn=a.cloneNode(true);inn.removeAttribute("id");inn.className="pg-inn";
  inn.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
@@ -1625,7 +1655,7 @@ document.addEventListener("pointerdown",e=>{
  if(!b)return;const r=b.getBoundingClientRect();
  if(r.width>8&&r.height>8){
   const cs=getComputedStyle(b),rad=parseFloat(cs.borderTopLeftRadius)||18;
-  _pgO={v:b.dataset.v||b.dataset.hv,isCard:b.hasAttribute("data-hv"),rect:{left:r.left,top:r.top,width:r.width,height:r.height},rad,el:b,t:Date.now()}
+  _pgO={v:b.dataset.v||b.dataset.hv,isCard:b.hasAttribute("data-hv"),isNav:!!b.closest("#snav"),rect:{left:r.left,top:r.top,width:r.width,height:r.height},rad,el:b,t:Date.now()}
  }
 },true);
 const _anRender=render;
@@ -1634,29 +1664,35 @@ render=function(){
  let snap=null,srcO=null;
  const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
  if(willCh&&!rm){
-  _pgClean();
+  _pgClean(false);
   if(prev=="home")_homeY=scrollY||0;
   if(_pgO&&Date.now()-_pgO.t<900&&_pgO.v==view){
-   srcO={rect:_pgO.rect,rad:_pgO.rad,isCard:_pgO.isCard,el:_pgO.el,clone:_pgO.el?_pgCloneCard(_pgO.el,_pgO.rect,1):null};
+   srcO={rect:_pgO.rect,rad:_pgO.rad,isCard:_pgO.isCard,isNav:_pgO.isNav,el:_pgO.el,clone:_pgO.el?_pgCloneCard(_pgO.el,_pgO.rect,1):null};
   }
   _pgO=null;
   const oa=$("app");
   if(oa&&oa.animate)snap=_pgSnap(oa,(prev=="home"&&srcO&&srcO.isCard)?`[data-hv="${view}"]`:null);
  }
  _anRender.apply(this,arguments);
- if(!me){_pgClean();_anV=null;return}
+ if(!me){_pgClean(false);_anV=null;_pgFrom={v:null,isNav:false};return}
  sesSave();
  if(navigator.userActivation&&navigator.userActivation.isActive)bkGuard();
  const ch=prev!==null&&prev!==view;_anV=view;
  if(!ch||rm||!snap)return;
  const a=$("app");if(!a||!a.animate){snap.wrap.remove();return}
  const h=document.querySelector("header"),hh=h?h.offsetHeight:0;
+ const sh=document.querySelector(".shell"),navVis=!!(sh&&!sh.classList.contains("nvc")&&innerWidth>640);
  const closing=(view=="home"&&prev!="home");
  if(closing){
   if(_homeY)scrollTo(0,_homeY);
-  const sh=document.querySelector(".shell"),navVis=sh&&!sh.classList.contains("nvc");
-  let tgt=a.querySelector(`[data-hv="${prev}"]`),tr=_pgVis(tgt,hh);
-  if(tgt&&!tr){try{tgt.scrollIntoView({block:"center",behavior:"instant"})}catch(e){tgt.scrollIntoView()}tr=_pgVis(tgt,hh)}
+  const fromNav=(_pgFrom.v==prev&&_pgFrom.isNav);
+  _pgFrom={v:null,isNav:false};
+  let tgt=null,tr=null;
+  if(fromNav&&navVis){tgt=document.querySelector(`#snav [data-v="${prev}"]`);tr=_pgVis(tgt,hh)}
+  if(!tr){
+   tgt=a.querySelector(`[data-hv="${prev}"]`);tr=_pgVis(tgt,hh);
+   if(tgt&&!tr){try{tgt.scrollIntoView({block:"center",behavior:"instant"})}catch(e){tgt.scrollIntoView()}tr=_pgVis(tgt,hh)}
+  }
   if(!tr&&navVis){tgt=document.querySelector(`#snav [data-v="${prev}"]`);tr=_pgVis(tgt,hh)}
   const radPx=tgt?(parseFloat(getComputedStyle(tgt).borderTopLeftRadius)||18):18;
   if(!tr){tgt=null;tr=innerWidth<=640?{left:innerWidth/2-55,top:innerHeight-95,width:110,height:54}:{left:18,top:hh+18,width:120,height:48}}
@@ -1674,19 +1710,21 @@ render=function(){
    {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)"},
    {transform:`translate3d(${g.dx}px,${g.dy}px,0) scale(${g.s})`,clipPath:`inset(0px ${g.ir}px ${g.ib}px 0px round ${g.rad}px)`}
   ],{duration:dur,easing:ease,fill:"forwards"});
-  const a3=pgEl.animate([{opacity:1},{opacity:1,offset:.25},{opacity:0,offset:.82},{opacity:0}],{duration:dur,easing:"ease-out",fill:"forwards"});
+  const a3=pgEl.animate([{opacity:1,filter:"blur(0px)"},{opacity:1,filter:"blur(0px)",offset:.25},{opacity:0,filter:"blur(4px)",offset:.82},{opacity:0,filter:"blur(4px)"}],{duration:dur,easing:"ease-out",fill:"forwards"});
   _pgAs=[a1,a2,a3];
-  if(cEl){_pgAs.push(cEl.animate([{opacity:0},{opacity:0,offset:.26},{opacity:1,offset:.82},{opacity:1}],{duration:dur,easing:"ease-in",fill:"forwards"}))}
+  if(cEl){_pgAs.push(cEl.animate([{opacity:0,filter:"blur(6px)"},{opacity:0,filter:"blur(6px)",offset:.24},{opacity:1,filter:"blur(0px)",offset:.84},{opacity:1,filter:"blur(0px)"}],{duration:dur,easing:"ease-in",fill:"forwards"}))}
   const landEl=tgt;
   a2.onfinish=()=>{
-   _pgClean();
-   if(landEl&&landEl.isConnected)landEl.animate([{transform:"scale(.975)"},{transform:"scale(1)"}],{duration:160,easing:"cubic-bezier(.22,1,.36,1)"});
+   _pgClean(true);
+   if(landEl&&landEl.isConnected)_pgFrost(landEl,"pg-frost-land",460);
   };
  }else{
   if(prev=="home")scrollTo(0,0);
-  let fr=srcO?srcO.rect:null,radPx=srcO?srcO.rad:18;
-  if(!fr){const sb=document.querySelector(`#snav [data-v="${view}"]`);fr=_pgVis(sb,hh)}
-  const sh=document.querySelector(".shell"),rr0=a.getBoundingClientRect();
+  const navBtn=navVis?document.querySelector(`#snav [data-v="${view}"]`):null;
+  let fr=srcO?srcO.rect:null,radPx=srcO?srcO.rad:18,isNav=!!(srcO&&srcO.isNav);
+  if(!fr&&navBtn){fr=_pgVis(navBtn,hh);if(fr){isNav=true;radPx=parseFloat(getComputedStyle(navBtn).borderTopLeftRadius)||16}}
+  _pgFrom={v:view,isNav};
+  const rr0=a.getBoundingClientRect();
   const top=Math.max(hh,rr0.top),visH=Math.max(220,innerHeight-top);
   const finLeft=(sh&&sh.classList.contains("nvc")&&rr0.left>40&&innerWidth>640)?8:rr0.left;
   const finW=(sh&&sh.classList.contains("nvc")&&rr0.left>40&&innerWidth>640)?Math.max(300,document.documentElement.clientWidth-16):rr0.width;
@@ -1700,7 +1738,9 @@ render=function(){
   const pgEl=_pgClonePage(a,wr.width,rr0.top-top);win.appendChild(pgEl);
   let cEl=null;
   if(srcO&&srcO.clone){cEl=srcO.clone;cEl.style.transform=`scale(${g.invS})`;win.appendChild(cEl)}
+  else if(isNav&&navBtn){cEl=_pgCloneCard(navBtn,fr,g.invS);win.appendChild(cEl)}
   _pgHide(a);
+  if(navBtn)_pgHide(navBtn);
   document.body.appendChild(win);
   const dur=520,ease="cubic-bezier(.22,1,.36,1)";
   const a1=snap.wrap.animate([{transform:"scale(1)",opacity:1},{transform:"scale(.95)",opacity:.75}],{duration:dur,easing:ease,fill:"forwards"});
@@ -1709,10 +1749,14 @@ render=function(){
    {transform:`translate3d(${g.dx}px,${g.dy}px,0) scale(${g.s})`,clipPath:`inset(0px ${g.ir}px ${g.ib}px 0px round ${g.rad}px)`},
    {transform:"translate3d(0,0,0) scale(1)",clipPath:"inset(0px 0px 0px 0px round 0px)"}
   ],{duration:dur,easing:ease,fill:"forwards"});
-  const a4=pgEl.animate([{opacity:0},{opacity:1,offset:.42},{opacity:1}],{duration:dur,easing:"ease-out",fill:"forwards"});
+  const a4=pgEl.animate([{opacity:0,filter:"blur(5px)"},{opacity:1,filter:"blur(0px)",offset:.46},{opacity:1,filter:"blur(0px)"}],{duration:dur,easing:"ease-out",fill:"forwards"});
   _pgAs=[a1,a2,a3,a4];
-  if(cEl){_pgAs.push(cEl.animate([{opacity:1},{opacity:0,offset:.38},{opacity:0}],{duration:dur,easing:"ease-out",fill:"forwards"}))}
-  a3.onfinish=_pgClean;
+  if(cEl){_pgAs.push(cEl.animate([{opacity:1,filter:"blur(0px)"},{opacity:0,filter:"blur(6px)",offset:.38},{opacity:0,filter:"blur(6px)"}],{duration:dur,easing:"ease-out",fill:"forwards"}))}
+  if(navBtn){
+   const ft=setTimeout(()=>_pgFrost(navBtn,"pg-frost",680),360);
+   _pgTs.push(ft);
+  }
+  a3.onfinish=()=>_pgClean(true);
  }
 };
 function mgTick(){
