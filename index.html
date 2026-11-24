@@ -1663,6 +1663,8 @@ render=function(){
  const prev=_anV,willCh=!!me&&prev!==null&&prev!==view;
  let snap=null,srcO=null;
  const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+ const isMob=innerWidth<=640||_bkTouch;
+ const willClose=willCh&&(view=="home"&&prev!="home");
  if(willCh&&!rm){
   _pgClean(false);
   if(prev=="home")_homeY=scrollY||0;
@@ -1671,18 +1673,24 @@ render=function(){
   }
   _pgO=null;
   const oa=$("app");
-  if(oa&&oa.animate)snap=_pgSnap(oa,(prev=="home"&&srcO&&srcO.isCard)?`[data-hv="${view}"]`:null);
+  if(oa&&oa.animate&&!(willClose&&isMob))snap=_pgSnap(oa,(prev=="home"&&srcO&&srcO.isCard)?`[data-hv="${view}"]`:null);
  }
  _anRender.apply(this,arguments);
  if(!me){_pgClean(false);_anV=null;_pgFrom={v:null,isNav:false};return}
  sesSave();
  if(navigator.userActivation&&navigator.userActivation.isActive)bkGuard();
  const ch=prev!==null&&prev!==view;_anV=view;
+ const closing=(view=="home"&&prev!="home");
+ if(ch&&closing&&isMob){
+  _pgFrom={v:null,isNav:false};
+  if(_homeY)scrollTo(0,_homeY);
+  if(snap)snap.wrap.remove();
+  return;
+ }
  if(!ch||rm||!snap)return;
  const a=$("app");if(!a||!a.animate){snap.wrap.remove();return}
  const h=document.querySelector("header"),hh=h?h.offsetHeight:0;
  const sh=document.querySelector(".shell"),navVis=!!(sh&&!sh.classList.contains("nvc")&&innerWidth>640);
- const closing=(view=="home"&&prev!="home");
  if(closing){
   if(_homeY)scrollTo(0,_homeY);
   const fromNav=(_pgFrom.v==prev&&_pgFrom.isNav);
