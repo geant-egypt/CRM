@@ -873,9 +873,9 @@ Object.assign(X.ar,{cnp:"Name & Phone No. — اسم ورقم العميل",item
 const dtf=v=>!v?"":String(v).length>10?fdt(new Date(v).getTime()):v;
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):x[1]=="dt"?dtf(v):v};
 const dpIsClosed=r=>!!(r&&r.closed);
-function dpArcSave(it,delD,delBy){if(!it)return;if(!S.dpDel)S.dpDel=[];const id=it.id;const rec=Object.assign({},JSON.parse(JSON.stringify(it)),{_delD:delD||Date.now(),_delBy:delBy||(me&&me.u)||""});const idx=S.dpDel.findIndex(x=>x&&x.id==id);if(idx>-1)S.dpDel[idx]=rec;else S.dpDel.push(rec)}
-const dpDelList=()=>{const m=new Map();(S.dpDel||[]).forEach(x=>{if(x)m.set(x.id,Object.assign({},x,{_arc:1}))});(S.bin||[]).forEach(b=>{if(b&&b.k=="m"&&b.m=="resv"&&b.it)m.set(b.it.id,Object.assign({},b.it,{_binId:b.id,_delD:b.d,_delBy:b.by}))});return[...m.values()].sort((a,b)=>(b._delD||b.d)-(a._delD||a.d))};
-function dpCloseNow(r,by){if(!r)return;r.closed=Date.now();r.closedBy=by||(me&&me.u)||"";delete r.cl}
+function dpArcSave(it,delD,delBy){if(!it||it.closed)return;if(!S.dpDel)S.dpDel=[];const id=it.id;const rec=Object.assign({},JSON.parse(JSON.stringify(it)),{_delD:delD||Date.now(),_delBy:delBy||(me&&me.u)||""});const idx=S.dpDel.findIndex(x=>x&&x.id==id);if(idx>-1)S.dpDel[idx]=rec;else S.dpDel.push(rec)}
+const dpDelList=()=>{const m=new Map();(S.dpDel||[]).forEach(x=>{if(x&&!x.closed)m.set(x.id,Object.assign({},x,{_arc:1}))});(S.bin||[]).forEach(b=>{if(b&&b.k=="m"&&b.m=="resv"&&b.it&&!b.it.closed)m.set(b.it.id,Object.assign({},b.it,{_binId:b.id,_delD:b.d,_delBy:b.by}));else if(b&&b.k=="m"&&b.m=="resv"&&b.it&&b.it.closed)m.delete(b.it.id)});return[...m.values()].sort((a,b)=>(b._delD||b.d)-(a._delD||a.d))};
+function dpCloseNow(r,by){if(!r)return;r.closed=Date.now();r.closedBy=by||(me&&me.u)||"";delete r.cl;if(S.dpDel)S.dpDel=S.dpDel.filter(x=>x&&x.id!=r.id);if(S.bin)S.bin=S.bin.filter(b=>!(b&&b.k=="m"&&b.m=="resv"&&b.it&&b.it.id==r.id))}
 const mrow=(r,M)=>{
  const isDel=!!(r._binId||r._arc),isCl=M===MOD.resv&&dpIsClosed(r);
  const stTag=isDel?`<span class="tag hi">${mgT("محذوف","Deleted")}</span>`:isCl?`<span class="tag cx">${TL("tcClosed")}</span>`:`<span class="tag ${SC[r.s]}">${SL(r.s)}</span>`;
