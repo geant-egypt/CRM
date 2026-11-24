@@ -812,7 +812,7 @@ function hubInfo(k){
  if(k=="tk"){const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,all=opn(S.t.filter(t=>!t.closed)).length,lt=mine().filter(late).length;return{n:my,s:TL("myOpen"),x:(sup()?mgT("إجمالي المفتوحة: ","All open: ")+all:"")+(lt?(sup()?" • ":"")+"⚠ "+lt+" "+mgT("متأخرة","late"):""),c:"red",act:1}}
  if(k=="short"){const n=S.m.short.filter(r=>r.s!="av").length;return{n,s:mgT("Missing item مفتوحة","Open missing items"),c:"amb"}}
  if(k=="cm"){const l=(S.m.cm||[]).filter(r=>r.f.date>=lcl(ms).slice(0,10));return{n:l.length,s:mgT("خطأ كاشير هذا الشهر","Cashier mistakes this month"),x:l.length?mgT("الإجمالي: ","Total: ")+l.reduce((s,r)=>s+(+r.f.amt||0),0).toLocaleString("en-US",{maximumFractionDigits:2}):"",c:"red"}}
- if(k=="resv"){return{n:S.m.resv.filter(r=>r.s!="del").length,s:mgT("إيداعات جارية","Active deposits"),c:"grn"}}
+ if(k=="resv"){return{n:S.m.resv.filter(r=>!dpIsClosed(r)).length,s:mgT("إيداعات جارية","Active deposits"),c:"grn"}}
  if(k=="ho"){return{n:S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length,s:TL("myHo"),c:"red"}}
  if(k=="tpl"){return{n:tplAll().length,s:mgT("نموذج جاهز","Ready templates"),c:"mut"}}
  if(k=="cu"){return{n:S.c.length,s:mgT("عميل مسجل","Saved customers"),c:"grn"}}
@@ -833,7 +833,7 @@ function hubBind(a){
  a.querySelectorAll("[data-hv]").forEach(e=>{const go=()=>{view=e.dataset.hv;render()};e.onclick=go;e.onkeydown=ev=>{if(ev.key=="Enter"||ev.key==" "){ev.preventDefault();go()}}});
  const g=$("gn");if(g)g.onclick=ev=>{ev.stopPropagation();tkForm()}}
 function home(a){const h=new Date().getHours(),g=lang=="ar"?(h<12?"صباح الخير":"مساء الخير"):(h<12?"Good morning":h<18?"Good afternoon":"Good evening");
- const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.resv.filter(r=>r.s!="del").length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
+ const my=S.t.filter(t=>t.ag==me.u&&t.s!="done").length,fu=S.m.resv.filter(r=>!dpIsClosed(r)).length,ho=S.m.ho.filter(r=>r.f.to==me.u&&r.s=="pend").length;
  a.innerHTML=`<div class="box" style="text-align:center;padding:26px 16px"><span class="fg-logo fg-hm"><img src="${LOGO}" alt="Géant"></span><h1 style="margin:10px 0 2px;color:var(--red);font-size:28px">${g}${lang=="ar"?"،":","} ${nm(me.u)}</h1><p style="margin:0;color:var(--mut)">${L("role")[me.r]} • ${new Date().toLocaleDateString(lang=="ar"?"ar-EG":"en-GB",{weekday:"long",day:"numeric",month:"long"})}</p><div class="hclk" id="hclk">${clk()}</div></div>
  ${hubHtml()}`;
  hubBind(a);pnHome(a);caseFeed(a);lateBox(a)}
@@ -872,11 +872,35 @@ ho:{f:[["to","agent"],["branch","br"],["subject","text"],["det","area"],["due","
 Object.assign(X.ar,{cnp:"Name & Phone No. — اسم ورقم العميل",item:"What is the item Not Available? — ما هو المنتج الغير متوفر؟",emp:"Employee In charge — الموظف المسئول"});Object.assign(X.en,{cnp:"Name & Phone No. — اسم ورقم العميل",item:"What is the item Not Available? — ما هو المنتج الغير متوفر؟",emp:"Employee In charge — الموظف المسئول"});
 const dtf=v=>!v?"":String(v).length>10?fdt(new Date(v).getTime()):v;
 const fv=(r,x)=>{const v=r.f[x[0]];return x[1]=="cust"?cu(v).name:x[1]=="agent"?nm(v):x[1]=="dt"?dtf(v):v};
-const mrow=(r,M)=>`<div class="tk" data-m="${r.id}"><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(fld(M,x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}</small></div>${(()=>{const f=M.f.find(x=>x[1]=="cust");return f&&r.f[f[0]]?cb(cu(r.f[f[0]]).phone,1):""})()}${M===MOD.resv?`<button class="btn" data-dpp="${r.id}" style="padding:4px 10px;margin-inline-end:6px">🖨 ${dpD("طباعة","Print")}</button>`:""}<span class="tag ${SC[r.s]}">${SL(r.s)}</span></div>`;
+const dpIsClosed=r=>!!(r&&(r.closed||r.s=="del"));
+function dpArcSave(it,delD,delBy){if(!it)return;if(!S.dpDel)S.dpDel=[];const id=it.id;const rec=Object.assign({},JSON.parse(JSON.stringify(it)),{_delD:delD||Date.now(),_delBy:delBy||(me&&me.u)||""});const idx=S.dpDel.findIndex(x=>x&&x.id==id);if(idx>-1)S.dpDel[idx]=rec;else S.dpDel.push(rec)}
+const dpDelList=()=>{const m=new Map();(S.dpDel||[]).forEach(x=>{if(x)m.set(x.id,Object.assign({},x,{_arc:1}))});(S.bin||[]).forEach(b=>{if(b&&b.k=="m"&&b.m=="resv"&&b.it)m.set(b.it.id,Object.assign({},b.it,{_binId:b.id,_delD:b.d,_delBy:b.by}))});return[...m.values()].sort((a,b)=>(b._delD||b.d)-(a._delD||a.d))};
+function dpCloseNow(r,by){if(!r)return;r.closed=Date.now();r.closedBy=by||(me&&me.u)||"";delete r.cl;if(r.s!="del")r.s="del"}
+const mrow=(r,M)=>{
+ const isDel=!!(r._binId||r._arc),isCl=M===MOD.resv&&dpIsClosed(r);
+ const stTag=isDel?`<span class="tag hi">${mgT("محذوف","Deleted")}</span>`:isCl?`<span class="tag cx">${TL("tcClosed")}</span>`:`<span class="tag ${SC[r.s]}">${SL(r.s)}</span>`;
+ return `<div class="tk" data-m="${r.id}"${isDel?` data-del="1"`:""}><div class="t">${r.no?"<b>#"+r.no+"</b> ":""}${esc(r.f[M.main])}<small>${M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&r.f[x[0]]).map(x=>esc(fld(M,x[0]))+": "+esc(fv(r,x))).join(" • ")} • ${TL("by")}: ${nm(r.ag)} • ${fd(r.d)}${isCl&&r.closed?" • "+TL("tcClosed")+": "+fd(r.closed):""}${isDel&&r._delD?" • "+mgT("حُذف","Deleted")+": "+fd(r._delD):""}</small></div>${(()=>{const f=M.f.find(x=>x[1]=="cust");return f&&r.f[f[0]]?cb(cu(r.f[f[0]]).phone,1):""})()}${M===MOD.resv?`<button class="btn" data-dpp="${r.id}"${isDel?` data-del="1"`:""} style="padding:4px 10px;margin-inline-end:6px">🖨 ${dpD("طباعة","Print")}</button>`:""}${stTag}</div>`};
 function mod(a){const M=MOD[view];if(view=="short")cuHeal();if(view=="resv")dpNums();let fq="",fst="";
- a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")}</select><button class="btn w" id="nr">+ ${TL("add")}</button></div><div class="box" id="lst"></div>`;
- const f=()=>{const l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&(JSON.stringify(r.f)+" #"+(r.no||"")+" "+(r.f.cust?cu(r.f.cust).name+" "+(cu(r.f.cust).phone||""):"")).includes(fq)).sort((x,y)=>y.d-x.d);
-  $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;$("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m));$("lst").querySelectorAll("[data-dpp]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const r=S.m.resv.find(x=>x.id==b.dataset.dpp);if(r)dpPrint(r)})};
+ const isDpOwn=view==="resv"&&me&&me.r==="owner";
+ const stOpts=M.st.map(k=>`<option value="${k}">${SL(k)}</option>`).join("")+(view==="resv"?`<option value="closed">${TL("tcClosed")}</option>`:"")+(isDpOwn?`<option value="deleted">${mgT("محذوف","Deleted")}</option>`:"");
+ a.innerHTML=`<div class="row"><input id="q" placeholder="${L("search")}"><select id="fs"><option value="">${L("allS")}</option>${stOpts}</select><button class="btn w" id="nr">+ ${TL("add")}</button></div><div class="box" id="lst"></div>`;
+ const matchQ=r=>(JSON.stringify(r.f)+" #"+(r.no||"")+" "+(r.f.cust?cu(r.f.cust).name+" "+(cu(r.f.cust).phone||""):"")).toLowerCase().includes(fq.toLowerCase());
+ const f=()=>{
+  let l;
+  if(isDpOwn&&fst==="deleted"){
+   l=dpDelList().filter(matchQ);
+  }else if(view==="resv"){
+   const base=S.m.resv.filter(r=>(M.shared||sup()||r.ag==me.u)&&matchQ(r));
+   if(fst==="closed")l=base.filter(r=>dpIsClosed(r));
+   else if(fst)l=base.filter(r=>!dpIsClosed(r)&&r.s==fst);
+   else l=isDpOwn?[...base,...dpDelList().filter(matchQ)]:base.filter(r=>!dpIsClosed(r));
+  }else{
+   l=S.m[view].filter(r=>(M.shared||sup()||r.ag==me.u)&&(!fst||r.s==fst)&&matchQ(r));
+  }
+  l=l.slice().sort((x,y)=>(y._delD||y.d)-(x._delD||x.d));
+  $("lst").innerHTML=l.map(r=>mrow(r,M)).join("")||`<div class="empty">${TL("empty")}</div>`;
+  $("lst").querySelectorAll("[data-m]").forEach(e=>e.onclick=()=>mView(e.dataset.m,e.dataset.del||null));
+  $("lst").querySelectorAll("[data-dpp]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();const pool=b.dataset.del?dpDelList():S.m.resv;const r=pool.find(x=>x.id==b.dataset.dpp);if(r)dpPrint(r)})};
  $("q").oninput=e=>{fq=e.target.value;f()};$("fs").onchange=e=>{fst=e.target.value;f()};$("nr").onclick=mForm;if($("dpd"))$("dpd").onclick=()=>dlT("dep");f()}
 function mForm0(){const M=MOD[view];
  const inp=([i,t])=>`<label>${TL(i)}${t=="cust"?`<input id="f_${i}" placeholder="${L("name")}"></label><label>${L("phone")}<input id="f_${i}_p" inputmode="tel">`:t=="br"?sel("f_"+i,[["",TL("pickB")],...BR.map(b=>[b,b])],""):t=="agent"?(me.r=="owner"?sel("f_"+i,AG.map(g=>[g,nm(g)]),""):`<select id="f_${i}" disabled><option value="${me.u}">${nm(me.u)}</option></select>`):t=="area"?`<textarea id="f_${i}" rows="3"></textarea>`:`<input id="f_${i}" type="${t=="num"?"number":t=="date"?"date":t=="dt"?"datetime-local":"text"}">`}</label>`;
@@ -891,7 +915,7 @@ function mView0(id){const M=MOD[view],r=S.m[view].find(x=>x.id==id);
  $("x").onclick=close;if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m[view]=S.m[view].filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k==view&&q.rid==r.id))});if($("dd"))$("dd").onclick=()=>dlT("dep");$("sv").onclick=()=>{alog("edit",TL(view)+" "+r.f[M.main]);r.s=$("s").value;const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});save();close();render()}}
 function ext(a){a.innerHTML=`<div class="box"><h3>${TL(view)}</h3><p>${TL(view+"d")}</p><a class="btn gr" style="display:inline-block;text-decoration:none" href="${LK[view]}" target="_blank" rel="noopener">${TL("openL")}</a><p style="color:var(--mut);font-size:13px;direction:ltr;text-align:start">${LK[view]}</p></div>`}
 function extra(l){const ch=CH.map(c=>[c,l.filter(t=>t.ch==c).length]),mx=Math.max(1,...ch.map(x=>x[1]));
- const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&s.includes(r.s)).length;
+ const cnt=(k,s)=>S.m[k].filter(r=>(MOD[k].shared||sup()||r.ag==me.u)&&!(k=="resv"&&dpIsClosed(r))&&s.includes(r.s)).length;
  return `<div class="cols"><div class="box"><h3>${TL("byCh")}</h3>${ch.map(([c,n])=>`<div class="row" style="margin:3px 0"><span style="flex:0 0 90px">${CHL(c)}</span><div class="bar" style="flex:1"><i style="width:${n/mx*100}%"></i></div><span style="flex:0 0 24px">${n}</span></div>`).join("")}</div>
  <div class="box"><h3>${TL("pending")}</h3><div class="stats" style="grid-template-columns:repeat(2,1fr);margin:0">${[["short",["rep","ord"]],["resv",["res","rdy"]],["ho",["pend"]]].map(([k,s])=>`<div class="st" style="--c:var(--grn)"><b>${cnt(k,s)}</b><span>${TL(k)}</span></div>`).join("")}</div></div></div>`}
 let tq="";
@@ -1024,7 +1048,7 @@ Object.assign(X.en,{resv:"Deposit",feed:"Open cases",feedE:"No open cases",clCas
 const caseAt=r=>{const v=r.f&&r.f.due;return v&&String(v).length>10?new Date(v).getTime():null};
 const caseIc={ho:"🔁",resv:"💰"};
 function caseFeed(a){const w=a.firstElementChild;if(!w)return;
- const o=[];["ho","resv"].forEach(k=>S.m[k].forEach(r=>o.push({k,r,at:caseAt(r)})));
+ const o=[];["ho","resv"].forEach(k=>S.m[k].forEach(r=>{if(k=="resv"&&dpIsClosed(r))return;o.push({k,r,at:caseAt(r)})}));
  o.sort((x,y)=>(x.at||9e15)-(y.at||9e15)||y.r.d-x.r.d);const n=Date.now();
  w.insertAdjacentHTML("afterend",`<div class="box" id="csf"><h3>${TL("feed")}${o.length?" ("+o.length+")":""}</h3>${o.map(({k,r,at})=>{const M=MOD[k],late=at&&at<=n,
   dl=M.f.filter(x=>x[0]!=M.main&&x[1]!="area"&&x[0]!="due"&&r.f[x[0]]).map(x=>esc(fld(M,x[0]))+": "+esc(fv(r,x))).join(" • ");
@@ -1033,7 +1057,7 @@ function caseFeed(a){const w=a.firstElementChild;if(!w)return;
 function caseClose(key){const[k,id]=key.split(":"),r=S.m[k].find(x=>x.id==id);if(!r||r.cl)return;const ow=can("cls");
  open(`<h2>${TL("clCase")}</h2><p><b>${esc(r.f[MOD[k].main])}</b></p><p>${ow?TL("clAskO"):TL("clAsk")}</p><div class="row" style="margin:0"><button class="btn g" id="x">${L("cancel")}</button><button class="btn gr" id="cy">${TL("clYes")}</button></div>`);
  $("x").onclick=close;$("cy").onclick=()=>{
-  if(ow){S.m[k]=S.m[k].filter(x=>x.id!=id)}
+  if(ow){if(k=="resv")dpCloseNow(r,me.u);else S.m[k]=S.m[k].filter(x=>x.id!=id)}
   else{const c={id:S.n++,k,rid:r.id,by:me.u,br:r.f.branch||"",d:Date.now()};r.cl=c.id;S.cl.push(c)}
   save();close();pnClear();render()}}
 function caseFire(k,r,late){const box=pnBox(),el=document.createElement("div");el.className="pnc case";
@@ -1058,7 +1082,7 @@ const _aprV=aprV;
 aprV=function(a){_aprV(a);S.cl=S.cl.filter(q=>S.m[q.k]&&S.m[q.k].some(x=>x.id==q.rid));
  a.insertAdjacentHTML("afterbegin",`<div class="box"><h3>${TL("clReq")}${S.cl.length?" ("+S.cl.length+")":""}</h3>${S.cl.map(q=>{const r=S.m[q.k].find(x=>x.id==q.rid);
   return `<div class="tk cs" data-ov="${q.k}:${q.rid}" style="cursor:pointer"><span style="font-size:20px">${caseIc[q.k]}</span><div class="t">${esc(r.f[MOD[q.k].main])}<small>${TL(q.k)} • ${TL("clBy")}: ${nm(q.by)} • ${TL("branch")}: ${esc(q.br||"—")} • ${fdt(q.d)}</small></div><div class="row" style="margin:0"><button class="btn gr s" data-ca="${q.id}">${TL("approve")}</button><button class="btn g s" data-cr="${q.id}">${TL("reject")}</button></div></div>`}).join("")||`<div class="empty">${TL("aprE")}</div>`}</div>`);
- a.querySelectorAll("[data-ov]").forEach(e=>e.onclick=ev=>{if(ev.target.closest("button"))return;const[k,id]=e.dataset.ov.split(":");dpOpen(k,id,view)});a.querySelectorAll("[data-ca]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.ca);if(!q)return;S.m[q.k]=S.m[q.k].filter(x=>x.id!=q.rid);S.cl=S.cl.filter(x=>x!=q);save();render()});
+ a.querySelectorAll("[data-ov]").forEach(e=>e.onclick=ev=>{if(ev.target.closest("button"))return;const[k,id]=e.dataset.ov.split(":");dpOpen(k,id,view)});a.querySelectorAll("[data-ca]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.ca);if(!q)return;if(q.k=="resv"){const rr=S.m.resv.find(x=>x.id==q.rid);if(rr)dpCloseNow(rr,me&&me.u)}else S.m[q.k]=S.m[q.k].filter(x=>x.id!=q.rid);S.cl=S.cl.filter(x=>x!=q);save();render()});
  a.querySelectorAll("[data-cr]").forEach(b=>b.onclick=()=>{const q=S.cl.find(x=>x.id==b.dataset.cr);if(!q)return;const r=S.m[q.k].find(x=>x.id==q.rid);if(r)delete r.cl;S.cl=S.cl.filter(x=>x!=q);save();render()})};
 
 /* presence: who is online (shared through the database) */
@@ -1132,7 +1156,7 @@ Object.assign(X.en,{usr:"Users",addU:"Add user",uNm:"Name",uPw:"Password",uNeed:
 const FB_NAME="geant-cs-crm-default-rtdb";
 const FB_CAND=["https://"+FB_NAME+".firebaseio.com","https://"+FB_NAME+".europe-west1.firebasedatabase.app","https://"+FB_NAME+".asia-southeast1.firebasedatabase.app"];
 const DB={url:"",st:"conn",pres:{},last:{},wt:{},fl:{},first:true,pend:false,ren:false,R:{},es:null};
-const SP=["rq","c","t","m.short","m.resv","m.ho","m.cm","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al","tp"];
+const SP=["rq","c","t","m.short","m.resv","m.ho","m.cm","pn","ue","uo","un","cl","tn","n","nu","ud","bin","al","tp","dpDel"];
 const sget=p=>p.split(".").reduce((o,k)=>o==null?o:o[k],S);
 const sset=(p,v)=>{const a=p.split(".");let o=S;while(a.length>1)o=o[a.shift()];o[a[0]]=v};
 const skey=p=>p.replace(".","_");
@@ -1267,12 +1291,13 @@ function alog(a,x){if(!S.al)S.al=[];S.al.push({d:Date.now(),u:me?me.u:"",a,x:x||
 const binSnap=()=>({t:[...S.t],c:[...S.c],short:[...S.m.short],resv:[...S.m.resv],ho:[...S.m.ho],cm:[...(S.m.cm||[])]});
 function binDiff(sn){const add=(k,m,old,cur,lb)=>old.filter(x=>!cur.includes(x)).forEach(x=>{const l=lb(x);S.bin.push({id:S.n++,d:Date.now(),by:me.u,k,m,it:JSON.parse(JSON.stringify(x)),lb:l});alog("del",l)});
  add("t","",sn.t,S.t,x=>tkn(x)+" "+x.title);add("c","",sn.c,S.c,x=>x.name);["short","resv","ho","cm"].forEach(m=>add("m",m,sn[m]||[],S.m[m]||[],x=>String(x.f[(MOD[m]||{main:"cashier"}).main]||"")))}
-function binV(a){const o=S.bin.length;S.bin=S.bin.filter(b=>Date.now()-b.d<30*day);if(S.bin.length!=o)save();
+function binV(a){const o=S.bin.length;S.bin.filter(b=>!(Date.now()-b.d<30*day)&&b.k=="m"&&b.m=="resv"&&b.it).forEach(b=>dpArcSave(b.it,b.d,b.by));S.bin=S.bin.filter(b=>Date.now()-b.d<30*day);if(S.bin.length!=o)save();
  a.innerHTML=`<div class="box"><h3>${TL("bin")} (${S.bin.length})</h3><p style="margin:0 0 8px;color:var(--mut);font-size:13px">${TL("binH")}</p>${[...S.bin].sort((x,y)=>y.d-x.d).map(b=>`<div class="tk cs"><span style="font-size:20px">${{t:"📋",c:"👤",m:"📁"}[b.k]}</span><div class="t">${esc(b.lb)}<small>${b.k=="m"?TL(b.m):b.k=="t"?TL("tk"):TL("cu")} • ${TL("by")}: ${esc(nm(b.by))} • ${fdt(b.d)} • ${Math.max(0,30-Math.floor((Date.now()-b.d)/day))} ${TL("binD")}</small></div><button class="btn gr s" data-br="${b.id}">${TL("restore")}</button><button class="btn g s dl" data-bp="${b.id}">${TL("del")}</button></div>`).join("")||`<div class="empty">${TL("empty")}</div>`}</div>`;
  a.querySelectorAll("[data-br]").forEach(b=>b.onclick=()=>{const i=S.bin.find(x=>x.id==b.dataset.br);if(!i)return;const it=i.it;
   if(i.k=="t"){if(!S.t.some(x=>x.id==it.id))S.t.push(it)}else if(i.k=="c"){if(!S.c.some(x=>x.id==it.id))S.c.push(it)}else if(!S.m[i.m].some(x=>x.id==it.id))S.m[i.m].push(it);
+  if(i.k=="m"&&i.m=="resv"&&S.dpDel)S.dpDel=S.dpDel.filter(x=>x.id!=it.id);
   S.bin=S.bin.filter(x=>x!=i);alog("rest",i.lb);save();render()});
- a.querySelectorAll("[data-bp]").forEach(b=>b.onclick=()=>ownDel(()=>{S.bin=S.bin.filter(x=>x.id!=b.dataset.bp)}))}
+ a.querySelectorAll("[data-bp]").forEach(b=>b.onclick=()=>ownDel(()=>{const hit=S.bin.find(x=>x.id==b.dataset.bp);if(hit&&hit.k=="m"&&hit.m=="resv"&&hit.it)dpArcSave(hit.it,hit.d,hit.by);S.bin=S.bin.filter(x=>x.id!=b.dataset.bp)}))}
 function logV(a){a.innerHTML=`<div class="box"><h3>${TL("log")}</h3><div class="scroll"><table><tr><th>${TL("date")}</th><th>${TL("by")}</th><th></th><th></th></tr>${[...S.al].reverse().slice(0,200).map(r=>`<tr><td>${fdt(r.d)}</td><td>${esc(nm(r.u))}</td><td>${TL("la_"+r.a)}</td><td>${esc(r.x||"")}</td></tr>`).join("")||`<tr><td>${TL("empty")}</td></tr>`}</table></div></div>`}
 function lateBox(a){if(!me||!sup()||!a.firstElementChild)return;const n=Date.now(),l=S.t.filter(t=>t.s!="done"&&!t.closed&&n-t.d>2*day).sort((x,y)=>x.d-y.d);if(!l.length)return;
  a.firstElementChild.insertAdjacentHTML("afterend",`<div class="box"><h3>⚠ ${TL("lateT")} (${l.length})</h3>${l.slice(0,8).map(tkRow).join("")}${l.length>8?`<div class="empty">+${l.length-8}</div>`:""}</div>`)}
@@ -1417,32 +1442,39 @@ function mForm(ed){
   if(r){r.f=Object.assign({},r.f,f);r.items=its;(r.ed=r.ed||[]).push({u:me.u,d:Date.now()});alog("edit",TL("resv")+" #"+r.no+" "+f.product)}
   else{S.m.resv.push({id:S.n++,no:dpNext(),ag:me.u,d:Date.now(),s:"res",f,items:its,notes:[],ed:[]});alog("new",TL("resv")+" "+f.product)}
   save();close();render()}}
-function mView(id){
+function mView(id,delFlag){
  if(view!="resv")return mView0(id);
  dpNums();
- const M=MOD.resv,r=S.m.resv.find(x=>x.id==id);if(!r)return;
+ const M=MOD.resv;
+ let r=S.m.resv.find(x=>x.id==id),isDel=false;
+ if(!r&&delFlag){r=dpDelList().find(x=>x.id==id);if(r)isDel=true}
+ if(!r)return;
+ const isCl=dpIsClosed(r);
  const c=cu(r.f.cust),it=dpItems(r),tot=+r.f.vtot||it.reduce((s,x)=>s+(x.v||0),0),paid=+r.f.vpaid||0,rem=tot-paid,last=(r.ed||[]).slice(-1)[0];
  const dr=(k,v)=>`<div><small style="color:var(--mut)">${k}</small><div>${v||"—"}</div></div>`,td="padding:5px 8px;border:1px solid var(--bd,#ddd)";
- open(`<h2>#${r.no||""} ${esc(c.name)}</h2><small style="color:var(--mut)">${nm(r.ag)} · ${fdt(r.d)}</small>
+ open(`<h2>#${r.no||""} ${esc(c.name)} ${isDel?`<span class="tag hi">${mgT("محذوف","Deleted")}</span>`:isCl?`<span class="tag cx">${TL("tcClosed")}</span>`:""}</h2><small style="color:var(--mut)">${nm(r.ag)} · ${fdt(r.d)}</small>
 <div class="f" style="margin-top:10px">
 ${dr(L("phone"),esc(c.phone||"")+" "+cb(c.phone))}${dr(TL("branch"),esc(r.f.branch||""))}${dr(TL("dlvD"),esc(dtf(r.f.due)))}
 <div><small style="color:var(--mut)">${dpD("المنتجات","Items")} (${it.length})</small><div class="scroll"><table style="width:100%;border-collapse:collapse;margin-top:4px"><tr><th style="${td}">${TL("product")}</th><th style="${td}">${dpD("الكمية","Qty")}</th><th style="${td}">${dpD("القيمة","Value")}</th></tr>${it.map(x=>`<tr><td style="${td}">${esc(x.p)}</td><td style="${td}">${dpFm(x.q)}</td><td style="${td}">${dpFm(x.v)}</td></tr>`).join("")}</table></div></div>
 ${dr(TL("vtot"),dpFm(tot))}${dr(TL("vpaid"),dpFm(paid))}<div><small style="color:var(--mut)">${TL("vrem")}</small><div style="font-weight:700;color:${rem>0?"var(--red)":"var(--grn)"}">${dpFm(rem)}</div></div>
+${isCl&&r.closed?dr(TL("tcClosed"),fdt(r.closed)+(r.closedBy?" · "+nm(r.closedBy):"")):""}
+${isDel?dr(mgT("تاريخ الحذف","Deleted on"),fdt(r._delD)+(r._delBy?" · "+nm(r._delBy):"")):""}
 ${r.cl?`<div><span class="tag" style="--c:var(--amb)">⏳ ${TL("clPend")}</span></div>`:""}
 ${last?dr(dpD("آخر تعديل","Last edit"),nm(last.u)+" · "+fdt(last.d)):""}
-<label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label>
-<div class="tl">${r.notes.map((n,i)=>`<p>${esc(n.t)}${ND("resv",r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
-<label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>
-<div class="row" style="margin:0"><button class="btn" id="dpp">🖨 ${dpD("طباعة","Print")}</button><button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button><button class="btn g" id="x">${L("close")}</button><button class="btn gr" id="sv">${L("save")}</button>${r.cl?"":`<button class="btn gr" id="dpc">${TL("clCase")}</button>`}${can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
+${isDel?"":`<label>${L("status")}${sel("s",M.st.map(k=>[k,SL(k)]),r.s)}</label>
+<div class="tl">${(r.notes||[]).map((n,i)=>`<p>${esc(n.t)}${ND("resv",r.id,i)}<small>${fd(n.d)}</small></p>`).join("")||`<small>${L("noNote")}</small>`}</div>
+<label>${L("addNote")}<textarea id="nt2" rows="2"></textarea></label>`}
+<div class="row" style="margin:0"><button class="btn" id="dpp">🖨 ${dpD("طباعة","Print")}</button>${!isDel?`<button class="btn" id="dpe">✎ ${dpD("تعديل","Edit")}</button>`:""}<button class="btn g" id="x">${L("close")}</button>${!isDel?`<button class="btn gr" id="sv">${L("save")}</button>`:""}${!isDel&&!isCl&&!r.cl?`<button class="btn gr" id="dpc">${TL("clCase")}</button>`:""}${!isDel&&can("del")?`<button class="btn g dl" id="dl">${TL("del")}</button>`:""}</div></div>`);
  $("x").onclick=close;
- $("dpp").onclick=()=>dpPrint(r);$("dpe").onclick=()=>{const b=dpBack,cb0=cuBackId;dpBack=null;cuBackId=null;close();view="resv";mForm(r.id);dpBack=b;cuBackId=cb0};
+ $("dpp").onclick=()=>dpPrint(r);
+ if($("dpe"))$("dpe").onclick=()=>{const b=dpBack,cb0=cuBackId;dpBack=null;cuBackId=null;close();view="resv";mForm(r.id);dpBack=b;cuBackId=cb0};
  if($("dpc"))$("dpc").onclick=()=>{close();caseClose("resv:"+r.id)};
- if($("dl"))$("dl").onclick=()=>ownDel(()=>{S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
+ if($("dl"))$("dl").onclick=()=>ownDel(()=>{dpArcSave(r,Date.now(),me&&me.u);S.m.resv=S.m.resv.filter(x=>x.id!=r.id);S.cl=S.cl.filter(q=>!(q.k=="resv"&&q.rid==r.id))});
  if($("dd"))$("dd").onclick=()=>dlT("dep");
- $("sv").onclick=()=>{
+ if($("sv"))$("sv").onclick=()=>{
   alog("edit",TL("resv")+" #"+r.no+" "+r.f[M.main]);
   const ns=$("s").value;let ask=false;
-  if(ns!=r.s){if(ns==M.st[M.st.length-1]&&!can("cls"))ask=dpReqClose(r);else r.s=ns}
+  if(ns!=r.s){if(ns==M.st[M.st.length-1]&&!can("cls"))ask=dpReqClose(r);else{r.s=ns;if(ns!=M.st[M.st.length-1]){delete r.closed;delete r.closedBy}}}
   const v=$("nt2").value.trim();if(v)r.notes.push({t:v,d:Date.now()});
   save();close();if(ask)pnClear();render();
   if(ask)msg(dpD("تم إرسال طلب إقفال الحجز للمالك للتأكيد","Close request was sent to the owner for confirmation"),TL("resv"))}}
